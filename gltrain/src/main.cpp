@@ -6,6 +6,8 @@
 #endif
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 void errorCallback(int error_code, const char* description)
 {
@@ -27,9 +29,10 @@ const char* vertexShaderSrc =
 "layout(location = 2) in vec3 vertexNormal;\n"
 "layout(location = 3) in vec4 vertexColor;\n"
 "out vec4 fragColor;\n"
+"uniform mat4 mvp;\n"
 "void main()\n"
 "{\n"
-"	gl_Position = vec4(vertexPosition, 1.0);\n"
+"	gl_Position = mvp * vec4(vertexPosition, 1.0);\n"
 "	fragColor = vertexColor;\n"
 "}\n";
 
@@ -115,6 +118,15 @@ int main()
 		delete[] log;
 		return 1;
 	}
+	// …Ë÷√shaderµƒuniform
+	glUseProgram(program);
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, -500.0));
+	glm::mat4 view = glm::lookAt(glm::vec3(0.0, 0.0, 3.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1280 / (float)720, 0.1f, 1000.0f);
+	glm::mat4 mvp = projection * view * model;
+	int mvpLocation = glGetUniformLocation(program, "mvp");
+	glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
+
 
 	// vertex buffer
 	unsigned int vao;
@@ -122,9 +134,9 @@ int main()
 	glBindVertexArray(vao);
 	
 	float vertexPositions[] = {
-		-0.5, -0.5, 0.0,
-		0.5, -0.5, 0.0,
-		0.0, 0.5, 0.0
+		-10.5, -10.5, 0.0,
+		10.5, -10.5, 0.0,
+		0.0, 10.5, 0.0
 	};
 	unsigned int posVbo;
 	glCreateBuffers(1, &posVbo);
@@ -147,6 +159,7 @@ int main()
 	glVertexAttribPointer(3, 4, GL_FLOAT, 0, 0, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	glUseProgram(0);
 	glBindVertexArray(0);
 
 	while (!glfwWindowShouldClose(window))
