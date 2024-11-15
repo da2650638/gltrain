@@ -53,10 +53,7 @@ int main()
 	std::string vsCode, fsCode;
 	defaultShader.LoadShaderFromFile();
 	defaultShader.Bind();
-	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, -100.0));
-	glm::mat4 view = glm::lookAt(glm::vec3(0.0, 0.0, 3.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1280 / (float)720, 0.1f, 1000.0f);
-	glm::mat4 mvp = projection * view * model;
+	glm::mat4 mvp = glm::ortho(0.0f, 1280.0f, 0.0f, 720.0f, -1.0f, 1.0f);
 	glUniformMatrix4fv(defaultShader.m_Locations["mvp"], 1, GL_FALSE, glm::value_ptr(mvp));
 	defaultShader.UnBind();
 
@@ -70,18 +67,20 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-		batch.DrawTriangle(glm::vec3(-10.5, -10.5, 0.0),
-			glm::vec3(10.5, -10.5, 0.0),
-			glm::vec3(0.0, 10.5, 0.0),
+		batch.DrawTriangle(glm::vec3(1280.0f / 2.0f, 0.0f, 0.0f),
+			glm::vec3(0.0f, 720.0f, 0.0f),
+			glm::vec3(1280.0f, 720.0f, 0.0f),
 			glm::vec4(1.0, 0.0, 0.0, 1.0));
 
-		batch.DrawTriangle(glm::vec3(-10.5 + 20, -10.5 + 20, 0.0),
-			glm::vec3(10.5 + 20, -10.5 + 20, 0.0),
-			glm::vec3(0.0 + 20, 10.5 + 20, 0.0),
-			glm::vec4(1.0, 0.0, 1.0, 1.0));
+		batch.DrawRectangleTemp(glm::vec3(960.0f, 0.0f, 0.0f), 320.0f, 180.0f, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
-		batch.DrawLine(glm::vec3(-50.5, -10.5 + 30, 0.0),
-			glm::vec3(50.5, -10.5 + 30, 0.0), 
+		//batch.DrawTriangle(glm::vec3(-10.5 + 20, -10.5 + 20, 0.0),
+		//	glm::vec3(10.5 + 20, -10.5 + 20, 0.0),
+		//	glm::vec3(0.0 + 20, 10.5 + 20, 0.0),
+		//	glm::vec4(1.0, 0.0, 1.0, 1.0));
+
+		batch.DrawLine(glm::vec3(0, 360.0f, 0.0f),
+			glm::vec3(1280.0f, 360.0f, 0.0), 
 			glm::vec4(0.0, 1.0, 1.0, 1.0));
 		// TODO: 手动绘制，后边应该改成自动绘制
 		batch.DrawRenderBatch();

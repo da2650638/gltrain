@@ -23,4 +23,7 @@ public:
 
 	unsigned int m_ColVbo = 0;
 	std::vector<float> m_Colors;
+
+	unsigned int m_IdxVbo = 0;
+	std::vector<unsigned int> m_Indices;
 };

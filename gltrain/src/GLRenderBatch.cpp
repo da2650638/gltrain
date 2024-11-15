@@ -21,6 +21,20 @@ void GLRenderBatch::DrawTriangle(glm::vec3 x1, glm::vec3 x2, glm::vec3 x3, glm::
 	EndDrawMode();
 }
 
+void GLRenderBatch::DrawRectangleTemp(glm::vec3 bottomLeft, float width, float height, glm::vec4 color)
+{
+	BeginDrawMode(QUADS);
+	glm::vec3 bottomRight(bottomLeft.x + width, bottomLeft.y, bottomLeft.z);
+	glm::vec3 topRight(bottomLeft.x + width, bottomLeft.y + height, bottomLeft.z);
+	glm::vec3 topLeft(bottomLeft.x, bottomLeft.y + height, bottomLeft.z);
+	Color4f(color.r, color.g, color.b, color.a);
+	Vertex3f(bottomLeft.x, bottomLeft.y, bottomLeft.z);
+	Vertex3f(bottomRight.x, bottomRight.y, bottomRight.z);
+	Vertex3f(topRight.x, topRight.y, topRight.z);
+	Vertex3f(topLeft.x, topLeft.y, topLeft.z);
+	EndDrawMode();
+}
+
 void GLRenderBatch::Color4f(float r, float g, float b, float a)
 {
 	m_CurrentColor.r = std::clamp(r, 0.0f, 1.0f);
@@ -145,6 +159,8 @@ void GLRenderBatch::DrawRenderBatch()
 		glBindBuffer(GL_ARRAY_BUFFER, m_Buffers[m_CurrentBufferIdx].m_ColVbo);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, m_VertexCount * 4 * sizeof(float), m_Buffers[m_CurrentBufferIdx].m_Colors.data());
 
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffers[m_CurrentBufferIdx].m_IdxVbo);
+
 		glBindVertexArray(0);
 	}
 
@@ -159,11 +175,15 @@ void GLRenderBatch::DrawRenderBatch()
 			{
 				glDrawArrays(m_DrawCalls[i].Mode, vertexOffset, m_DrawCalls[i].VertexCount);
 			}
-
+			else if (m_DrawCalls[i].Mode == QUADS)
+			{
+				// TODO: 这里不应该使用GL_QUADS而是使用GL_TRIANGLES
+				glDrawElements(GL_TRIANGLES, m_DrawCalls[i].VertexCount / 4 * 6, GL_UNSIGNED_INT, (GLvoid*)(vertexOffset / 4 * 6 * sizeof(unsigned int)));
+			}
 			vertexOffset += (m_DrawCalls[i].VertexCount + m_DrawCalls[i].VertexAlignment);
 		}
 		
-		glUseProgram(m_CurrentShaderId);
+		glUseProgram(0);
 		glBindVertexArray(0);
 	}
 

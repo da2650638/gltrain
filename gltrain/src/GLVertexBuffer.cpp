@@ -25,6 +25,20 @@ void GLVertexBuffer::Init(int elementCount)
 		glEnableVertexAttribArray(colData.DefaultLoc);
 		glVertexAttribPointer(colData.DefaultLoc, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
+		m_Indices.resize(elementCount * 6);
+		for (int i = 0; i < elementCount; i ++)
+		{
+			m_Indices[i * 6 + 0] = i * 4 + 0;
+			m_Indices[i * 6 + 1] = i * 4 + 1;
+			m_Indices[i * 6 + 2] = i * 4 + 2;
+			m_Indices[i * 6 + 3] = i * 4 + 0;
+			m_Indices[i * 6 + 4] = i * 4 + 2;
+			m_Indices[i * 6 + 5] = i * 4 + 3;
+		}
+		glCreateBuffers(1, &m_IdxVbo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IdxVbo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementCount * 6 * sizeof(unsigned int), m_Indices.data(), GL_STATIC_DRAW);
+
 		glBindVertexArray(0);
 	}
 }

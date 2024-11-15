@@ -14,6 +14,8 @@ public:
 
 	void DrawLine(glm::vec3 x1, glm::vec3 x2, glm::vec4 color);
 	void DrawTriangle(glm::vec3 x1, glm::vec3 x2, glm::vec3 x3, glm::vec4 color);
+	// TODO: 这个函数后期要进行修改再包装
+	void DrawRectangleTemp(glm::vec3 bottomLeft, float width, float height, glm::vec4 color);
 
 public:
 	void Color4f(float r, float g, float b, float a);
