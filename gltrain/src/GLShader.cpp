@@ -1,12 +1,20 @@
 #include "GLShader.h"
 #include "GLGlobal.h"
 
-bool GLShader::LoadShaderFromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath)
+GLShader::GLShader()
 {
+}
+
+bool GLShader::LoadShaderFromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath,
+	const std::string& shaderConfigFile, const std::string& shaderName)
+{
+	auto curShaderInfo = GLGlobalState::GetInstance().LoadShaderInfos(shaderConfigFile, shaderName);
+	m_LocationDatas = curShaderInfo.LocationDatas;
+
 	std::string vertexShaderCode, fragmentShaderCode;
 	if (!GetShaderSrc(vertexShaderPath, fragmentShaderPath, vertexShaderCode, fragmentShaderCode))
 	{
-		GLSimpleLogger::GetInstance().Error("Get shader source code error:[Vertex Shader Code File: {}][Fragment Shader Code File: {}]\n", vertexShaderPath, fragmentShaderPath);
+		GLSimpleLogger::GetInstance().Error("Get shader source code error:[Vertex Shader Code File: {}][Fragment Shader Code File: {}]", vertexShaderPath, fragmentShaderPath);
 		return false;
 	}
 
@@ -16,11 +24,20 @@ bool GLShader::LoadShaderFromFile(const std::string& vertexShaderPath, const std
 		return false;
 	}
 
-	if (!LinkShader())
+	if (!LinkShader(shaderConfigFile, shaderName))
 	{
 		GLSimpleLogger::GetInstance().Error("Link shader error.");
 		return false;
 	}
+
+	// TODO: 设计不合理，LoadShaderInfos这个函数使用太多次了
+
+	glUseProgram(m_ProgramID);
+	for (const auto& [key, locData] : m_LocationDatas)
+	{
+		m_Locations[locData.Name] = locData.LocationType == "attribute" ? glGetAttribLocation(m_ProgramID, locData.Name.data()) : glGetUniformLocation(m_ProgramID, locData.Name.data());
+	}
+	glUseProgram(0);
 }
 
 bool GLShader::GetShaderSrc(const std::string& vsPath, const std::string& fsPath, std::string& vsCode, std::string& fsCode)
@@ -30,11 +47,11 @@ bool GLShader::GetShaderSrc(const std::string& vsPath, const std::string& fsPath
 	std::ifstream vsIfs(vsPath), fsIfs(fsPath);
 	if (!vsIfs.is_open() || !fsIfs.is_open())
 	{
-		GLSimpleLogger::GetInstance().Error("Read shader code failed. Vertex Shader File:{}, Fragment Shader File: {}\n", vsPath, fsPath);
+		GLSimpleLogger::GetInstance().Error("Read shader code failed. Vertex Shader File:{}, Fragment Shader File: {}", vsPath, fsPath);
 		return false;
 	}
-	GLSimpleLogger::GetInstance().Info("Successfully read vertex shader file: {}\n", vsPath);
-	GLSimpleLogger::GetInstance().Info("Successfully read fragment shader file: {}\n", fsPath);
+	GLSimpleLogger::GetInstance().Info("Successfully read vertex shader file: {}", vsPath);
+	GLSimpleLogger::GetInstance().Info("Successfully read fragment shader file: {}", fsPath);
 
 	std::string line;
 	std::stringstream vsSS;
@@ -69,7 +86,7 @@ bool GLShader::CompileShader(const std::string& vertexShaderCode, const std::str
 		char* log = new char[length + 1];
 		memset(log, 0, length);
 		glGetShaderInfoLog(m_VertexShaderID, length + 1, 0, log);
-		GLSimpleLogger::GetInstance().Error("vertex shader:[{}], compile error: {}\n", m_VertexShaderID, log);
+		GLSimpleLogger::GetInstance().Error("vertex shader:[{}], compile error: {}", m_VertexShaderID, log);
 		delete[] log;
 
 		glDeleteShader(m_VertexShaderID);
@@ -90,7 +107,7 @@ bool GLShader::CompileShader(const std::string& vertexShaderCode, const std::str
 		char* log = new char[length+1];
 		memset(log, 0, length);
 		glGetShaderInfoLog(m_FragmentShaderID, length + 1, 0, log);
-		GLSimpleLogger::GetInstance().Error("fragment shader:[{}], compile error: {}\n", m_FragmentShaderID, log);
+		GLSimpleLogger::GetInstance().Error("fragment shader:[{}], compile error: {}", m_FragmentShaderID, log);
 		delete[] log;
 
 		glDeleteShader(m_FragmentShaderID);
@@ -103,16 +120,20 @@ bool GLShader::CompileShader(const std::string& vertexShaderCode, const std::str
 	return true;
 }
 
-bool GLShader::LinkShader()
+bool GLShader::LinkShader(const std::string& shaderConfigFile, const std::string& shaderName)
 {
 	m_ProgramID = glCreateProgram();
 
 	glAttachShader(m_ProgramID, m_VertexShaderID);
 	glAttachShader(m_ProgramID, m_FragmentShaderID);
 
-	// TODO: 这里应该改成从配置文件读取预设的location和name
-	glBindAttribLocation(m_ProgramID, 0, "vertexPosition");
-	glBindAttribLocation(m_ProgramID, 3, "vertexColor");
+	auto curShaderInfo = GLGlobalState::GetInstance().LoadShaderInfos(shaderConfigFile, shaderName);
+
+	GLGlobalState::LocationData data = m_LocationDatas["vertexPosition"];
+	glBindAttribLocation(m_ProgramID, data.DefaultLoc, data.Name.data());
+
+	data = m_LocationDatas["vertexColor"];
+	glBindAttribLocation(m_ProgramID, data.DefaultLoc, data.Name.data());
 
 	glLinkProgram(m_ProgramID);
 
@@ -125,7 +146,7 @@ bool GLShader::LinkShader()
 		char* log = new char[length + 1];
 		memset(log, 0, length);
 		glGetProgramInfoLog(m_ProgramID, length + 1, 0, log);
-		GLSimpleLogger::GetInstance().Error("link error, program id:[{}], link error: {}\n", m_ProgramID, log);
+		GLSimpleLogger::GetInstance().Error("link error, program id:[{}], link error: {}", m_ProgramID, log);
 		delete[] log;
 
 		glDeleteProgram(m_ProgramID);

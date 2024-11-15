@@ -4,6 +4,8 @@
 
 #include <vector>
 
+#include "GLGlobalState.h"
+
 struct GLVertexBuffer {
 public:
 	GLVertexBuffer() {}
@@ -11,7 +13,6 @@ public:
 
 	void Init(int elementCount);
 	void Shutdown();
-
 public:
 	bool m_Initialize = false;
 
