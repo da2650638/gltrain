@@ -80,6 +80,11 @@ void GLRenderBatch::Vertex3f(float x, float y, float z)
 	m_DrawCalls[m_DrawCounter - 1].VertexCount++;
 }
 
+void GLRenderBatch::Vertex2f(float x, float y)
+{
+	Vertex3f(x, y, m_CurrentDepth);
+}
+
 void GLRenderBatch::BeginDrawMode(int mode)
 {
 	if (mode != m_DrawCalls[m_DrawCounter - 1].Mode)
