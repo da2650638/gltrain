@@ -5,33 +5,132 @@
 void GLRenderBatch::DrawLine(glm::vec3 x1, glm::vec3 x2, glm::vec4 color)
 {
 	BeginDrawMode(LINES);
-	Color4f(color.r, color.g, color.b, color.a);
-	Vertex3f(x1.x, x1.y, x1.z);
-	Vertex3f(x2.x, x2.y, x2.z);
+		Color4f(color.r, color.g, color.b, color.a);
+		Vertex3f(x1.x, x1.y, x1.z);
+		Vertex3f(x2.x, x2.y, x2.z);
 	EndDrawMode();
+}
+
+void GLRenderBatch::DrawTriangleLines(glm::vec2 x1, glm::vec2 x2, glm::vec2 x3, glm::vec4 color)
+{
+	DrawTriangleLines({ x1.x, x1.y, m_CurrentDepth }, { x2.x, x2.y, m_CurrentDepth }, { x3.x, x3.y, m_CurrentDepth }, color);
+}
+
+void GLRenderBatch::DrawTriangleLines(glm::vec3 x1, glm::vec3 x2, glm::vec3 x3, glm::vec4 color)
+{
+	BeginDrawMode(LINES);
+	{
+		Color4f(color.r, color.g, color.b, color.a);
+
+		Vertex3f(x1.x, x1.y, x1.z);
+		Vertex3f(x2.x, x2.y, x2.z);
+
+		Vertex3f(x2.x, x2.y, x2.z);
+		Vertex3f(x3.x, x3.y, x3.z);
+
+		Vertex3f(x3.x, x3.y, x3.z);
+		Vertex3f(x1.x, x1.y, x1.z);
+	}
+	EndDrawMode();
+}
+
+void GLRenderBatch::DrawTriangle(glm::vec2 x1, glm::vec2 x2, glm::vec2 x3, glm::vec4 color)
+{
+	DrawTriangle({ x1.x, x1.y, m_CurrentDepth }, { x2.x, x2.y, m_CurrentDepth }, { x3.x, x3.y, m_CurrentDepth }, color);
 }
 
 void GLRenderBatch::DrawTriangle(glm::vec3 x1, glm::vec3 x2, glm::vec3 x3, glm::vec4 color)
 {
-	BeginDrawMode(TRIANGLES);
-	Color4f(color.r, color.g, color.b, color.a);
-	Vertex3f(x1.x, x1.y, x1.z);
-	Vertex3f(x2.x, x2.y, x2.z);
-	Vertex3f(x3.x, x3.y, x3.z);
+	//BeginDrawMode(TRIANGLES);
+	//Color4f(color.r, color.g, color.b, color.a);
+	//Vertex3f(x1.x, x1.y, x1.z);
+	//Vertex3f(x2.x, x2.y, x2.z);
+	//Vertex3f(x3.x, x3.y, x3.z);
+	//EndDrawMode();
+	BeginDrawMode(QUADS);
+		Color4f(color.r, color.g, color.b, color.a);
+		Vertex2f(x1.x, x1.y);
+		Vertex2f(x2.x, x2.y);
+		Vertex2f(x2.x, x2.y);
+		Vertex2f(x3.x, x3.y);
 	EndDrawMode();
 }
 
-void GLRenderBatch::DrawRectangleTemp(glm::vec3 bottomLeft, float width, float height, glm::vec4 color)
+void GLRenderBatch::DrawRectangleLines(int posX, int posY, int width, int height, glm::vec4 color)
 {
+	// TODO: 不需要考虑旋转吗？
+	BeginDrawMode(LINES);
+	{
+		Color4f(color.r, color.g, color.b, color.a);
+		Vertex2f((float)posX, (float)posY);
+		Vertex2f((float)posX + (float)width, (float)posY + 1);
+
+		Vertex2f((float)posX + (float)width, (float)posY + 1);
+		Vertex2f((float)posX + (float)width, (float)posY + (float)height);
+
+		Vertex2f((float)posX + (float)width, (float)posY + (float)height);
+		Vertex2f((float)posX + 1, (float)posY + (float)height);
+
+		Vertex2f((float)posX + 1, (float)posY + (float)height);
+		Vertex2f((float)posX + 1, (float)posY + 1);
+	}
+	EndDrawMode();
+}
+
+void GLRenderBatch::DrawRectangle(int posX, int posY, int width, int height, glm::vec4 color)
+{
+	DrawRectangleV({ (float)posX, (float)posY }, { (float)width, (float)height }, color);
+}
+
+void GLRenderBatch::DrawRectangleV(GLMath::Vector2 position, GLMath::Vector2 size, glm::vec4 color)
+{
+	DrawRectanglePro({ position.x, position.y, size.x, size.y }, { 0.0f, 0.0f }, 0.0f, color);
+}
+
+void GLRenderBatch::DrawRectanglePro(GLMath::Rectangle rec, GLMath::Vector2 origin, float rotation, glm::vec4 color)
+{
+	GLMath::Vector2 topLeft = { 0.0f, 0.0f };
+	GLMath::Vector2 topRight = { 0.0f, 0.0f };
+	GLMath::Vector2 bottomRight = { 0.0f, 0.0f };
+	GLMath::Vector2 bottomLeft = { 0.0f, 0.0f };
+	if (rotation == 0.0f)
+	{
+		float left = rec.x - origin.x;
+		float top = rec.y - origin.y;
+		topLeft = { left, top };
+		topRight = { left + rec.width, top };
+		bottomRight = { left + rec.width, top + rec.height };
+		bottomLeft = { left, top + rec.height };
+	}
+	else
+	{
+		// TODO: 感官上glm应该是拖慢了速度，需要优化
+		float cosRotation = std::cos(glm::radians(rotation));
+		float sinRotation = std::sin(glm::radians(rotation));
+		float dx = -origin.x;
+		float dy = -origin.y;
+		float x = rec.x;
+		float y = rec.y;
+
+		topLeft.x = x + dx * cosRotation - dy * sinRotation;
+		topLeft.y = y + dx * sinRotation + dy * cosRotation;
+
+		topRight.x = x + (dx + rec.width) * cosRotation - dy * sinRotation;
+		topRight.y = y + (dx + rec.width) * sinRotation + dy * cosRotation;
+
+		bottomRight.x = x + (dx + rec.width) * cosRotation - (dy + rec.height) * sinRotation;
+		bottomRight.y = y + (dx + rec.width) * sinRotation + (dy + rec.height) * cosRotation;
+
+		bottomLeft.x = x + dx * cosRotation - (dy + rec.height) * sinRotation;
+		bottomLeft.y = y + dx * sinRotation + (dy + rec.height) * cosRotation;
+	}
+
 	BeginDrawMode(QUADS);
-	glm::vec3 bottomRight(bottomLeft.x + width, bottomLeft.y, bottomLeft.z);
-	glm::vec3 topRight(bottomLeft.x + width, bottomLeft.y + height, bottomLeft.z);
-	glm::vec3 topLeft(bottomLeft.x, bottomLeft.y + height, bottomLeft.z);
 	Color4f(color.r, color.g, color.b, color.a);
-	Vertex3f(bottomLeft.x, bottomLeft.y, bottomLeft.z);
-	Vertex3f(bottomRight.x, bottomRight.y, bottomRight.z);
-	Vertex3f(topRight.x, topRight.y, topRight.z);
-	Vertex3f(topLeft.x, topLeft.y, topLeft.z);
+	Vertex2f(topLeft.x, topLeft.y);
+	Vertex2f(topRight.x, topRight.y);
+	Vertex2f(bottomRight.x, bottomRight.y);
+	Vertex2f(bottomLeft.x, bottomLeft.y);
 	EndDrawMode();
 }
 

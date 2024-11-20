@@ -93,6 +93,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\GLDrawCall.cpp" />
+    <ClCompile Include="src\GLMath.cpp" />
     <ClCompile Include="src\GLGlobalState.cpp" />
     <ClCompile Include="src\GLRenderBatch.cpp" />
     <ClCompile Include="src\GLShader.cpp" />
@@ -103,6 +104,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GLDrawCall.h" />
+    <ClInclude Include="src\GLMath.h" />
     <ClInclude Include="src\GLGlobal.h" />
     <ClInclude Include="src\GLGlobalState.h" />
     <ClInclude Include="src\GLRenderBatch.h" />

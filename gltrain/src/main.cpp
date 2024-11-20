@@ -17,8 +17,13 @@
 
 int main()
 {
+	// Initialization
+	//--------------------------------------------------------------------------------------
+	const int screenWidth = 1280;
+	const int screenHeight = 720;
+
 	GLGlobalState::GetInstance();
-	GLGlobalState::InitPlatform();
+	GLGlobalState::InitPlatform({ screenWidth, screenHeight, "basic shape" });
 
 	GLShader defaultShader;
 	std::string vsCode, fsCode;
@@ -33,6 +38,8 @@ int main()
 	batch.m_CurrentBufferIdx = 0;
 	batch.m_CurrentShaderId = defaultShader.ProgramID();
 
+	float rotation = 0.0f;
+
 	while (!GLGlobalState::WindowShouldClose())
 	{
 		GLGlobalState::BeginDrawing();
@@ -40,21 +47,28 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-		batch.DrawLine(glm::vec3(0, 360.0f, 0.0f),
-			glm::vec3(1280.0f, 360.0f, 0.0),
-			glm::vec4(0.0, 1.0, 1.0, 1.0));
+		//batch.DrawLine(glm::vec3(0, 360.0f, 0.0f),
+		//	glm::vec3(1280.0f, 360.0f, 0.0),
+		//	glm::vec4(0.0, 1.0, 1.0, 1.0));
 
-		batch.DrawTriangle(glm::vec3(1280.0f / 2.0f, 0.0f, 0.0f),
-			glm::vec3(0.0f, 720.0f, 0.0f),
-			glm::vec3(1280.0f, 720.0f, 0.0f),
-			glm::vec4(1.0, 0.0, 0.0, 1.0));
 
-		batch.DrawRectangleTemp(glm::vec3(960.0f, 0.0f, 0.0f), 320.0f, 180.0f, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+		batch.DrawTriangle(
+			{ screenWidth / 4.0f * 3.0f, 80.0f },
+			{ screenWidth / 4.0f * 3.0f - 60.0f, 150.0f},
+			{ screenWidth / 4.0f * 3.0f + 60.0f, 150.0f},
+			glm::vec4(135 / 255.f, 60 / 255.f, 190 / 255.f, 255 / 255.f)
+		);
+		batch.DrawTriangleLines(
+			{ screenWidth / 4.0f * 3.0f, 160.0f }, 
+			{ screenWidth / 4.0f * 3.0f - 20.0f, 230.0f },
+			{ screenWidth / 4.0f * 3.0f + 20.0f, 230.0 }, 
+			{ 0 / 255.f, 82 / 255.f, 172 / 255.f, 255 / 255.f }
+		);
 
-		//batch.DrawTriangle(glm::vec3(-10.5 + 20, -10.5 + 20, 0.0),
-		//	glm::vec3(10.5 + 20, -10.5 + 20, 0.0),
-		//	glm::vec3(0.0 + 20, 10.5 + 20, 0.0),
-		//	glm::vec4(1.0, 0.0, 1.0, 1.0));
+		//rotation += 1.0f;
+		//// Rectangle shapes and lines
+		batch.DrawRectangle(screenWidth / 4 * 2 - 60, 100, 120, 60, { 230 /255.f, 41 / 255.f, 55 / 255.f, 255 /255.f });
+		batch.DrawRectangleLines(screenWidth / 4 * 2 - 40, 320, 80, 60, { 255 / 255.f, 161 / 255.f, 0 / 255.f, 255 / 255.f });  // NOTE: Uses QUADS internally, not lines
 		
 		GLGlobalState::EndDrawing(&batch);
 	}

@@ -2,6 +2,7 @@
 
 #include "GLDrawCall.h"
 #include "GLVertexBuffer.h"
+#include "GLMath.h"
 
 #include <vector>
 
@@ -14,10 +15,16 @@ public:
 
 	// TODO: glm后期要换成自己写的数学相关数据结构
 	void DrawLine(glm::vec3 x1, glm::vec3 x2, glm::vec4 color);
-	// TODO: glm后期要换成自己写的数学相关数据结构
+	// TODO: glm
+	void DrawTriangleLines(glm::vec2 x1, glm::vec2 x2, glm::vec2 x3, glm::vec4 color);
+	void DrawTriangleLines(glm::vec3 x1, glm::vec3 x2, glm::vec3 x3, glm::vec4 color);
+	void DrawTriangle(glm::vec2 x1, glm::vec2 x2, glm::vec2 x3, glm::vec4 color);
 	void DrawTriangle(glm::vec3 x1, glm::vec3 x2, glm::vec3 x3, glm::vec4 color);
-	// TODO: 这个函数后期要进行修改再包装
-	void DrawRectangleTemp(glm::vec3 bottomLeft, float width, float height, glm::vec4 color);
+	// TODO: glm后期要换成自己写的数学相关数据结构
+	void DrawRectangleLines(int posX, int posY, int width, int height, glm::vec4 color);
+	void DrawRectangle(int posX, int posY, int width, int height, glm::vec4 color);
+	void DrawRectangleV(GLMath::Vector2 position, GLMath::Vector2 size, glm::vec4 color);
+	void DrawRectanglePro(GLMath::Rectangle rec, GLMath::Vector2 origin, float rotation, glm::vec4 color);
 
 public:
 	void Color4f(float r, float g, float b, float a);
