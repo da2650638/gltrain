@@ -47,10 +47,11 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
+		rotation += 0.2f;
+
 		//batch.DrawLine(glm::vec3(0, 360.0f, 0.0f),
 		//	glm::vec3(1280.0f, 360.0f, 0.0),
 		//	glm::vec4(0.0, 1.0, 1.0, 1.0));
-
 
 		batch.DrawTriangle(
 			{ screenWidth / 4.0f * 3.0f, 80.0f },
@@ -69,6 +70,10 @@ int main()
 		//// Rectangle shapes and lines
 		batch.DrawRectangle(screenWidth / 4 * 2 - 60, 100, 120, 60, { 230 /255.f, 41 / 255.f, 55 / 255.f, 255 /255.f });
 		batch.DrawRectangleLines(screenWidth / 4 * 2 - 40, 320, 80, 60, { 255 / 255.f, 161 / 255.f, 0 / 255.f, 255 / 255.f });  // NOTE: Uses QUADS internally, not lines
+
+		batch.DrawPoly({ screenWidth / 4.0f * 3, 330 }, 6, 80, rotation, { 127 / 255.f, 106 / 255.f, 79 / 255.f, 255 / 255.f });
+		batch.DrawPolyLines({ screenWidth / 4.0f * 3, 330 }, 6, 90, rotation, { 127 / 255.f, 106 / 255.f, 79 / 255.f, 255 / 255.f });
+		batch.DrawPolyLinesEx( { screenWidth / 4.0f * 3, 330 }, 6, 85, rotation, 5, { 211 / 255.f, 176 / 255.f, 131 / 255.f, 255 / 255.f });
 		
 		GLGlobalState::EndDrawing(&batch);
 	}

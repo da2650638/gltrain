@@ -4,6 +4,7 @@
 
 void GLRenderBatch::DrawLine(glm::vec3 x1, glm::vec3 x2, glm::vec4 color)
 {
+	// TODO: 后期加上纹理
 	BeginDrawMode(LINES);
 		Color4f(color.r, color.g, color.b, color.a);
 		Vertex3f(x1.x, x1.y, x1.z);
@@ -18,6 +19,7 @@ void GLRenderBatch::DrawTriangleLines(glm::vec2 x1, glm::vec2 x2, glm::vec2 x3, 
 
 void GLRenderBatch::DrawTriangleLines(glm::vec3 x1, glm::vec3 x2, glm::vec3 x3, glm::vec4 color)
 {
+	// TODO: 后期加上纹理
 	BeginDrawMode(LINES);
 	{
 		Color4f(color.r, color.g, color.b, color.a);
@@ -41,6 +43,7 @@ void GLRenderBatch::DrawTriangle(glm::vec2 x1, glm::vec2 x2, glm::vec2 x3, glm::
 
 void GLRenderBatch::DrawTriangle(glm::vec3 x1, glm::vec3 x2, glm::vec3 x3, glm::vec4 color)
 {
+	// TODO: 后期加上纹理
 	//BeginDrawMode(TRIANGLES);
 	//Color4f(color.r, color.g, color.b, color.a);
 	//Vertex3f(x1.x, x1.y, x1.z);
@@ -58,21 +61,23 @@ void GLRenderBatch::DrawTriangle(glm::vec3 x1, glm::vec3 x2, glm::vec3 x3, glm::
 
 void GLRenderBatch::DrawRectangleLines(int posX, int posY, int width, int height, glm::vec4 color)
 {
+	// TODO: 后期加上纹理
 	// TODO: 不需要考虑旋转吗？
 	BeginDrawMode(LINES);
 	{
 		Color4f(color.r, color.g, color.b, color.a);
+
 		Vertex2f((float)posX, (float)posY);
-		Vertex2f((float)posX + (float)width, (float)posY + 1);
+		Vertex2f((float)(posX + width), (float)(posY + 1));
 
-		Vertex2f((float)posX + (float)width, (float)posY + 1);
-		Vertex2f((float)posX + (float)width, (float)posY + (float)height);
+		Vertex2f((float)(posX + width), (float)(posY + 1));
+		Vertex2f((float)(posX + width), (float)(posY + height));
 
-		Vertex2f((float)posX + (float)width, (float)posY + (float)height);
-		Vertex2f((float)posX + 1, (float)posY + (float)height);
+		Vertex2f((float)(posX + width), (float)(posY + height));
+		Vertex2f((float)(posX + 1), (float)(posY + height));
 
-		Vertex2f((float)posX + 1, (float)posY + (float)height);
-		Vertex2f((float)posX + 1, (float)posY + 1);
+		Vertex2f((float)(posX + 1), (float)(posY + height));
+		Vertex2f((float)(posX + 1), (float)(posY + +1));
 	}
 	EndDrawMode();
 }
@@ -89,6 +94,7 @@ void GLRenderBatch::DrawRectangleV(GLMath::Vector2 position, GLMath::Vector2 siz
 
 void GLRenderBatch::DrawRectanglePro(GLMath::Rectangle rec, GLMath::Vector2 origin, float rotation, glm::vec4 color)
 {
+	// TODO: 后期加上纹理
 	GLMath::Vector2 topLeft = { 0.0f, 0.0f };
 	GLMath::Vector2 topRight = { 0.0f, 0.0f };
 	GLMath::Vector2 bottomRight = { 0.0f, 0.0f };
@@ -131,6 +137,106 @@ void GLRenderBatch::DrawRectanglePro(GLMath::Rectangle rec, GLMath::Vector2 orig
 	Vertex2f(topRight.x, topRight.y);
 	Vertex2f(bottomRight.x, bottomRight.y);
 	Vertex2f(bottomLeft.x, bottomLeft.y);
+	EndDrawMode();
+}
+
+void GLRenderBatch::DrawPoly(glm::vec2 origin, int sides, float radius, float rotation, glm::vec4 color)
+{
+	// TODO: 后续考虑如何添加纹理
+	if (sides < 3) sides = 3;
+	float rotationStep = glm::radians(360.f / sides);
+	float initRotation = rotationStep / 2.0f + glm::radians(rotation);
+	float currentRotation = initRotation;
+	BeginDrawMode(QUADS);
+	for (int i = 0; i < sides; i++)
+	{
+		float sinTheta = std::sin(currentRotation);
+		float cosTheta = std::cos(currentRotation);
+		float sinAlpha = std::sin(currentRotation + rotationStep);
+		float cosAlpha = std::cos(currentRotation + rotationStep);
+		Color4f(color.r, color.g, color.b, color.a);
+		Vertex2f(origin.x, origin.y);
+
+		Vertex2f(origin.x - sinTheta * radius, origin.y + cosTheta * radius);
+
+		Vertex2f(origin.x - sinTheta * radius, origin.y + cosTheta * radius);
+
+		Vertex2f(origin.x - sinAlpha * radius, origin.y + cosAlpha * radius);
+
+		currentRotation += rotationStep;
+	}
+	EndDrawMode();
+
+	//BeginDrawMode(TRIANGLES);
+	//for (int i = 0; i < sides; i++)
+	//{
+	//	float sinTheta = std::sin(currentRotation);
+	//	float cosTheta = std::cos(currentRotation);
+	//	float sinAlpha = std::sin(currentRotation + rotationStep);
+	//	float cosAlpha = std::cos(currentRotation + rotationStep);
+	//	Color4f(color.r, color.g, color.b, color.a);
+	//	Vertex2f(origin.x, origin.y);
+
+	//	Vertex2f(origin.x - sinTheta * radius, origin.y + cosTheta * radius);
+
+	//	Vertex2f(origin.x - sinAlpha * radius, origin.y + cosAlpha * radius);
+
+	//	currentRotation += rotationStep;
+	//}
+	//EndDrawMode();
+}
+
+void GLRenderBatch::DrawPolyLines(glm::vec2 origin, int sides, float radius, float rotation, glm::vec4 color)
+{
+	// TODO: 后续考虑如何添加纹理
+	if (sides < 3) sides = 3;
+	float rotationStep = glm::radians(360.f / sides);
+	float initRotation = rotationStep / 2.0f + glm::radians(rotation);
+	float currentRotation = initRotation;
+	BeginDrawMode(LINES);
+	for (int i = 0; i < sides; i++)
+	{
+		float sinTheta = std::sin(currentRotation);
+		float cosTheta = std::cos(currentRotation);
+		float sinAlpha = std::sin(currentRotation + rotationStep);
+		float cosAlpha = std::cos(currentRotation + rotationStep);
+		Color4f(color.r, color.g, color.b, color.a);
+
+		Vertex2f(origin.x - sinTheta * radius, origin.y + cosTheta * radius);
+
+		Vertex2f(origin.x - sinAlpha * radius, origin.y + cosAlpha * radius);
+
+		currentRotation += rotationStep;
+	}
+	EndDrawMode();
+}
+
+void GLRenderBatch::DrawPolyLinesEx(glm::vec2 origin, int sides, float radius, float rotation, float lineThick, glm::vec4 color)
+{
+	// TODO: 后续考虑如何添加纹理
+	if (sides < 3) sides = 3;
+	float rotationStep = glm::radians(360.f / sides);
+	float initRotation = rotationStep / 2.0f + glm::radians(rotation);
+	float currentRotation = initRotation;
+	float innerRadius = radius - std::cos(glm::radians(rotation / 20.f)) * lineThick;
+	BeginDrawMode(QUADS);
+	for (int i = 0; i < sides; i++)
+	{
+		float sinTheta = std::sin(currentRotation);
+		float cosTheta = std::cos(currentRotation);
+		float sinAlpha = std::sin(currentRotation + rotationStep);
+		float cosAlpha = std::cos(currentRotation + rotationStep);
+		Color4f(color.r, color.g, color.b, color.a);
+		Vertex2f(origin.x - sinTheta * radius, origin.y + cosTheta * radius);
+
+		Vertex2f(origin.x - sinTheta * innerRadius, origin.y + cosTheta * innerRadius);
+
+		Vertex2f(origin.x - sinAlpha * innerRadius, origin.y + cosAlpha * innerRadius);
+
+		Vertex2f(origin.x - sinAlpha * radius, origin.y + cosAlpha * radius);
+
+		currentRotation += rotationStep;
+	}
 	EndDrawMode();
 }
 
