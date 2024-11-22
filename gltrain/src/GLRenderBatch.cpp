@@ -1,6 +1,7 @@
 #include "GLRenderBatch.h"
 
 #include <algorithm>
+#include <numbers>
 
 void GLRenderBatch::DrawLine(glm::vec3 x1, glm::vec3 x2, glm::vec4 color)
 {
@@ -140,6 +141,72 @@ void GLRenderBatch::DrawRectanglePro(GLMath::Rectangle rec, GLMath::Vector2 orig
 	EndDrawMode();
 }
 
+void GLRenderBatch::DrawRectangleGradientV(int posX, int posY, int width, int height, glm::vec4 topc, glm::vec4 bottomc)
+{
+	DrawRectangleGradientEx({ static_cast<float>(posX), static_cast<float>(posY), static_cast<float>(width), static_cast<float>(height) }, topc, bottomc, topc, bottomc);
+}
+
+void GLRenderBatch::DrawRectangleGradientH(int posX, int posY, int width, int height, glm::vec4 leftc, glm::vec4 rightc)
+{
+	DrawRectangleGradientEx({ static_cast<float>(posX), static_cast<float>(posY), static_cast<float>(width), static_cast<float>(height) }, leftc, leftc, rightc, rightc);
+}
+
+void GLRenderBatch::DrawRectangleGradientEx(GLMath::Rectangle rec, glm::vec4 topLeftc, glm::vec4 bottomLeftc, glm::vec4 topRightc, glm::vec4 bottomRightc, GLMath::Vector2 origin, float rotation)
+{
+	// TODO: 后期加上纹理
+	GLMath::Vector2 topLeft = { 0.0f, 0.0f };
+	GLMath::Vector2 topRight = { 0.0f, 0.0f };
+	GLMath::Vector2 bottomRight = { 0.0f, 0.0f };
+	GLMath::Vector2 bottomLeft = { 0.0f, 0.0f };
+	if (rotation == 0.0f)
+	{
+		float left = rec.x - origin.x;
+		float top = rec.y - origin.y;
+		topLeft = { left, top };
+		topRight = { left + rec.width, top };
+		bottomRight = { left + rec.width, top + rec.height };
+		bottomLeft = { left, top + rec.height };
+	}
+	else
+	{
+		// TODO: 感官上glm应该是拖慢了速度，需要优化
+		float cosRotation = std::cos(glm::radians(rotation));
+		float sinRotation = std::sin(glm::radians(rotation));
+		float dx = -origin.x;
+		float dy = -origin.y;
+		float x = rec.x;
+		float y = rec.y;
+
+		topLeft.x = x + dx * cosRotation - dy * sinRotation;
+		topLeft.y = y + dx * sinRotation + dy * cosRotation;
+
+		topRight.x = x + (dx + rec.width) * cosRotation - dy * sinRotation;
+		topRight.y = y + (dx + rec.width) * sinRotation + dy * cosRotation;
+
+		bottomRight.x = x + (dx + rec.width) * cosRotation - (dy + rec.height) * sinRotation;
+		bottomRight.y = y + (dx + rec.width) * sinRotation + (dy + rec.height) * cosRotation;
+
+		bottomLeft.x = x + dx * cosRotation - (dy + rec.height) * sinRotation;
+		bottomLeft.y = y + dx * sinRotation + (dy + rec.height) * cosRotation;
+	}
+
+	BeginDrawMode(QUADS);
+
+	Color4f(topLeftc.r, topLeftc.g, topLeftc.b, topLeftc.a);
+	Vertex2f(topLeft.x, topLeft.y);
+
+	Color4f(topRightc.r, topRightc.g, topRightc.b, topRightc.a);
+	Vertex2f(topRight.x, topRight.y);
+
+	Color4f(bottomRightc.r, bottomRightc.g, bottomRightc.b, bottomRightc.a);
+	Vertex2f(bottomRight.x, bottomRight.y);
+
+	Color4f(bottomLeftc.r, bottomLeftc.g, bottomLeftc.b, bottomLeftc.a);
+	Vertex2f(bottomLeft.x, bottomLeft.y);
+
+	EndDrawMode();
+}
+
 void GLRenderBatch::DrawPoly(glm::vec2 origin, int sides, float radius, float rotation, glm::vec4 color)
 {
 	// TODO: 后续考虑如何添加纹理
@@ -148,13 +215,13 @@ void GLRenderBatch::DrawPoly(glm::vec2 origin, int sides, float radius, float ro
 	float initRotation = rotationStep / 2.0f + glm::radians(rotation);
 	float currentRotation = initRotation;
 	BeginDrawMode(QUADS);
+	Color4f(color.r, color.g, color.b, color.a);
 	for (int i = 0; i < sides; i++)
 	{
 		float sinTheta = std::sin(currentRotation);
 		float cosTheta = std::cos(currentRotation);
 		float sinAlpha = std::sin(currentRotation + rotationStep);
 		float cosAlpha = std::cos(currentRotation + rotationStep);
-		Color4f(color.r, color.g, color.b, color.a);
 		Vertex2f(origin.x, origin.y);
 
 		Vertex2f(origin.x - sinTheta * radius, origin.y + cosTheta * radius);
@@ -194,13 +261,13 @@ void GLRenderBatch::DrawPolyLines(glm::vec2 origin, int sides, float radius, flo
 	float initRotation = rotationStep / 2.0f + glm::radians(rotation);
 	float currentRotation = initRotation;
 	BeginDrawMode(LINES);
+	Color4f(color.r, color.g, color.b, color.a);
 	for (int i = 0; i < sides; i++)
 	{
 		float sinTheta = std::sin(currentRotation);
 		float cosTheta = std::cos(currentRotation);
 		float sinAlpha = std::sin(currentRotation + rotationStep);
 		float cosAlpha = std::cos(currentRotation + rotationStep);
-		Color4f(color.r, color.g, color.b, color.a);
 
 		Vertex2f(origin.x - sinTheta * radius, origin.y + cosTheta * radius);
 
@@ -218,15 +285,16 @@ void GLRenderBatch::DrawPolyLinesEx(glm::vec2 origin, int sides, float radius, f
 	float rotationStep = glm::radians(360.f / sides);
 	float initRotation = rotationStep / 2.0f + glm::radians(rotation);
 	float currentRotation = initRotation;
-	float innerRadius = radius - std::cos(glm::radians(rotation / 20.f)) * lineThick;
+	float innerRadius = radius - lineThick * std::cos( glm::radians(rotationStep / 2.0f) );
 	BeginDrawMode(QUADS);
+	Color4f(color.r, color.g, color.b, color.a);
 	for (int i = 0; i < sides; i++)
 	{
 		float sinTheta = std::sin(currentRotation);
 		float cosTheta = std::cos(currentRotation);
 		float sinAlpha = std::sin(currentRotation + rotationStep);
 		float cosAlpha = std::cos(currentRotation + rotationStep);
-		Color4f(color.r, color.g, color.b, color.a);
+
 		Vertex2f(origin.x - sinTheta * radius, origin.y + cosTheta * radius);
 
 		Vertex2f(origin.x - sinTheta * innerRadius, origin.y + cosTheta * innerRadius);
@@ -236,6 +304,206 @@ void GLRenderBatch::DrawPolyLinesEx(glm::vec2 origin, int sides, float radius, f
 		Vertex2f(origin.x - sinAlpha * radius, origin.y + cosAlpha * radius);
 
 		currentRotation += rotationStep;
+	}
+	EndDrawMode();
+}
+
+void GLRenderBatch::DrawCircle(int centerX, int centerY, float radius, glm::vec4 color)
+{
+	DrawCircleV({ (float)centerX, (float)centerY }, radius, color);
+}
+
+void GLRenderBatch::DrawCircleV(GLMath::Vector2 center, float radius, glm::vec4 color)
+{
+	DrawCircleSectors(center, radius, 0.0, 360.f, 36, color);
+}
+
+void GLRenderBatch::DrawCircleSectors(GLMath::Vector2 center, float radius, float startAngle, float endAngle, int segments, glm::vec4 color)
+{
+	// TODO: 后续考虑一下纹理
+	if (radius <= 0.0f) radius = 0.1;
+
+	if (startAngle > endAngle)
+	{
+		std::swap(startAngle, endAngle);
+	}
+
+	// 了解一下std::ceilf的计算原理以及std::floor
+	int minSegments = std::ceilf((endAngle - startAngle) / 90.0f);
+
+	if (segments < minSegments)
+	{
+		// TODO:这个0.5f需要改成可配置的参数
+		float theta = std::acos(2 * std::pow(1 - 0.5f / radius, 2.0f) - 1.0f);
+		segments = static_cast<int>(std::ceilf(2 * std::numbers::pi / theta) * (endAngle - startAngle) / 360.f);
+		if (segments <= 0) segments = minSegments;
+	}
+
+	float stepAngle = (endAngle - startAngle) / segments;
+	float angle = startAngle;
+	BeginDrawMode(QUADS);
+	Color4f(color.r, color.g, color.b, color.a);
+	for (int i = 0; i < (segments / 2); i++)
+	{
+		float cosAlpha = std::cos(glm::radians(angle)), sinAlpha = std::sin(glm::radians(angle));
+		float cosTheta = std::cos(glm::radians(angle + stepAngle)), sinTheta = std::sin(glm::radians(angle + stepAngle));
+		float cosGamma = std::cos(glm::radians(angle + 2 * stepAngle)), sinGamma = std::sin(glm::radians(angle + 2 * stepAngle));
+
+		Vertex2f(center.x, center.y);
+
+		Vertex2f(center.x + radius * cosAlpha, center.y + radius * sinAlpha);
+
+		Vertex2f(center.x + radius * cosTheta, center.y + radius * sinTheta);
+
+		Vertex2f(center.x + radius * cosGamma, center.y + radius * sinGamma);
+
+		angle += 2 * stepAngle;
+	}
+
+	if ((segments % 2) == 1)
+	{
+		float cosAlpha = std::cos(glm::radians(angle)), sinAlpha = std::sin(glm::radians(angle));
+		float cosTheta = std::cos(glm::radians(angle + stepAngle)), sinTheta = std::sin(glm::radians(angle + stepAngle));
+
+		Vertex2f(center.x, center.y);
+
+		Vertex2f(center.x + radius * cosAlpha, center.y + radius * sinAlpha);
+
+		Vertex2f(center.x + radius * cosTheta, center.y + radius * sinTheta);
+
+		Vertex2f(center.x, center.y);
+
+		angle += stepAngle;
+	}
+	EndDrawMode();
+
+	//BeginDrawMode(TRIANGLES);
+	//for (int i = 0; i < segments; i++)
+	//{
+	//	float cosAlpha = std::cos(glm::radians(angle)), sinAlpha = std::sin(glm::radians(angle));
+	//	float cosTheta = std::cos(glm::radians(angle + stepAngle)), sinTheta = std::sin(glm::radians(angle + stepAngle));
+	//	Color4f(color.r, color.g, color.b, color.a);
+
+	//	Vertex2f(center.x, center.y);
+
+	//	Vertex2f(center.x + radius * cosAlpha, center.y + radius * sinAlpha);
+
+	//	Vertex2f(center.x + radius * cosTheta, center.y + radius * sinTheta);
+
+	//	angle += stepAngle;
+	//}
+	//EndDrawMode();
+}
+
+void GLRenderBatch::DrawCircleGradient(int centerX, int centerY, float radius, glm::vec4 inner, glm::vec4 outer)
+{
+	DrawCircleGradientV({ (float)centerX, (float)centerY }, radius, inner, outer);
+}
+
+void GLRenderBatch::DrawCircleGradientV(GLMath::Vector2 center, float radius, glm::vec4 inner, glm::vec4 outer)
+{
+	DrawCircleSectorsGradient(center, radius, inner, outer);
+}
+
+void GLRenderBatch::DrawCircleSectorsGradient(GLMath::Vector2 center, float radius, glm::vec4 inner, glm::vec4 outer, float startAngle, float endAngle, int segments)
+{
+	// TODO: 后续考虑一下纹理
+	if (radius <= 0.0f) radius = 0.1;
+
+	if (startAngle > endAngle)
+	{
+		std::swap(startAngle, endAngle);
+	}
+
+	// 了解一下std::ceilf的计算原理以及std::floor
+	int minSegments = std::ceilf((endAngle - startAngle) / 90.0f);
+
+	if (segments < minSegments)
+	{
+		// TODO:这个0.5f需要改成可配置的参数
+		float theta = std::acos(2 * std::pow(1 - 0.5f / radius, 2.0f) - 1.0f);
+		segments = static_cast<int>(std::ceilf(2 * std::numbers::pi / theta) * (endAngle - startAngle) / 360.f);
+		if (segments <= 0) segments = minSegments;
+	}
+
+	float stepAngle = (endAngle - startAngle) / segments;
+	float angle = startAngle;
+	BeginDrawMode(QUADS);
+	for (int i = 0; i < (segments / 2); i++)
+	{
+		float cosAlpha = std::cos(glm::radians(angle)), sinAlpha = std::sin(glm::radians(angle));
+		float cosTheta = std::cos(glm::radians(angle + stepAngle)), sinTheta = std::sin(glm::radians(angle + stepAngle));
+		float cosGamma = std::cos(glm::radians(angle + 2 * stepAngle)), sinGamma = std::sin(glm::radians(angle + 2 * stepAngle));
+
+		Color4f(inner.r, inner.g, inner.b, inner.a);
+		Vertex2f(center.x, center.y);
+
+		Color4f(outer.r, outer.g, outer.b, outer.a);
+		Vertex2f(center.x + radius * cosAlpha, center.y + radius * sinAlpha);
+
+		Vertex2f(center.x + radius * cosTheta, center.y + radius * sinTheta);
+
+		Vertex2f(center.x + radius * cosGamma, center.y + radius * sinGamma);
+
+		angle += 2 * stepAngle;
+	}
+
+	if ((segments % 2) == 1)
+	{
+		float cosAlpha = std::cos(glm::radians(angle)), sinAlpha = std::sin(glm::radians(angle));
+		float cosTheta = std::cos(glm::radians(angle + stepAngle)), sinTheta = std::sin(glm::radians(angle + stepAngle));
+
+		Vertex2f(center.x, center.y);
+
+		Vertex2f(center.x + radius * cosAlpha, center.y + radius * sinAlpha);
+
+		Vertex2f(center.x + radius * cosTheta, center.y + radius * sinTheta);
+
+		Vertex2f(center.x, center.y);
+
+		angle += stepAngle;
+	}
+	EndDrawMode();
+}
+
+void GLRenderBatch::DrawCircleLines(int centerX, int centerY, float radius, glm::vec4 color)
+{
+	DrawCircleLinesV({ static_cast<float>(centerX), static_cast<float>(centerY) }, radius, color);
+}
+
+void GLRenderBatch::DrawCircleLinesV(GLMath::Vector2 center, float radius, glm::vec4 color)
+{
+	DrawCircleLineSectors(center, radius, color);
+}
+
+void GLRenderBatch::DrawCircleLineSectors(GLMath::Vector2 center, float radius, glm::vec4 color, float startAngle, float endAngle, int segments)
+{
+	// TODO: 后续考虑一下纹理
+	if (radius < 0.0f) radius = 0.1f;
+
+	if (endAngle < startAngle) std::swap(startAngle, endAngle);
+
+	int minSegments = std::ceilf((endAngle - startAngle) / 90.0f);
+
+	if (segments < minSegments)
+	{
+		// TODO: 这个0.5需要改成可配置的参数
+		float theta = std::acos(2 * std::pow(1.0f - 0.5f / radius, 2) - 1.0f);
+		segments = (int)(std::ceilf(2 * std::numbers::pi / theta) * (endAngle - startAngle) / 360.0f);
+		if (segments <= 0) segments = minSegments;
+	}
+
+	float angle = startAngle;
+	float stepAngle = (endAngle - startAngle) / segments;
+	BeginDrawMode(LINES);
+	Color4f(color.r, color.g, color.b, color.a);
+	for (int i = 0; i < segments; i++)
+	{
+		float cosAlpha = std::cos(glm::radians(angle)), sinAlpha = std::sin(glm::radians(angle));
+		float cosTheta = std::cos(glm::radians(angle + stepAngle)), sinTheta = std::sin(glm::radians(angle + stepAngle));
+		Vertex2f(center.x + cosAlpha * radius, center.y + sinAlpha * radius);
+		Vertex2f(center.x + cosTheta * radius, center.y + sinTheta * radius);
+		angle += stepAngle;
 	}
 	EndDrawMode();
 }

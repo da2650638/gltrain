@@ -28,11 +28,25 @@ public:
 	void DrawRectangle(int posX, int posY, int width, int height, glm::vec4 color);
 	void DrawRectangleV(GLMath::Vector2 position, GLMath::Vector2 size, glm::vec4 color);
 	void DrawRectanglePro(GLMath::Rectangle rec, GLMath::Vector2 origin, float rotation, glm::vec4 color);
+	void DrawRectangleGradientV(int posX, int posY, int width, int height, glm::vec4 topc, glm::vec4 bottomc);   // Draw a vertical-gradient-filled rectangle
+	void DrawRectangleGradientH(int posX, int posY, int width, int height, glm::vec4 leftc, glm::vec4 rightc);   // Draw a horizontal-gradient-filled rectangle
+	void DrawRectangleGradientEx(GLMath::Rectangle rec, glm::vec4 topLeftc, glm::vec4 bottomLeftc, glm::vec4 topRightc, glm::vec4 bottomRightc, GLMath::Vector2 origin = {0.0f, 0.0f}, float rotation = 0.0f); // Draw a gradient-filled rectangle with custom vertex colors
 
 	// TODO: glm后期要换成自己写的数学相关数据结构
 	void DrawPoly(glm::vec2 origin, int sides, float radius, float rotation, glm::vec4 color);
 	void DrawPolyLines(glm::vec2 origin, int sides, float radius, float rotation, glm::vec4 color);
 	void DrawPolyLinesEx(glm::vec2 origin, int sides, float radius, float rotation, float lineThick, glm::vec4 color);
+
+	// TODO: glm后期要换成自己写的数学相关数据结构
+	void DrawCircle(int centerX, int centerY, float radius, glm::vec4 color);
+	void DrawCircleV(GLMath::Vector2 center, float radius, glm::vec4 color);
+	void DrawCircleSectors(GLMath::Vector2 center, float radius, float startAngle, float endAngle, int segments, glm::vec4 color);
+	void DrawCircleGradient(int centerX, int centerY, float radius, glm::vec4 inner, glm::vec4 outer);
+	void DrawCircleGradientV(GLMath::Vector2 center, float radius, glm::vec4 inner, glm::vec4 outer);
+	void DrawCircleSectorsGradient(GLMath::Vector2 center, float radius, glm::vec4 inner, glm::vec4 outer, float startAngle = 0.0f, float endAngle = 360.f, int segments = 36);
+	void DrawCircleLines(int centerX, int centerY, float radius, glm::vec4 color);
+	void DrawCircleLinesV(GLMath::Vector2 center, float radius, glm::vec4 color);
+	void DrawCircleLineSectors(GLMath::Vector2 center, float radius, glm::vec4 color, float startAngle = 0.0f, float endAngle = 360.f, int segments = 36);
 
 public:
 	void Color4f(float r, float g, float b, float a);

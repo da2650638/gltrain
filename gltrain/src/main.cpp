@@ -49,6 +49,13 @@ int main()
 
 		rotation += 0.2f;
 
+		batch.DrawCircle( screenWidth / 5, 120 , 35, { 0 / 255.f, 82 / 255.f, 172 / 255.f, 255 / 255.f });
+		batch.DrawCircleGradient(screenWidth / 5, 220, 60, 
+			{ 0 / 255.f, 228 / 255.f, 48 / 255.f, 255 / 255.f },
+			{ 102 / 255.f, 191 / 255.f, 255 / 255.f, 255 / 255.f });
+		batch.DrawCircleLines(screenWidth / 5, 340, 80, { 0 / 255.f, 82 / 255.f, 172 / 255.f, 255 / 255.f });
+
+
 		//batch.DrawLine(glm::vec3(0, 360.0f, 0.0f),
 		//	glm::vec3(1280.0f, 360.0f, 0.0),
 		//	glm::vec4(0.0, 1.0, 1.0, 1.0));
@@ -69,6 +76,9 @@ int main()
 		//rotation += 1.0f;
 		//// Rectangle shapes and lines
 		batch.DrawRectangle(screenWidth / 4 * 2 - 60, 100, 120, 60, { 230 /255.f, 41 / 255.f, 55 / 255.f, 255 /255.f });
+		batch.DrawRectangleGradientH(screenWidth / 4 * 2 - 90, 170, 180, 130,
+			{ 190 / 255.0f, 33 / 255.0f, 55 / 255.0f, 255 / 255.0f },
+			{ 255 / 255.0f, 203 / 255.f, 0 / 255.f, 255 / 255.f });
 		batch.DrawRectangleLines(screenWidth / 4 * 2 - 40, 320, 80, 60, { 255 / 255.f, 161 / 255.f, 0 / 255.f, 255 / 255.f });  // NOTE: Uses QUADS internally, not lines
 
 		batch.DrawPoly({ screenWidth / 4.0f * 3, 330 }, 6, 80, rotation, { 127 / 255.f, 106 / 255.f, 79 / 255.f, 255 / 255.f });
