@@ -31,7 +31,6 @@ bool GLShader::LoadShaderFromFile(const std::string& vertexShaderPath, const std
 	}
 
 	// TODO: 设计不合理，LoadShaderInfos这个函数使用太多次了
-
 	glUseProgram(m_ProgramID);
 	for (const auto& [key, locData] : m_LocationDatas)
 	{

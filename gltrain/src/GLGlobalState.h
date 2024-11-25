@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include "GLSimpleLogger.h"
+#include "GLInput.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -23,6 +24,7 @@ public:
 	};
 	static void errorCallback(int error_code, const char* description);
 	static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+	static void charCallback(GLFWwindow* window, unsigned int codepoint);
 	static void InitPlatform(const WindowData& wd = {1280, 720, "default title"});
 	static bool WindowShouldClose();
 	static void ShutdownPlatform();
@@ -53,6 +55,8 @@ public:
 		unsigned long long FrameCounter;
 	}Time;
 	static float GetTime() { return glfwGetTime(); }
+
+	static void PollInputEvent();
 
 	static void BeginDrawing();
 	static void EndDrawing(GLRenderBatch* activeBatch);

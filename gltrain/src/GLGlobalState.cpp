@@ -15,9 +15,36 @@ void GLGlobalState::errorCallback(int error_code, const char* description)
 
 void GLGlobalState::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+	auto& inputModule = GLInput::GetInstance();
+	if (action == GLFW_RELEASE)
+	{
+		inputModule.m_Keyboard.CurrentKeyState[key] = 0;
+	}
+	else if (action == GLFW_PRESS) inputModule.m_Keyboard.CurrentKeyState[key] = 1;
+	else if (action == GLFW_REPEAT) inputModule.m_Keyboard.KeyRepeatInFrame[key] = 1;
+
+	if((key == GLFW_KEY_CAPS_LOCK) && ((mods & GLFW_MOD_CAPS_LOCK) > 0)) inputModule.m_Keyboard.CurrentKeyState[key] = 1;
+	if((key == GLFW_KEY_NUM_LOCK) && ((mods & GLFW_MOD_NUM_LOCK) > 0)) inputModule.m_Keyboard.CurrentKeyState[key] = 1;
+
+	if (inputModule.m_Keyboard.KeyPressedQueueCount < MAX_KEY_PRESSED_QUEUE)
+	{
+		inputModule.m_Keyboard.KeyPressedQueue[inputModule.m_Keyboard.KeyPressedQueueCount] = key;
+		inputModule.m_Keyboard.KeyPressedQueueCount++;
+	}
+
+	if (key == inputModule.m_Keyboard.ExitKey && action == GLFW_PRESS)
 	{
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
+	}
+}
+
+void GLGlobalState::charCallback(GLFWwindow* window, unsigned int codepoint)
+{
+	auto& inputModule = GLInput::GetInstance();
+	if (inputModule.m_Keyboard.CharPressedQueueCount < MAX_CHAR_PRESSED_QUEUE)
+	{
+		inputModule.m_Keyboard.CharPressedQueue[inputModule.m_Keyboard.CharPressedQueueCount] = codepoint;
+		inputModule.m_Keyboard.CharPressedQueueCount++;
 	}
 }
 
@@ -40,6 +67,7 @@ void GLGlobalState::InitPlatform(const WindowData& wd)
 	if (!s_Window) return GLSimpleLogger::GetInstance().Fatal("Create glfw window failed.");;
 
 	glfwSetKeyCallback(s_Window, keyCallback);
+	glfwSetCharCallback(s_Window, charCallback);
 
 	glfwMakeContextCurrent(s_Window);
 	glfwSwapInterval(1);
@@ -112,6 +140,24 @@ GLGlobalState::ShaderInfo GLGlobalState::LoadShaderInfos(const std::string& file
 	return shaderInfo;
 }
 
+void GLGlobalState::PollInputEvent()
+{
+	// TODO: WIP
+	auto& input = GLInput::GetInstance();
+
+	input.m_Keyboard.KeyPressedQueueCount = 0;
+	input.m_Keyboard.CharPressedQueueCount = 0;
+
+	for (int i = 0; i < MAX_KEYBOARD_KEYS; i++)
+	{
+		input.m_Keyboard.PreviousKeyState[i] = input.m_Keyboard.CurrentKeyState[i];
+		input.m_Keyboard.KeyRepeatInFrame[i] = 0;
+	}
+
+	// NOTE: Before this, all event-related data structures must be set up
+	glfwPollEvents();
+}
+
 void GLGlobalState::BeginDrawing()
 {
 	s_Time.Current = GetTime();
@@ -135,6 +181,6 @@ void GLGlobalState::EndDrawing(GLRenderBatch* activeBatch)
 
 	// TODO: To control the frame rate, a delay may be needed. Implementation will be added later.
 
-	// TODO: The event handling functionality should be improved later.
-	glfwPollEvents();
+	// TODO: PollInputEvent(WIP)
+	PollInputEvent();
 }
