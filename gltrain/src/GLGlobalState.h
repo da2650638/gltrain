@@ -25,6 +25,7 @@ public:
 	static void errorCallback(int error_code, const char* description);
 	static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void charCallback(GLFWwindow* window, unsigned int codepoint);
+	static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 	static void InitPlatform(const WindowData& wd = {1280, 720, "default title"});
 	static bool WindowShouldClose();
 	static void ShutdownPlatform();

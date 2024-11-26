@@ -111,3 +111,53 @@ void GLInput::SetExitKey(int key)
 {
 	GLInput::GetInstance().m_Keyboard.ExitKey = key;
 }
+
+bool GLInput::IsButtonPressed(int button)
+{
+	// TODO: 后续可能增加触摸屏的处理
+	bool pressed = false;
+	auto& input = GLInput::GetInstance();
+	if (input.m_Mouse.PreviousButtonState[button] == 0 &&
+		input.m_Mouse.CurrentButtonState[button] == 1)
+	{
+		pressed = true;
+	}
+	return pressed;
+}
+
+bool GLInput::IsButtonDown(int button)
+{
+	// TODO: 后续可能增加触摸屏的处理
+	bool down = false;
+	auto& input = GLInput::GetInstance();
+	if (input.m_Mouse.CurrentButtonState[button] == 1)
+	{
+		down = true;
+	}
+	return down;
+}
+
+bool GLInput::IsButtonReleased(int button)
+{
+	// TODO: 后续可能增加触摸屏的处理
+	bool released = false;
+	auto& input = GLInput::GetInstance();
+	if (input.m_Mouse.PreviousButtonState[button] == 1 &&
+		input.m_Mouse.CurrentButtonState[button] == 0)
+	{
+		released = true;
+	}
+	return released;
+}
+
+bool GLInput::IsButtonUp(int button)
+{
+	// TODO: 后续可能增加触摸屏的处理
+	bool up = false;
+	auto& input = GLInput::GetInstance();
+	if (input.m_Mouse.CurrentButtonState[button] == 0)
+	{
+		up = true;
+	}
+	return up;
+}

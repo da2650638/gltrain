@@ -48,6 +48,13 @@ void GLGlobalState::charCallback(GLFWwindow* window, unsigned int codepoint)
 	}
 }
 
+void GLGlobalState::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+	auto& input = GLInput::GetInstance();
+	// TODO: 暂时只能处理鼠标，后续可能会增加触摸屏等
+	input.m_Mouse.CurrentButtonState[button] = action;
+}
+
 void GLGlobalState::InitPlatform(const WindowData& wd)
 {
 	s_WindowData = wd;
@@ -68,6 +75,7 @@ void GLGlobalState::InitPlatform(const WindowData& wd)
 
 	glfwSetKeyCallback(s_Window, keyCallback);
 	glfwSetCharCallback(s_Window, charCallback);
+	glfwSetMouseButtonCallback(s_Window, mouseButtonCallback);
 
 	glfwMakeContextCurrent(s_Window);
 	glfwSwapInterval(1);
@@ -152,6 +160,16 @@ void GLGlobalState::PollInputEvent()
 	{
 		input.m_Keyboard.PreviousKeyState[i] = input.m_Keyboard.CurrentKeyState[i];
 		input.m_Keyboard.KeyRepeatInFrame[i] = 0;
+	}
+
+	input.m_Mouse.PreviousPosition = input.m_Mouse.CurrentPosition;
+
+	input.m_Mouse.PreviousWheelMove = input.m_Mouse.CurrentWheelMove;
+	input.m_Mouse.CurrentWheelMove = { 0,0 };
+
+	for (int i = 0; i < MAX_MOUSE_BUTTONS; i++)
+	{
+		input.m_Mouse.PreviousButtonState[i] = input.m_Mouse.CurrentButtonState[i];
 	}
 
 	// NOTE: Before this, all event-related data structures must be set up

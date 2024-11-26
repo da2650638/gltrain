@@ -17,6 +17,7 @@ public:
 		return *s_Instance;
 	}
 
+	// Key-input functions
 	bool IsKeyPressed(int key);
 	bool IsKeyPressedRepeat(int key);
 	bool IsKeyDown(int key);
@@ -25,6 +26,12 @@ public:
 	int GetKeyPressed();
 	int GetCharPressed();
 	void SetExitKey(int key);
+	// Mouse button input functions
+	bool IsButtonPressed(int button);
+	bool IsButtonDown(int button);
+	bool IsButtonReleased(int button);
+	bool IsButtonUp(int button);
+
 public:
 	typedef struct Keyboard {
 		int ExitKey = 0;

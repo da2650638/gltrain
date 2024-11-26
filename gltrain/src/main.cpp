@@ -40,9 +40,22 @@ int main()
 
 	float rotation = 0.0f;
 
+	auto& input = GLInput::GetInstance();
+
 	while (!GLGlobalState::WindowShouldClose())
 	{
 		GLGlobalState::BeginDrawing();
+
+		if (input.IsButtonPressed(MOUSE_BUTTON_LEFT))
+		{
+			GLSimpleLogger::GetInstance().Trace("left button pressed");
+		}
+
+		if (input.IsButtonReleased(MOUSE_BUTTON_RIGHT))
+		{
+			GLSimpleLogger::GetInstance().Trace("right button released");
+		}
+
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
