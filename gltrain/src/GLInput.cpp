@@ -161,3 +161,51 @@ bool GLInput::IsButtonUp(int button)
 	}
 	return up;
 }
+
+// Set mouse offset
+// NOTE: Useful when rendering to different size targets
+void GLInput::SetMouseOffset(int offsetX, int offsetY)
+{
+	auto& input = GLInput::GetInstance();
+	input.m_Mouse.Offset = { (float)offsetX, (float)offsetY };
+}
+
+// Set mouse scaling
+// NOTE: Useful when rendering to different size targets
+void GLInput::SetMouseScale(float scaleX, float scaleY)
+{
+	auto& input = GLInput::GetInstance();
+	input.m_Mouse.Scale = { scaleX, scaleY };
+}
+
+GLMath::Vector2 GLInput::GetMousePosition()
+{
+	auto& input = GLInput::GetInstance();
+	GLMath::Vector2 position;
+	position.x = ((input.m_Mouse.CurrentPosition.x + input.m_Mouse.Offset.x) * input.m_Mouse.Scale.x);
+	position.y = ((input.m_Mouse.CurrentPosition.y + input.m_Mouse.Offset.y) * input.m_Mouse.Scale.y);
+	return position;
+}
+
+int GLInput::GetMouseX()
+{
+	auto& input = GLInput::GetInstance();
+	int x = ((input.m_Mouse.CurrentPosition.x + input.m_Mouse.Offset.x) * input.m_Mouse.Scale.x);
+	return x;
+}
+
+int GLInput::GetMouseY()
+{
+	auto& input = GLInput::GetInstance();
+	int y = ((input.m_Mouse.CurrentPosition.y + input.m_Mouse.Offset.y) * input.m_Mouse.Scale.y);
+	return y;
+}
+
+GLMath::Vector2 GLInput::GetMouseDelta()
+{
+	auto& input = GLInput::GetInstance();
+	GLMath::Vector2 delta;
+	delta.x = input.m_Mouse.CurrentPosition.x - input.m_Mouse.PreviousPosition.x;
+	delta.y = input.m_Mouse.CurrentPosition.y - input.m_Mouse.PreviousPosition.y;
+	return delta;
+}

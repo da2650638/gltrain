@@ -31,6 +31,12 @@ public:
 	bool IsButtonDown(int button);
 	bool IsButtonReleased(int button);
 	bool IsButtonUp(int button);
+	void SetMouseOffset(int offsetX, int offsetY);
+	void SetMouseScale(float scaleX, float scaleY);
+	GLMath::Vector2 GetMousePosition();
+	int GetMouseX();
+	int GetMouseY();
+	GLMath::Vector2 GetMouseDelta();
 
 public:
 	typedef struct Keyboard {
@@ -47,8 +53,13 @@ public:
 		int CharPressedQueueCount = 0;
 	}Keyboard;
 	typedef struct Mouse{
+		// 当渲染目标的左上角（或者其他原点）不在窗口的左上角（或者其他原点）时
+		// 需要使用Offset来校正鼠标位置，使之与渲染区域对齐
 		GLMath::Vector2 Offset{ 0,0 };
-		GLMath::Vector2 Scale{ 0,0 };
+		// 当渲染区域的分辨率和窗口的分辨率不一致是需要使用Scale进行校正
+		// 正确匹配渲染区域的分辨率
+		GLMath::Vector2 Scale{ 1.0, 1.0 };
+		// 这里的位置表示鼠标在渲染区域内的相对位置
 		GLMath::Vector2 CurrentPosition{ 0,0 };
 		GLMath::Vector2 PreviousPosition{ 0,0 };
 

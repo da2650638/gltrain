@@ -55,6 +55,13 @@ void GLGlobalState::mouseButtonCallback(GLFWwindow* window, int button, int acti
 	input.m_Mouse.CurrentButtonState[button] = action;
 }
 
+void GLGlobalState::mouseCursorPosCallback(GLFWwindow* window, double xpos, double ypos)
+{
+	auto& input = GLInput::GetInstance();
+	// TODO: 暂时只能处理鼠标，后续可能会增加触摸屏和手势等等
+	input.m_Mouse.CurrentPosition = { (float)xpos, (float)ypos };
+}
+
 void GLGlobalState::InitPlatform(const WindowData& wd)
 {
 	s_WindowData = wd;
@@ -76,6 +83,7 @@ void GLGlobalState::InitPlatform(const WindowData& wd)
 	glfwSetKeyCallback(s_Window, keyCallback);
 	glfwSetCharCallback(s_Window, charCallback);
 	glfwSetMouseButtonCallback(s_Window, mouseButtonCallback);
+	glfwSetCursorPosCallback(s_Window, mouseCursorPosCallback);
 
 	glfwMakeContextCurrent(s_Window);
 	glfwSwapInterval(1);
