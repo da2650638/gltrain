@@ -55,7 +55,10 @@ int main()
 		{
 			GLSimpleLogger::GetInstance().Trace("right button released");
 		}
-
+		if (input.GetMouseWheelMoveV() != GLMath::Vector2(0.0f, 0.0f))
+		{
+			GLSimpleLogger::GetInstance().Trace("Mouse wheel move: [{},{}]", input.GetMouseWheelMoveV().x, input.GetMouseWheelMoveV().y);
+		}
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);

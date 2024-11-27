@@ -37,6 +37,8 @@ public:
 	int GetMouseX();
 	int GetMouseY();
 	GLMath::Vector2 GetMouseDelta();
+	float GetMouseWheelMove();
+	GLMath::Vector2 GetMouseWheelMoveV();
 
 public:
 	typedef struct Keyboard {

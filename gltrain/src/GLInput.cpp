@@ -209,3 +209,18 @@ GLMath::Vector2 GLInput::GetMouseDelta()
 	delta.y = input.m_Mouse.CurrentPosition.y - input.m_Mouse.PreviousPosition.y;
 	return delta;
 }
+
+float GLInput::GetMouseWheelMove()
+{
+	float result = 0.0f;
+	auto& input = GLInput::GetInstance();
+	if (input.m_Mouse.CurrentWheelMove.x > input.m_Mouse.CurrentWheelMove.y) result = input.m_Mouse.CurrentWheelMove.x;
+	else result = input.m_Mouse.CurrentWheelMove.y;
+	return result;
+}
+
+GLMath::Vector2 GLInput::GetMouseWheelMoveV()
+{
+	auto& input = GLInput::GetInstance();
+	return input.m_Mouse.CurrentWheelMove;
+}

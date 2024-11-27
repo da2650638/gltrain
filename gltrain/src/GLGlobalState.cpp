@@ -62,6 +62,12 @@ void GLGlobalState::mouseCursorPosCallback(GLFWwindow* window, double xpos, doub
 	input.m_Mouse.CurrentPosition = { (float)xpos, (float)ypos };
 }
 
+void GLGlobalState::mouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	auto& input = GLInput::GetInstance();
+	input.m_Mouse.CurrentWheelMove = { (float)xoffset, (float)yoffset };
+}
+
 void GLGlobalState::InitPlatform(const WindowData& wd)
 {
 	s_WindowData = wd;
@@ -84,6 +90,7 @@ void GLGlobalState::InitPlatform(const WindowData& wd)
 	glfwSetCharCallback(s_Window, charCallback);
 	glfwSetMouseButtonCallback(s_Window, mouseButtonCallback);
 	glfwSetCursorPosCallback(s_Window, mouseCursorPosCallback);
+	glfwSetScrollCallback(s_Window, mouseScrollCallback);
 
 	glfwMakeContextCurrent(s_Window);
 	glfwSwapInterval(1);
