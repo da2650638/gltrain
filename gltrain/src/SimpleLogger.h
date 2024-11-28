@@ -166,13 +166,13 @@ namespace Casic
         {
             switch (level)
             {
-            case LogLevel::TRACE: return "\033[37m";        // 白色
-            case LogLevel::DEBUG: return "\033[36m";        // 青色
-            case LogLevel::INFO: return "\033[32m";         // 绿色
-            case LogLevel::WARNING: return "\033[33m";      // 黄色
-            case LogLevel::ERR: return "\033[31m";          // 红色
-            case LogLevel::FATAL: return "\033[41;30m";     // 红色背景黑色字体
-            default: return "\033[0m";                      // 默认颜色
+                case LogLevel::TRACE: return "\033[37m";        // 白色
+                case LogLevel::DEBUG: return "\033[36m";        // 青色
+                case LogLevel::INFO: return "\033[32m";         // 绿色
+                case LogLevel::WARNING: return "\033[33m";      // 黄色
+                case LogLevel::ERR: return "\033[31m";          // 红色
+                case LogLevel::FATAL: return "\033[41;30m";     // 红色背景黑色字体
+                default: return "\033[0m";                      // 默认颜色
             }
         }
 

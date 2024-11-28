@@ -9,18 +9,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-void errorCallback(int error_code, const char* description)
-{
-	std::cout << std::format("Error: [Code: {}], [Description:{}]\n", error_code, description);
-}
-
-void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-	{
-		glfwSetWindowShouldClose(window, GLFW_TRUE);
-	}
-}
+#include "GLPlatform.h"
+#include "GLInput.h"
+#include "SimpleLogger.h"
+using namespace Casic;
+using namespace Casic::GL;
 
 const char* vertexShaderSrc =
 "#version 460 core\n"
@@ -48,25 +41,10 @@ const char* fragmentShaderSrc =
 
 int main()
 {
-	glfwSetErrorCallback(errorCallback);
-
-	if (!glfwInit()) return -1;
-
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	GLFWwindow* window = glfwCreateWindow(1280, 720, "Title", nullptr, nullptr);
-	if (!window) return -1;
-
-	glfwSetKeyCallback(window, keyCallback);
-
-	glfwMakeContextCurrent(window);
-	glfwSwapInterval(1);
-	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-
-	// OpenGL global option
-	glViewport(0, 0, 1280, 720);
+	auto& platform = GLPlatform::GetInstance();
+	platform.SetWindowData("My Refractor1 Window", 1280, 720);
+	platform.InitPlatform();
+	auto& input = GLInput::GetInstance();
 
 	// shader
 	int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -162,8 +140,61 @@ int main()
 	glUseProgram(0);
 	glBindVertexArray(0);
 
-	while (!glfwWindowShouldClose(window))
+	while (!platform.WindowShouldClose())
 	{
+		// 鼠标位置和按键状态输出
+		if (input.IsKeyPressed(KEY_K))
+		{
+			SimpleLogger::GetInstance().Trace("Current cursor pos: [{}, {}]", input.GetMouseX(), input.GetMouseY());
+		}
+
+		if (input.IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+		{
+			SimpleLogger::GetInstance().Trace("Left mouse button pressed at: [{}, {}]", input.GetMouseX(), input.GetMouseY());
+		}
+
+		if (input.IsKeyDown(KEY_W))
+		{
+			SimpleLogger::GetInstance().Info("Key 'W' is being held down.");
+		}
+
+		if (input.IsKeyReleased(KEY_A))
+		{
+			SimpleLogger::GetInstance().Info("Key 'A' released.");
+		}
+
+		if (input.IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
+		{
+			SimpleLogger::GetInstance().Info("Right mouse button released.");
+		}
+
+		if (input.GetMouseWheel() != 0)
+		{
+			SimpleLogger::GetInstance().Info("Mouse wheel moved. Delta: {}", input.GetMouseWheel());
+		}
+
+		Vector2 mouseWheelDelta = input.GetMouseWheelV();
+		if (mouseWheelDelta.x != 0 || mouseWheelDelta.y != 0)
+		{
+			SimpleLogger::GetInstance().Info("Mouse wheel delta: [{}, {}]", mouseWheelDelta.x, mouseWheelDelta.y);
+		}
+
+		// 测试鼠标偏移和缩放
+		if (input.IsKeyPressed(KEY_O))
+		{
+			input.SetMouseOffset(50, 50);
+			SimpleLogger::GetInstance().Info("Mouse offset set to (50, 50)");
+		}
+		if (input.IsKeyPressed(KEY_P))
+		{
+			input.SetMouseScale(2.0f, 2.0f);
+			SimpleLogger::GetInstance().Info("Mouse scale set to (2.0, 2.0)");
+		}
+
+		// 鼠标偏移和缩放验证
+		//Vector2 mousePos = input.GetMousePosition();
+		//SimpleLogger::GetInstance().Trace("Scaled mouse position: [{}, {}]", mousePos.x, mousePos.y);
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -171,10 +202,9 @@ int main()
 		glBindVertexArray(vao);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+		platform.SwapBuffers();
+		platform.PollInputEvents();
 	}
 
-	glfwDestroyWindow(window);
-	glfwTerminate();
+	platform.ShutdownPlatform();
 }
