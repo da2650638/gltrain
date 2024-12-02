@@ -508,6 +508,70 @@ void GLRenderBatch::DrawCircleLineSectors(GLMath::Vector2 center, float radius, 
 	EndDrawMode();
 }
 
+void GLRenderBatch::DrawCube(GLMath::Vector3 position, float width, float height, float length, glm::vec4 color)
+{
+	float x = 0.0f; 
+	float y = 0.0f;
+	float z = 0.0f;
+
+	// TODO: 增加平移以及处理矩阵的内容，目前的长方体重心就位于(0,0.0)处（看了下Raylib，可能根本就用不到）
+	x = position.x;
+	y = position.y;
+	z = position.z;
+
+	BeginDrawMode(GL_TRIANGLES);
+		Color4f(color.r, color.g, color.b, color.a);
+		// 前
+		Vertex3f(x - width / 2.f, y - height / 2.f, z + length / 2.f);
+		Vertex3f(x + width / 2.f, y - height / 2.f, z + length / 2.f);
+		Vertex3f(x + width / 2.f, y + height / 2.f, z + length / 2.f);
+													  
+		Vertex3f(x - width / 2.f, y - height / 2.f, z + length / 2.f);
+		Vertex3f(x + width / 2.f, y + height / 2.f, z + length / 2.f);
+		Vertex3f(x - width / 2.f, y + height / 2.f, z + length / 2.f);
+		// 后
+		Vertex3f(x - width / 2.f, y - height / 2.f, z - length / 2.f);
+		Vertex3f(x + width / 2.f, y - height / 2.f, z - length / 2.f);
+		Vertex3f(x + width / 2.f, y + height / 2.f, z - length / 2.f);
+
+		Vertex3f(x - width / 2.f, y - height / 2.f, z - length / 2.f);
+		Vertex3f(x + width / 2.f, y + height / 2.f, z - length / 2.f);
+		Vertex3f(x - width / 2.f, y + height / 2.f, z - length / 2.f);
+		// 左
+		Vertex3f(x - width / 2.f, y - height / 2.f, z - length / 2.f);
+		Vertex3f(x - width / 2.f, y - height / 2.f, z + length / 2.f);
+		Vertex3f(x - width / 2.f, y + height / 2.f, z + length / 2.f);
+
+		Vertex3f(x - width / 2.f, y - height / 2.f, z - length / 2.f);
+		Vertex3f(x - width / 2.f, y + height / 2.f, z + length / 2.f);
+		Vertex3f(x - width / 2.f, y + height / 2.f, z - length / 2.f);
+		// 右
+		Vertex3f(x + width / 2.f, y - height / 2.f, z - length / 2.f);
+		Vertex3f(x + width / 2.f, y - height / 2.f, z + length / 2.f);
+		Vertex3f(x + width / 2.f, y + height / 2.f, z + length / 2.f);
+
+		Vertex3f(x + width / 2.f, y - height / 2.f, z - length / 2.f);
+		Vertex3f(x + width / 2.f, y + height / 2.f, z + length / 2.f);
+		Vertex3f(x + width / 2.f, y + height / 2.f, z - length / 2.f);
+		// 上
+		Vertex3f(x - width / 2.f, y + height / 2.f, z + length / 2.f);
+		Vertex3f(x + width / 2.f, y + height / 2.f, z + length / 2.f);
+		Vertex3f(x + width / 2.f, y + height / 2.f, z - length / 2.f);
+
+		Vertex3f(x - width / 2.f, y + height / 2.f, z + length / 2.f);
+		Vertex3f(x + width / 2.f, y + height / 2.f, z - length / 2.f);
+		Vertex3f(x - width / 2.f, y + height / 2.f, z - length / 2.f);
+		// 下
+		Vertex3f(x - width / 2.f, y + height / 2.f, z + length / 2.f);
+		Vertex3f(x + width / 2.f, y + height / 2.f, z + length / 2.f);
+		Vertex3f(x + width / 2.f, y + height / 2.f, z - length / 2.f);
+
+		Vertex3f(x - width / 2.f, y + height / 2.f, z + length / 2.f);
+		Vertex3f(x + width / 2.f, y + height / 2.f, z - length / 2.f);
+		Vertex3f(x - width / 2.f, y + height / 2.f, z - length / 2.f);
+	EndDrawMode();
+}
+
 void GLRenderBatch::Color4f(float r, float g, float b, float a)
 {
 	m_CurrentColor.r = std::clamp(r, 0.0f, 1.0f);

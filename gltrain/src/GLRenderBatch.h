@@ -48,6 +48,9 @@ public:
 	void DrawCircleLinesV(GLMath::Vector2 center, float radius, glm::vec4 color);
 	void DrawCircleLineSectors(GLMath::Vector2 center, float radius, glm::vec4 color, float startAngle = 0.0f, float endAngle = 360.f, int segments = 36);
 
+	// TODO: glm后期要换成自己写的数学相关的数据结构
+	void DrawCube(GLMath::Vector3 position, float width, float height, float length, glm::vec4 color);
+
 public:
 	void Color4f(float r, float g, float b, float a);
 	void Vertex3f(float x, float y, float z);

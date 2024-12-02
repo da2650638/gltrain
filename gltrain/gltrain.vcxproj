@@ -92,6 +92,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\GLCamera3D.cpp" />
     <ClCompile Include="src\GLDrawCall.cpp" />
     <ClCompile Include="src\GLInput.cpp" />
     <ClCompile Include="src\GLMath.cpp" />
@@ -104,6 +105,7 @@
     <ClCompile Include="vendor\glad\src\glad.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\GLCamera3D.h" />
     <ClInclude Include="src\GLDrawCall.h" />
     <ClInclude Include="src\GLInput.h" />
     <ClInclude Include="src\GLMath.h" />
