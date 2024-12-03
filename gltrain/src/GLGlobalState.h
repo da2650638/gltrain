@@ -31,6 +31,8 @@ public:
 	static void InitPlatform(const WindowData& wd = {1280, 720, "default title"});
 	static bool WindowShouldClose();
 	static void ShutdownPlatform();
+	static void DisableCursor();
+	static void SetMousePosition(int x, int y);
 
 	// shader configs
 	typedef struct LocationData {

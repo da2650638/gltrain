@@ -1,6 +1,7 @@
 #include "GLGlobalState.h"
 
 #include "GLRenderBatch.h"
+#include "GLMath.h"
 
 std::once_flag GLGlobalState::m_InitFlag;
 std::unique_ptr<GLGlobalState> GLGlobalState::m_Instance;
@@ -110,6 +111,29 @@ void GLGlobalState::ShutdownPlatform()
 {
 	glfwDestroyWindow(s_Window);
 	glfwTerminate();
+}
+
+void GLGlobalState::DisableCursor()
+{
+	glfwSetInputMode(s_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+	// Set cursor position in the middle
+	SetMousePosition(s_WindowData.Width / 2, s_WindowData.Height / 2);
+
+	if (glfwRawMouseMotionSupported()) glfwSetInputMode(s_Window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+
+	auto& input = GLInput::GetInstance();
+	input.m_Mouse.CursorHidden = true;
+}
+
+void GLGlobalState::SetMousePosition(int x, int y)
+{
+	auto& input = GLInput::GetInstance();
+	input.m_Mouse.CurrentPosition = GLMath::Vector2((float)x, (float)y);
+	input.m_Mouse.PreviousPosition = input.m_Mouse.CurrentPosition;
+
+	// NOTE: emscripten not implemented
+	glfwSetCursorPos(s_Window, input.m_Mouse.CurrentPosition.x, input.m_Mouse.CurrentPosition.y);
 }
 
 GLGlobalState::ShaderInfo GLGlobalState::LoadShaderInfos(const std::string& filename, const std::string& shaderName)

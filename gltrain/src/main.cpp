@@ -13,6 +13,7 @@
 #include "GLVertexBuffer.h"
 #include "GLRenderBatch.h"
 #include "GLShader.h"
+#include "GLCamera3D.h"
 
 
 int main()
@@ -28,19 +29,30 @@ int main()
 	GLShader defaultShader;
 	std::string vsCode, fsCode;
 	defaultShader.LoadShaderFromFile();
-	defaultShader.Bind();
-	glm::mat4 mvp = glm::ortho(-1.1f, 1.1f, -1.1f, 1.1f, -1.1f, 1.1f);
-	glUniformMatrix4fv(defaultShader.m_Locations["mvp"], 1, GL_FALSE, glm::value_ptr(mvp));
-	defaultShader.UnBind();
-
 	GLRenderBatch batch;
 	batch.LoadRenderBatch(5, 1024);
 	batch.m_CurrentBufferIdx = 0;
 	batch.m_CurrentShaderId = defaultShader.ProgramID();
+	batch.SetupViewport(screenWidth, screenHeight);
+
+
+	defaultShader.Bind();
+	glm::mat4 mvp  = batch.m_Projection;
+	glUniformMatrix4fv(defaultShader.m_Locations["mvp"], 1, GL_FALSE, glm::value_ptr(mvp));
+	defaultShader.UnBind();
+
+	GLCamera3D camera;
+	camera.SetPosition({ 10.0f, 10.0f, 10.0f });
+	camera.SetTarget({ 0.0f, 0.0f, 0.0f });
+	camera.SetUp({ 0.0f, 1.0f, 0.0f });
+	camera.SetFovy(45.0f);
+	camera.SetProjection(CAMERA_PERSPECTIVE);
 
 	auto& input = GLInput::GetInstance();
 
-	GLMath::Vector3 cubePosition = { 0.0f, 0.0f, 0.0f };
+	GLMath::Vector3 cubePosition = { screenWidth / 2.0f, screenHeight / 2.0f, -0.5f };
+
+	GLGlobalState::DisableCursor();
 	while (!GLGlobalState::WindowShouldClose())
 	{
 		GLGlobalState::BeginDrawing();
@@ -48,7 +60,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-		batch.DrawCube(cubePosition, 2.0f, 2.0f, 2.0f, { 1.0f, 0.0f, 0.0f, 1.0f });
+		batch.DrawCube(cubePosition, 200.0f, 200.0f, 0.8f, { 1.0f, 0.0f, 0.0f, 1.0f });
 
 		//batch.DrawRectangle(screenWidth / 4 * 2 - 60, 100, 120, 60, { 255 / 255.f, 41 / 255.f, 55 / 255.f, 255 / 255.f });
 		

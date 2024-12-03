@@ -7,11 +7,19 @@
 #include <vector>
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 struct GLRenderBatch {
 public:
 	GLRenderBatch() {}
 	~GLRenderBatch() {}
+
+	//----------------------------------------------------------
+	// 矩阵相关函数
+	//----------------------------------------------------------
+	void MatrixMode(int mode);
+	void LoadIdentity();
+	void SetupViewport(int width, int height);
 
 	// TODO: 这部分绘制函数是否需要单独抽离出来呢？？
 	// TODO: glm后期要换成自己写的数学相关数据结构
@@ -66,6 +74,14 @@ public:
 public:
 	unsigned int m_CurrentBufferIdx = 0;
 	unsigned int m_CurrentShaderId = 0;
+
+	int m_CurrentMatrixMode;
+	glm::mat4* m_CurrentMatrix;
+	glm::mat4 m_ModelView;
+	glm::mat4 m_Projection;
+	glm::mat4 m_Transform;
+	bool m_TransformRequired = false;
+
 	// TODO: glm 
 	glm::vec4 m_CurrentColor{ 1.0f, 1.0f,1.0f, 1.0f };
 	int m_VertexCount = 0;

@@ -33,11 +33,11 @@ public:
 	void UpdateCamera();
 
 private:
-	glm::vec3 m_Position;
-	glm::vec3 m_Target;
-	glm::vec3 m_Up;
-	float m_Fovy;
-	int m_Projection;
+	glm::vec3 m_Position{0.0f, 0.0f, 0.0f};
+	glm::vec3 m_Target{0.0f, 0.0f, 0.0f};
+	glm::vec3 m_Up{0.0f, 0.0f, 0.0f};
+	float m_Fovy = 0.0f;
+	int m_Projection = 0;
 };
 
 using GLCamera = GLCamera3D;

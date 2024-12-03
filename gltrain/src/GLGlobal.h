@@ -2,6 +2,7 @@
 
 #include "GLSimpleLogger.h"
 
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #if __cplusplus >= 202002L
@@ -195,3 +196,6 @@ enum class KeyboardKeys {
 
 #define CAMERA_PERSPECTIVE 0x1
 #define CAMERA_ORTHOGRAPHIC 0x2
+
+#define MODELVIEW GL_MODELVIEW
+#define PROJECTION GL_PROJECTION

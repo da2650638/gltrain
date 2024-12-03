@@ -3,6 +3,37 @@
 #include <algorithm>
 #include <numbers>
 
+void GLRenderBatch::MatrixMode(int mode)
+{
+	// NOTE: 为什么要这么设计？？？？
+	if (mode == MODELVIEW)
+	{
+		m_CurrentMatrix = &m_ModelView;
+	}
+	else if (mode == PROJECTION)
+	{
+		m_CurrentMatrix = &m_Projection;
+	}
+
+	m_CurrentMatrixMode = mode;
+}
+
+void GLRenderBatch::LoadIdentity()
+{
+	*m_CurrentMatrix = glm::mat4(1.0f);
+}
+
+void GLRenderBatch::SetupViewport(int width, int height)
+{
+	glViewport(0, 0, width, height);
+	MatrixMode(PROJECTION);
+	LoadIdentity();
+	*m_CurrentMatrix = glm::ortho(0.0f, (float)width, (float)height, 0.0f, 0.0f, 1.0f);
+
+	MatrixMode(MODELVIEW);
+	LoadIdentity();
+}
+
 void GLRenderBatch::DrawLine(glm::vec3 x1, glm::vec3 x2, glm::vec4 color)
 {
 	// TODO: 后期加上纹理
@@ -521,6 +552,15 @@ void GLRenderBatch::DrawCube(GLMath::Vector3 position, float width, float height
 
 	BeginDrawMode(GL_TRIANGLES);
 		Color4f(color.r, color.g, color.b, color.a);
+		//// Test
+		//Vertex3f(x - width / 2.f, y - height / 2.f, -0.9f);
+		//Vertex3f(x + width / 2.f, y - height / 2.f, -0.9f);
+		//Vertex3f(x + width / 2.f, y + height / 2.f, -0.9f);
+		//											   
+		//Vertex3f(x - width / 2.f, y - height / 2.f, -0.9f);
+		//Vertex3f(x + width / 2.f, y + height / 2.f, -0.9f);
+		//Vertex3f(x - width / 2.f, y + height / 2.f, -0.9f);
+
 		// 前
 		Vertex3f(x - width / 2.f, y - height / 2.f, z + length / 2.f);
 		Vertex3f(x + width / 2.f, y - height / 2.f, z + length / 2.f);
