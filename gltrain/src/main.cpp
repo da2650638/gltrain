@@ -12,6 +12,11 @@
 #include "GLPlatform.h"
 #include "GLInput.h"
 #include "SimpleLogger.h"
+#include "GLRenderer.h"
+
+#include "Casic/CasicMatrixTransform.h"
+#include "Casic/CasicGraphics.h"
+
 using namespace Casic;
 using namespace Casic::GL;
 
@@ -44,6 +49,12 @@ int main()
 	auto& platform = GLPlatform::GetInstance();
 	platform.SetWindowData("My Refractor1 Window", 1280, 720);
 	platform.InitPlatform();
+
+	auto& renderer = GLRenderer::GetInstance();
+	renderer.SetPlatform(&platform);
+	renderer.SetupViewport(platform.GetWindowData().Width, platform.GetWindowData().Height);
+	renderer.SetTargetFps(60);
+
 	auto& input = GLInput::GetInstance();
 
 	// shader
@@ -98,13 +109,12 @@ int main()
 	}
 	// 设置shader的uniform
 	glUseProgram(program);
-	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, -500.0));
-	glm::mat4 view = glm::lookAt(glm::vec3(0.0, 0.0, 3.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1280 / (float)720, 0.1f, 1000.0f);
-	glm::mat4 mvp = projection * view * model;
+	Math::Matrix4 projection = Math::Ortho(0.0f, 1280.0f, 720.0f, 0.0f, 1.0f, -1.0f);
+	Math::Matrix4 view = Math::LookAt({ 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
+	Math::Matrix4 model = Math::Scale({ 1.0f, 1.0f, 1.0f });
+	Math::Matrix4 mvp = projection * view * model;
 	int mvpLocation = glGetUniformLocation(program, "mvp");
-	glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
-
+	glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, Graphics::ToOpenGLMatrix4(mvp).v);
 
 	// vertex buffer
 	unsigned int vao;
@@ -112,9 +122,13 @@ int main()
 	glBindVertexArray(vao);
 	
 	float vertexPositions[] = {
-		-10.5, -10.5, 0.0,
-		10.5, -10.5, 0.0,
-		0.0, 10.5, 0.0
+		600.f, 400.f, 0.0f,
+		680.f, 400.f, 0.0f,
+		680.f, 320.f, 0.0f,
+
+		600.f, 400.f, 0.0f,
+		680.f, 320.f, 0.0f,
+		600.f, 320.f, 0.0f
 	};
 	unsigned int posVbo;
 	glCreateBuffers(1, &posVbo);
@@ -127,7 +141,11 @@ int main()
 	float vertexColors[] = {
 		1.0, 0.0, 0.0, 1.0,
 		0.0, 1.0, 0.0, 1.0,
-		0.0, 0.0, 1.0, 1.0
+		0.0, 0.0, 1.0, 1.0,
+
+		1.0, 0.0, 0.0, 1.0,
+		0.0, 0.0, 1.0, 1.0,
+		1.0, 1.0, 0.0, 1.0
 	};
 	unsigned int colVbo;
 	glCreateBuffers(1, &colVbo);
@@ -142,65 +160,12 @@ int main()
 
 	while (!platform.WindowShouldClose())
 	{
-		// 鼠标位置和按键状态输出
-		if (input.IsKeyPressed(KEY_K))
-		{
-			SimpleLogger::GetInstance().Trace("Current cursor pos: [{}, {}]", input.GetMouseX(), input.GetMouseY());
-		}
-
-		if (input.IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-		{
-			SimpleLogger::GetInstance().Trace("Left mouse button pressed at: [{}, {}]", input.GetMouseX(), input.GetMouseY());
-		}
-
-		if (input.IsKeyDown(KEY_W))
-		{
-			SimpleLogger::GetInstance().Info("Key 'W' is being held down.");
-		}
-
-		if (input.IsKeyReleased(KEY_A))
-		{
-			SimpleLogger::GetInstance().Info("Key 'A' released.");
-		}
-
-		if (input.IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
-		{
-			SimpleLogger::GetInstance().Info("Right mouse button released.");
-		}
-
-		if (input.GetMouseWheel() != 0)
-		{
-			SimpleLogger::GetInstance().Info("Mouse wheel moved. Delta: {}", input.GetMouseWheel());
-		}
-
-		Vector2 mouseWheelDelta = input.GetMouseWheelV();
-		if (mouseWheelDelta.x != 0 || mouseWheelDelta.y != 0)
-		{
-			SimpleLogger::GetInstance().Info("Mouse wheel delta: [{}, {}]", mouseWheelDelta.x, mouseWheelDelta.y);
-		}
-
-		// 测试鼠标偏移和缩放
-		if (input.IsKeyPressed(KEY_O))
-		{
-			input.SetMouseOffset(50, 50);
-			SimpleLogger::GetInstance().Info("Mouse offset set to (50, 50)");
-		}
-		if (input.IsKeyPressed(KEY_P))
-		{
-			input.SetMouseScale(2.0f, 2.0f);
-			SimpleLogger::GetInstance().Info("Mouse scale set to (2.0, 2.0)");
-		}
-
-		// 鼠标偏移和缩放验证
-		//Vector2 mousePos = input.GetMousePosition();
-		//SimpleLogger::GetInstance().Trace("Scaled mouse position: [{}, {}]", mousePos.x, mousePos.y);
-
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 		glUseProgram(program);
 		glBindVertexArray(vao);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		platform.SwapBuffers();
 		platform.PollInputEvents();

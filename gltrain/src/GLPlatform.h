@@ -13,11 +13,20 @@ namespace GL
 {
 	class GLPlatform {
 	public:
-		typedef struct {
+		typedef struct WindowData{
 			std::string Title;
 			int Width;
 			int Height;
 		}WindowData;
+		typedef struct Time {
+			float Previous = 0.0f;
+			float Current = 0.0f;
+			float Update = 0.0f;
+			float Draw = 0.0f;
+			float Frame = 0.0f;
+			float Target = 0.0f;
+			unsigned long long FrameCounter = 0;
+		}Time;
 
 	public:
 		static GLPlatform& GetInstance()
@@ -28,14 +37,14 @@ namespace GL
 			return *s_Instance;
 		}
 
-		static void InitPlatform();
-		static bool WindowShouldClose();
-		static void ShutdownPlatform();
-		static void SwapBuffers();
-		static void PollInputEvents();
-		static void SetupViewport(int width, int height);
+		void InitPlatform();
+		bool WindowShouldClose();
+		void ShutdownPlatform();
+		void SwapBuffers();
+		void PollInputEvents();
+		void SetWindowData(std::string title, int width, int height);
 
-		static void SetWindowData(std::string title, int width, int height);
+		static float GetTime();
 		static void ErrorCallback(int error_code, const char* description);
 		static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 		static void CharCallback(GLFWwindow* window, unsigned int codepoint);
@@ -45,16 +54,21 @@ namespace GL
 
 		~GLPlatform();
 
-		static GLFWwindow* GetWindow();
+		GLFWwindow* Window();
+		WindowData& GetWindowData();
+		Time& TimeData();
 
 	private:
-		GLPlatform();
+		GLPlatform(WindowData wd = { "Casic GL Window", 1280, 720 });
+
+	private:
+		WindowData m_WindowData;
+		GLFWwindow* m_Window;
+		Time m_TimeData;
 
 	private:
 		static std::once_flag s_InitFlag;
 		static std::unique_ptr<GLPlatform> s_Instance;
-		static WindowData s_WindowData;
-		static GLFWwindow* s_Window;
 	};
 }
 }

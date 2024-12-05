@@ -3,9 +3,12 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-// TODO: 现在使用Casic库还是将源代码文件直接引入，最好改成引入头文件加库的形式。
-#include "CasicMath.h"
-using namespace Casic::Math;
+#include "Casic/CasicMath.h"
+
+#include "SimpleLogger.h"
+
+#define BASIC_RUNTIME_CHECK(expr, desc) \
+	if(!(expr))  SimpleLogger::GetInstance().Fatal("运行条件检查未通过：{}, 说明：{}", #expr, desc);
 
 #define KEY_PRESSED 1
 #define KEY_NOT_PRESSED 0
@@ -161,3 +164,6 @@ using namespace Casic::Math;
 #define MOUSE_BUTTON_LEFT      MOUSE_BUTTON_1
 #define MOUSE_BUTTON_RIGHT     MOUSE_BUTTON_2
 #define MOUSE_BUTTON_MIDDLE    MOUSE_BUTTON_3
+
+#define PROJECTION_MODE 0x1
+#define MODELVIEW_MODE 0x2

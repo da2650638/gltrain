@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "GLGlobal.h"
+#include "Casic/CasicMath.h"
 
 namespace Casic
 {
@@ -38,16 +39,16 @@ namespace GL
 		//----------------------------------------------------
 		void SetMouseOffset(int offsetX, int offsetY);
 		void SetMouseScale(float scaleX, float scaleY);
-		Vector2 GetMousePosition();
+		Math::Vector2 GetMousePosition();
 		int GetMouseX();
 		int GetMouseY();
-		Vector2 GetMouseDelta();
+		Math::Vector2 GetMouseDelta();
 		bool IsMouseButtonPressed(int button);
 		bool IsMouseButtonDown(int button);
 		bool IsMouseButtonReleased(int button);
 		bool IsMouseButtonUp(int button);
 		float GetMouseWheel();
-		Vector2 GetMouseWheelV();
+		Math::Vector2 GetMouseWheelV();
 
 	private:
 		GLInput();
@@ -67,10 +68,11 @@ namespace GL
 			int CharPressedQueueCount = 0;
 		}Keyboards;
 		typedef struct Mouse {
-			Vector2 Offset{ 0,0 };
-			Vector2 Scale{ 1.0, 1.0 };
-			Vector2 PreviousPosition;
-			Vector2 CurrentPosition;
+			// NOTE: 窗口原点相对于渲染区域左上角（或左下角）的偏移
+			Math::Vector2 Offset{ 0,0 };
+			Math::Vector2 Scale{ 1.0, 1.0 };
+			Math::Vector2 PreviousPosition;
+			Math::Vector2 CurrentPosition;
 
 			int Cursor;
 			bool CursorHidden;
@@ -78,8 +80,8 @@ namespace GL
 
 			char PreviousButtonState[MAX_MOUSE_BUTTONS]{ 0 };
 			char CurrentButtonState[MAX_MOUSE_BUTTONS]{ 0 };
-			Vector2 PreviousWheelMove;
-			Vector2 CurrentWheelMove;
+			Math::Vector2 PreviousWheelMove;
+			Math::Vector2 CurrentWheelMove;
 		}Mouse;
 		Keyboards m_Keyboards;
 		Mouse m_Mouse;

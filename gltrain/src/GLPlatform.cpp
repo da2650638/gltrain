@@ -8,14 +8,22 @@ namespace GL
 {
 	std::once_flag GLPlatform::s_InitFlag;
 	std::unique_ptr<GLPlatform> GLPlatform::s_Instance;
-	GLPlatform::WindowData GLPlatform::s_WindowData = {"Casic GL Window", 1280, 720};
-	GLFWwindow* GLPlatform::s_Window = nullptr;
 
 	void GLPlatform::SetWindowData(std::string title, int width, int height)
 	{
-		s_WindowData.Title = title;
-		s_WindowData.Width = width;
-		s_WindowData.Height = height;
+		m_WindowData.Title = title;
+		m_WindowData.Width = width;
+		m_WindowData.Height = height;
+	}
+
+	GLPlatform::Time& GLPlatform::TimeData()
+	{
+		return m_TimeData;
+	}
+
+	float GLPlatform::GetTime()
+	{
+		return glfwGetTime();
 	}
 
 	void GLPlatform::ErrorCallback(int error_code, const char* description)
@@ -25,6 +33,7 @@ namespace GL
 
 	void GLPlatform::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
+		auto& platform = GLPlatform::GetInstance();
 		auto& input = GLInput::GetInstance();
 		if (action == GLFW_PRESS)
 		{
@@ -56,7 +65,7 @@ namespace GL
 
 		if(input.m_Keyboards.ExitKey == key && action == GLFW_PRESS)
 		{
-			glfwSetWindowShouldClose(s_Window, GLFW_TRUE);
+			glfwSetWindowShouldClose(platform.m_Window, GLFW_TRUE);
 		}
 	}
 
@@ -93,13 +102,23 @@ namespace GL
 
 	}
 
-	GLFWwindow* GLPlatform::GetWindow()
+	GLFWwindow* GLPlatform::Window()
 	{
-		return s_Window;
+		return m_Window;
 	}
 
-	GLPlatform::GLPlatform()
+	GLPlatform::WindowData& GLPlatform::GetWindowData()
 	{
+		return m_WindowData;
+	}
+
+	GLPlatform::GLPlatform(WindowData wd)
+	{
+		m_Window = nullptr;
+		m_WindowData.Title = wd.Title;
+		m_WindowData.Width = wd.Width;
+		m_WindowData.Height = wd.Height;
+		m_TimeData = { 0 };
 	}
 
 	void GLPlatform::InitPlatform()
@@ -113,38 +132,36 @@ namespace GL
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		// TODO: 
-		s_Window = glfwCreateWindow(s_WindowData.Width, s_WindowData.Height, s_WindowData.Title.data(), nullptr, nullptr);
-		if(!s_Window) SimpleLogger::GetInstance().Fatal("failed to create glfw window...");
+		m_Window = glfwCreateWindow(m_WindowData.Width, m_WindowData.Height, m_WindowData.Title.data(), nullptr, nullptr);
+		if(!m_Window) SimpleLogger::GetInstance().Fatal("failed to create glfw window...");
 
-		glfwSetKeyCallback(s_Window, KeyCallback);
-		glfwSetCharCallback(s_Window, CharCallback);
-		glfwSetMouseButtonCallback(s_Window, MouseButtonCallback);
-		glfwSetCursorPosCallback(s_Window, MouseCursorPosCallback);
-		glfwSetScrollCallback(s_Window, MouseScrollCallback);
+		glfwSetKeyCallback(m_Window, KeyCallback);
+		glfwSetCharCallback(m_Window, CharCallback);
+		glfwSetMouseButtonCallback(m_Window, MouseButtonCallback);
+		glfwSetCursorPosCallback(m_Window, MouseCursorPosCallback);
+		glfwSetScrollCallback(m_Window, MouseScrollCallback);
 
-		glfwMakeContextCurrent(s_Window);
-		glfwSwapInterval(1);
+		glfwMakeContextCurrent(m_Window);
+		glfwSwapInterval(0);
 		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-
-		SetupViewport(s_WindowData.Width, s_WindowData.Height);
 	}
 
 	bool GLPlatform::WindowShouldClose()
 	{
 		// TODO:
-		return glfwWindowShouldClose(s_Window);
+		return glfwWindowShouldClose(m_Window);
 	}
 
 	void GLPlatform::ShutdownPlatform()
 	{
-		glfwDestroyWindow(s_Window);
+		glfwDestroyWindow(m_Window);
 		glfwTerminate();
 	}
 
 	void GLPlatform::SwapBuffers()
 	{
 		//TODO:
-		glfwSwapBuffers(s_Window);
+		glfwSwapBuffers(m_Window);
 	}
 
 	void GLPlatform::PollInputEvents()
@@ -173,12 +190,5 @@ namespace GL
 
 		glfwPollEvents();
 	}
-
-	void GLPlatform::SetupViewport(int width, int height)
-	{
-		// TODO:
-		glViewport(0, 0, width, height);
-	}
-
 }
 }

@@ -119,9 +119,10 @@ namespace GL
 		m_Mouse.Scale = { scaleX, scaleY };
 	}
 
-	Vector2 GLInput::GetMousePosition()
+	Math::Vector2 GLInput::GetMousePosition()
 	{
-		Vector2 pos;
+		// NOTE: The mouse position within the rendering area, not the entire window.
+		Math::Vector2 pos;
 		pos.x = (m_Mouse.CurrentPosition.x + m_Mouse.Offset.x) * m_Mouse.Scale.x;
 		pos.x = (m_Mouse.CurrentPosition.y + m_Mouse.Offset.y) * m_Mouse.Scale.y;
 		return pos;
@@ -129,19 +130,21 @@ namespace GL
 
 	int GLInput::GetMouseX()
 	{
+		// NOTE: The mouse position within the rendering area, not the entire window.
 		int x = (int)((m_Mouse.CurrentPosition.x + m_Mouse.Offset.x) * m_Mouse.Scale.x);
 		return x;
 	}
 
 	int GLInput::GetMouseY()
 	{
+		// NOTE: The mouse position within the rendering area, not the entire window.
 		int y = (int)((m_Mouse.CurrentPosition.y + m_Mouse.Offset.y) * m_Mouse.Scale.y);
 		return y;
 	}
 
-	Vector2 GLInput::GetMouseDelta()
+	Math::Vector2 GLInput::GetMouseDelta()
 	{
-		Vector2 delta;
+		Math::Vector2 delta;
 		delta.x = m_Mouse.CurrentPosition.x - m_Mouse.PreviousPosition.x;
 		delta.y = m_Mouse.CurrentPosition.y - m_Mouse.PreviousPosition.y;
 		return delta;
@@ -194,9 +197,10 @@ namespace GL
 			m_Mouse.CurrentWheelMove.y;
 	}
 
-	Vector2 GLInput::GetMouseWheelV()
+	Math::Vector2 GLInput::GetMouseWheelV()
 	{
-		return Vector2(m_Mouse.CurrentWheelMove.x, m_Mouse.CurrentWheelMove.y);
+		Math::Vector2 result{ m_Mouse.CurrentWheelMove.x, m_Mouse.CurrentWheelMove.y };
+		return result;
 	}
 
 }
