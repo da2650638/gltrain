@@ -109,12 +109,24 @@ int main()
 	}
 	// 设置shader的uniform
 	glUseProgram(program);
-	Math::Matrix4 projection = Math::Ortho(0.0f, 1280.0f, 720.0f, 0.0f, 1.0f, -1.0f);
-	Math::Matrix4 view = Math::LookAt({ 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
-	Math::Matrix4 model = Math::Scale({ 1.0f, 1.0f, 1.0f });
-	Math::Matrix4 mvp = projection * view * model;
+	//Math::Matrix4 projection = Math::Ortho(-640.0f, 640.0f, -360.0f, 360.0f, -0.1f, -100.0f); // 左上角为原点，向下向左坐标增加（为了绘制文字界面等）
+	//Math::Matrix4 scale = Math::Scale({ 640.0f, 360.0f, 1.0f });
+	//Math::Matrix4 translate = Math::Translate({ 0.0f, 0.0f, 0.0f });
+	//Math::Matrix4 rotation = Math::Rotate(0.0f, { 0.0f, 0.0f, 1.0f };
+
+	Math::Matrix4 Mathprojection = Math::Perspective(90.f, 2.0f, -0.1f, -100.f);
+	Math::Matrix4 Mathview = Math::LookAt({ 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
+	Math::Matrix4 Mathmodel = Math::Matrix4::Identity();
+	Math::Matrix4 MathTemp = Math::Matrix4::Identity();
+	MathTemp.Data.m10 = -1.0f;
+	Math::Matrix4 Mathmvp = MathTemp * Mathprojection * Mathview * Mathmodel;
 	int mvpLocation = glGetUniformLocation(program, "mvp");
-	glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, Graphics::ToOpenGLMatrix4(mvp).v);
+	glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, Graphics::ToOpenGLMatrix4(Mathmvp).v);
+	glm::mat4 projection = glm::perspective(glm::radians(90.f), 2.0f, 0.1f, 100.f);
+	glm::mat4 view = glm::lookAt(glm::vec3({ 0.0f, 0.0f, 1.0f }), glm::vec3({ 0.0f, 0.0f, 0.0f }), glm::vec3({ 0.0f, 1.0f, 0.0f }));
+	glm::mat4 model(1.0f);
+	glm::mat4 mvp = projection * view * model;
+	//glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 
 	// vertex buffer
 	unsigned int vao;
@@ -122,14 +134,21 @@ int main()
 	glBindVertexArray(vao);
 	
 	float vertexPositions[] = {
-		600.f, 400.f, 0.0f,
-		680.f, 400.f, 0.0f,
-		680.f, 320.f, 0.0f,
+		// First triangle
+		-1.5f, -1.5f, -5.0f,  // Bottom-left
+		 1.5f, -1.5f, -5.0f,  // Bottom-right
+		 1.5f,  1.5f, -5.0f,  // Top-right
 
-		600.f, 400.f, 0.0f,
-		680.f, 320.f, 0.0f,
-		600.f, 320.f, 0.0f
+		 // Second triangle
+		 -1.5f, -1.5f, -5.0f,  // Bottom-left
+		  1.5f,  1.5f, -5.0f,  // Top-right
+		 -1.5f,  1.5f, -5.0f   // Top-left
 	};
+	std::cout << "Math result: " << Mathmvp * Math::Vector4({ -1.5f, -1.5f, -5.0f , 1.0f} );
+	glm::vec4 v4{ -1.5f, -1.5f, -5.0f , 1.0f };
+	v4 = mvp * v4;
+	Math::Vector4 testPosition({ v4.x, v4.y, v4.z, v4.w});
+	std::cout << "glm result: " << testPosition;
 	unsigned int posVbo;
 	glCreateBuffers(1, &posVbo);
 	glBindBuffer(GL_ARRAY_BUFFER, posVbo);

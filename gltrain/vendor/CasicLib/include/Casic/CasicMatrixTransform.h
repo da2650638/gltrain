@@ -27,6 +27,51 @@ namespace Math
 	CASICLIB_API Matrix4 Ortho(float left, float right, float bottom, float top, float near, float far);
 
 	/*
+	 * Creates a perspective projection matrix looking towards the -Z axis.
+	 *
+	 * Args:
+	 *   left (float): The left plane of the perspective frustum.
+	 *   right (float): The right plane of the perspective frustum.
+	 *   bottom (float): The bottom plane of the perspective frustum.
+	 *   top (float): The top plane of the perspective frustum.
+	 *   near (float): The near clipping plane (a negative value, closer to the camera).
+	 *   far (float): The far clipping plane (a negative value, farther from the camera).
+	 *
+	 * Returns:
+	 *   Matrix4: The resulting perspective projection matrix.
+	 *
+	 * Note:
+	 *   - This function assumes a right-handed coordinate system.
+	 *   - The `near` and `far` planes are negative values because they are located on the -Z axis.
+	 *   - The `near` plane is numerically greater (closer to the origin) than the `far` plane.
+	 *   - The resulting matrix maps the perspective frustum to normalized device coordinates (NDC).
+	 *   - After the perspective division, values in NDC are in the range [-1, 1] for X, Y, and Z.
+	 */
+	CASICLIB_API Matrix4 Perspective(float left, float right, float bottom, float top, float near, float far);
+
+	/*
+	 * Creates a perspective projection matrix using a vertical field of view (fovy) and aspect ratio.
+	 *
+	 * Args:
+	 *   fovy (float): The vertical field of view in degrees.
+	 *   aspect (float): The aspect ratio of the frustum, defined as width / height.
+	 *   near (float): The near clipping plane (a negative value, closer to the camera).
+	 *   far (float): The far clipping plane (a negative value, farther from the camera).
+	 *
+	 * Returns:
+	 *   Matrix4: The resulting perspective projection matrix.
+	 *
+	 * Note:
+	 *   - The `fovy` defines the vertical field of view angle (in degrees), which determines how "wide" the frustum is.
+	 *   - The `aspect` determines the horizontal field of view by scaling the width of the frustum relative to its height.
+	 *   - The `near` and `far` planes are negative values because they are located on the -Z axis.
+	 *   - This function internally computes the frustum parameters (left, right, bottom, top) and calls the frustum-based Perspective function.
+	 *   - The resulting matrix maps the perspective frustum to normalized device coordinates (NDC), where X, Y, and Z range from [-1, 1].
+	 *   - After the perspective division, the visible geometry is constrained to the frustum volume.
+	 */
+	CASICLIB_API Matrix4 Perspective(float fovy, float aspect, float near, float far);
+
+	/*
 	 * Creates a view matrix for a camera looking at a specified target.
 	 *
 	 * Args:
