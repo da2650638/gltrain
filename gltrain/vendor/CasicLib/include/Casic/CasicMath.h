@@ -395,7 +395,7 @@ namespace Math
 			this->Data.m15 = other.Data.m15;
 		}
 
-		void operator=(const Matrix4& other) {
+		Matrix4& operator=(const Matrix4& other) {
 			this->Data.m0 =  other.Data.m0 ;
 			this->Data.m1 =  other.Data.m1 ;
 			this->Data.m2 =  other.Data.m2 ;
@@ -412,6 +412,7 @@ namespace Math
 			this->Data.m13 = other.Data.m13;
 			this->Data.m14 = other.Data.m14;
 			this->Data.m15 = other.Data.m15;
+			return *this;
 		}
 
 		Matrix4 Transpose() {

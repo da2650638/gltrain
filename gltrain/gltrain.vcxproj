@@ -101,6 +101,7 @@
     <ClCompile Include="src\GLInput.cpp" />
     <ClCompile Include="src\GLPlatform.cpp" />
     <ClCompile Include="src\GLRenderer.cpp" />
+    <ClCompile Include="src\GLShader.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\SimpleLogger.cpp" />
     <ClCompile Include="vendor\glad\src\glad.c" />
@@ -110,6 +111,7 @@
     <ClInclude Include="src\GLInput.h" />
     <ClInclude Include="src\GLPlatform.h" />
     <ClInclude Include="src\GLRenderer.h" />
+    <ClInclude Include="src\GLShader.h" />
     <ClInclude Include="src\SimpleLogger.h" />
     <ClInclude Include="vendor\glad\include\glad\glad.h" />
     <ClInclude Include="vendor\glad\include\KHR\khrplatform.h" />

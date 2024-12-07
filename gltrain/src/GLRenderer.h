@@ -6,6 +6,7 @@
 
 #include "GLPlatform.h"
 #include "GLGlobal.h"
+#include "GLShader.h"
 
 namespace Casic
 {
@@ -27,6 +28,7 @@ namespace GL
 		void SetPlatform(GLPlatform* platform);
 		void SetRenderData(RenderData rd);
 		void SetRenderSize(int width, int height);
+		void RenderInit();
 		void SetTargetFps(unsigned int fps);
 		void SetupViewport(int width, int height);
 		void UpdateViewport();
@@ -43,6 +45,11 @@ namespace GL
 		// TODO: 任何使用m_PlatformInst必须检查是否合法并提示编译错误或抛出异常
 		GLPlatform* m_PlatformInst;
 		RenderData m_RenderData;
+		//-------------------------
+		// Shader相关成员
+		//-------------------------
+		GLShader m_DefaultShader;
+		GLShader* m_CurrentShader;
 		//-------------------------
 		// Matrix 成员
 		//-------------------------
