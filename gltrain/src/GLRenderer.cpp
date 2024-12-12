@@ -140,6 +140,81 @@ namespace GL
 
 	GLRenderer::GLRenderer()
 	{
+
+	}
+
+	void GLRenderer::LoadRenderBatch()
+	{
+		// TODO: 未来可以做成从配置文件读取RenderBatch的各种参数，而不是直接写死在代码里。
+
+		//-------------------------------------------------------------------------------
+		// Init Vertex Buffers
+		//-------------------------------------------------------------------------------
+		m_Batch.Buffers.resize(m_Batch.BufferCount);
+		for (int i = 0; i < m_Batch.BufferCount; i++)
+		{
+			auto& buffer = m_Batch.Buffers[i];
+			
+			glCreateVertexArrays(1, &buffer.VertexArray);
+			glBindVertexArray(buffer.VertexArray);
+
+			glCreateBuffers(1, &buffer.PositionBuffer);
+			buffer.PositionData.resize(buffer.BufferElements * buffer.ElementVertice * 3);
+			glBindBuffer(GL_ARRAY_BUFFER, buffer.PositionBuffer);
+			glBufferData(GL_ARRAY_BUFFER, buffer.PositionData.size() * sizeof(float), reinterpret_cast<const void*>(buffer.PositionData.data()), GL_DYNAMIC_DRAW);
+			glEnableVertexAttribArray(ATTRIB_VERTEX_POSITION_DEFAULT_LOC);
+			glVertexAttribPointer(ATTRIB_VERTEX_POSITION_DEFAULT_LOC, 3, GL_FLOAT, 0, 0, 0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			glCreateBuffers(1, &buffer.TexCoordBuffer);
+			buffer.TexCoordData.resize(buffer.BufferElements * buffer.ElementVertice * 2);
+			glBindBuffer(GL_ARRAY_BUFFER, buffer.TexCoordBuffer);
+			glBufferData(GL_ARRAY_BUFFER, buffer.TexCoordData.size() * sizeof(float), reinterpret_cast<const void*>(buffer.TexCoordData.data()), GL_DYNAMIC_DRAW);
+			glEnableVertexAttribArray(ATTRIB_VERTEX_TEXCOORD_DEFAULT_LOC);
+			glVertexAttribPointer(ATTRIB_VERTEX_TEXCOORD_DEFAULT_LOC, 2, GL_FLOAT, 0, 0, 0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			glCreateBuffers(1, &buffer.NormalBuffer);
+			buffer.NormalData.resize(buffer.BufferElements * buffer.ElementVertice * 3);
+			glBindBuffer(GL_ARRAY_BUFFER, buffer.NormalBuffer);
+			glBufferData(GL_ARRAY_BUFFER, buffer.NormalData.size() * sizeof(float), reinterpret_cast<const void*>(buffer.NormalData.data()), GL_DYNAMIC_DRAW);
+			glEnableVertexAttribArray(ATTRIB_VERTEX_NORMAL_DEFAULT_LOC);
+			glVertexAttribPointer(ATTRIB_VERTEX_NORMAL_DEFAULT_LOC, 3, GL_FLOAT, 0, 0, 0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			glCreateBuffers(1, &buffer.ColorBuffer);
+			buffer.ColorData.resize(buffer.BufferElements * buffer.ElementVertice);
+			glBindBuffer(GL_ARRAY_BUFFER, buffer.ColorBuffer);
+			glBufferData(GL_ARRAY_BUFFER, buffer.ColorData.size() * sizeof(Graphics::Color), reinterpret_cast<const void*>(buffer.ColorData.data()), GL_DYNAMIC_DRAW);
+			glEnableVertexAttribArray(ATTRIB_VERTEX_COLOR_DEFAULT_LOC);
+			glVertexAttribPointer(ATTRIB_VERTEX_COLOR_DEFAULT_LOC, 4, GL_UNSIGNED_BYTE, 0, 0, 0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			glCreateBuffers(1, &buffer.IndexBuffer);
+			buffer.IndexData.resize(buffer.BufferElements * 6);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer.IndexBuffer);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer.BufferElements * 6 * sizeof(unsigned int), reinterpret_cast<const void*>(buffer.IndexData.data()), GL_STATIC_DRAW);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+			glBindVertexArray(0);
+		}
+
+		//-------------------------------------------------------------------------------
+		// Init Vertex DrawCalls
+		//-------------------------------------------------------------------------------
+		m_Batch.Draws.resize(m_Batch.DrawCount);
+		for (int i = 0; i < m_Batch.DrawCount; i++)
+		{
+			auto& draw = m_Batch.Draws[i];
+			draw.Mode = QUADS;
+			draw.Texture = 0;
+			draw.VertexAlignment = 0;
+			draw.VertexCounter = 0;
+		}
+	}
+	bool GLRenderer::CheckRenderBatchLimit(int vCount)
+	{
+		return false;
 	}
 }
 }

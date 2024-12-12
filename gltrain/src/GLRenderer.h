@@ -7,6 +7,7 @@
 #include "GLPlatform.h"
 #include "GLGlobal.h"
 #include "GLShader.h"
+#include "GLRenderData.h"
 
 namespace Casic
 {
@@ -41,6 +42,9 @@ namespace GL
 	private:
 		GLRenderer();
 
+		void LoadRenderBatch();
+		bool CheckRenderBatchLimit(int vCount);
+
 	private:
 		// TODO: 这种设计能否改进呢？
 		// NOTE: 任何使用m_PlatformInst必须检查是否合法并提示编译错误或抛出异常
@@ -64,6 +68,7 @@ namespace GL
 		//-------------------------
 		// Render Batch相关成员
 		//-------------------------
+		RenderBatch m_Batch;
 
 	private:
 		static std::once_flag m_InitFlag;

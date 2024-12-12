@@ -110,6 +110,7 @@
     <ClInclude Include="src\GLGlobal.h" />
     <ClInclude Include="src\GLInput.h" />
     <ClInclude Include="src\GLPlatform.h" />
+    <ClInclude Include="src\GLRenderData.h" />
     <ClInclude Include="src\GLRenderer.h" />
     <ClInclude Include="src\GLShader.h" />
     <ClInclude Include="src\SimpleLogger.h" />
