@@ -58,69 +58,79 @@ int main()
 
 	auto& input = GLInput::GetInstance();
 
-	// shader
-	int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSrc, nullptr);
-	glCompileShader(vertexShader);
-	int vertexShaderCompileStatus;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vertexShaderCompileStatus);
-	if (vertexShaderCompileStatus == GL_FALSE) 
-	{
-		int length = 0;
-		glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &length);
-		char* log = new char[length + 1];
-		memset(log, 0, length + 1);
-		glGetShaderInfoLog(vertexShader, length + 1, nullptr, log);
-		std::cout << std::format("vertex shader:[{}], compile error: {}\n", vertexShader, log);
-		delete [] log;
-		return 1;
-	}
-	int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSrc, nullptr);
-	glCompileShader(fragmentShader);
-	int fragmentShaderCompileStatus = 0;
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS , &fragmentShaderCompileStatus);
-	if (fragmentShaderCompileStatus == GL_FALSE)
-	{
-		int length = 0;
-		glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &length);
-		char* log = new char[length + 1];
-		memset(log, 0, length + 1);
-		glGetShaderInfoLog(fragmentShader, length, nullptr, log);
-		std::cout << std::format("fragment shader:[{}], compile error: {}\n", fragmentShader, log);
-		delete [] log;
-		return 1;
-	}
-	int program = glCreateProgram();
-	glAttachShader(program, vertexShader);
-	glAttachShader(program, fragmentShader);
-	glLinkProgram(program);
-	int linkStatus = 0;
-	glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
-	if (linkStatus == GL_FALSE)
-	{
-		int length = 0;
-		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
-		char* log = new char[length + 1];
-		memset(log, 0, length + 1);
-		glGetProgramInfoLog(program, length, nullptr, log);
-		std::cout << std::format("shader program:[{}], link error: {}\n", program, log);
-		delete[] log;
-		return 1;
-	}
-	// 设置shader的uniform
-	glUseProgram(program);
+	GLShader shader("Test Shader");
+	shader.LoadShader("res/shader/defaultVS.glsl", "res/shader/defaultFS.glsl");
+	SimpleLogger::GetInstance().Trace("Shader: {}, ID: {}", shader.Name(), shader.ID());
+	SimpleLogger::GetInstance().Trace("Get vertex position loc:{}", shader.Attribute("vertexPosition"));
+	SimpleLogger::GetInstance().Trace("Get vertex tex coord loc:{}", shader.Attribute("vertexTexcoord"));
+	SimpleLogger::GetInstance().Trace("Get vertex normal loc:{}", shader.Attribute("vertexNormal"));
+	SimpleLogger::GetInstance().Trace("Get vertex color loc:{}", shader.Attribute("vertexColor"));
+	SimpleLogger::GetInstance().Trace("Get mvp location: {}", shader.Uniform("mvp"));
+	//// shader
+	//int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	//glShaderSource(vertexShader, 1, &vertexShaderSrc, nullptr);
+	//glCompileShader(vertexShader);
+	//int vertexShaderCompileStatus;
+	//glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vertexShaderCompileStatus);
+	//if (vertexShaderCompileStatus == GL_FALSE) 
+	//{
+	//	int length = 0;
+	//	glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &length);
+	//	char* log = new char[length + 1];
+	//	memset(log, 0, length + 1);
+	//	glGetShaderInfoLog(vertexShader, length + 1, nullptr, log);
+	//	std::cout << std::format("vertex shader:[{}], compile error: {}\n", vertexShader, log);
+	//	delete [] log;
+	//	return 1;
+	//}
+	//int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	//glShaderSource(fragmentShader, 1, &fragmentShaderSrc, nullptr);
+	//glCompileShader(fragmentShader);
+	//int fragmentShaderCompileStatus = 0;
+	//glGetShaderiv(fragmentShader, GL_COMPILE_STATUS , &fragmentShaderCompileStatus);
+	//if (fragmentShaderCompileStatus == GL_FALSE)
+	//{
+	//	int length = 0;
+	//	glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &length);
+	//	char* log = new char[length + 1];
+	//	memset(log, 0, length + 1);
+	//	glGetShaderInfoLog(fragmentShader, length, nullptr, log);
+	//	std::cout << std::format("fragment shader:[{}], compile error: {}\n", fragmentShader, log);
+	//	delete [] log;
+	//	return 1;
+	//}
+	//int program = glCreateProgram();
+	//glAttachShader(program, vertexShader);
+	//glAttachShader(program, fragmentShader);
+	//glLinkProgram(program);
+	//int linkStatus = 0;
+	//glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
+	//if (linkStatus == GL_FALSE)
+	//{
+	//	int length = 0;
+	//	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
+	//	char* log = new char[length + 1];
+	//	memset(log, 0, length + 1);
+	//	glGetProgramInfoLog(program, length, nullptr, log);
+	//	std::cout << std::format("shader program:[{}], link error: {}\n", program, log);
+	//	delete[] log;
+	//	return 1;
+	//}
+	//// 设置shader的uniform
+	//glUseProgram(program);
 	//Math::Matrix4 projection = Math::Ortho(-640.0f, 640.0f, -360.0f, 360.0f, 0.1f, 100.0f); // 左上角为原点，向下向左坐标增加（为了绘制文字界面等）
 	//Math::Matrix4 scale = Math::Scale({ 640.0f, 360.0f, 1.0f });
 	//Math::Matrix4 translate = Math::Translate({ 0.0f, 0.0f, 0.0f });
 	//Math::Matrix4 rotation = Math::Rotate(0.0f, { 0.0f, 0.0f, 1.0f };
 
-	Math::Matrix4 Mathprojection = Math::Perspective(90.f, 2.0f, 0.1f, 100.f);
+	Math::Matrix4 Mathprojection = Math::Perspective(90.f, (float)platform.GetWindowData().Width / (float)platform.GetWindowData().Height, 0.1f, 100.f);
 	Math::Matrix4 Mathview = Math::LookAt({ 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
 	Math::Matrix4 Mathmodel = Math::Matrix4::Identity();
 	Math::Matrix4 Mathmvp = Mathprojection * Mathview * Mathmodel;
-	int mvpLocation = glGetUniformLocation(program, "mvp");
+	shader.Bind();
+	int mvpLocation = glGetUniformLocation(shader.ID() , "mvp");
 	glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, Graphics::ToOpenGLMatrix4(Mathmvp).v);
+	shader.UnBind();
 
 	// vertex buffer
 	unsigned int vao;
@@ -163,7 +173,7 @@ int main()
 	glVertexAttribPointer(3, 4, GL_FLOAT, 0, 0, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	glUseProgram(0);
+	shader.UnBind();
 	glBindVertexArray(0);
 
 	while (!platform.WindowShouldClose())
@@ -171,7 +181,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-		glUseProgram(program);
+		shader.Bind();
 		glBindVertexArray(vao);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 

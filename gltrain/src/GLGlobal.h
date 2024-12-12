@@ -7,6 +7,11 @@
 
 #include "SimpleLogger.h"
 
+// 判断编译器版本
+#if __cplusplus >= 202002L
+	#define USE_CPP20
+#endif
+
 #define BASIC_RUNTIME_CHECK(expr, desc) \
 	if(!(expr))  SimpleLogger::GetInstance().Fatal("运行条件检查未通过：{}, 说明：{}", #expr, desc);
 

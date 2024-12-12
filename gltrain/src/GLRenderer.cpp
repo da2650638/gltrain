@@ -55,6 +55,11 @@ namespace GL
 		// TODO: 初始化shader
 		//---------------------------------------------------------------
 		m_DefaultShader.LoadShader("res/shader/defaultVS.glsl", "res/shader/defaultFS.glsl");
+		SimpleLogger::GetInstance().Info("Get vertex position loc:{}", m_DefaultShader.GetAttribLocation("vertexPosition"));
+		SimpleLogger::GetInstance().Info("Get vertex tex coord loc:{}", m_DefaultShader.GetAttribLocation("vertexTexcoord"));
+		SimpleLogger::GetInstance().Info("Get vertex normal loc:{}", m_DefaultShader.GetAttribLocation("vertexNormal"));
+		SimpleLogger::GetInstance().Info("Get vertex color loc:{}", m_DefaultShader.GetAttribLocation("vertexColor"));
+		SimpleLogger::GetInstance().Info("Get mvp location: {}", m_DefaultShader.GetUniformLocation("mvp"));
 
 		//---------------------------------------------------------------
 		// TODO: 初始化RenderBatch
@@ -125,11 +130,12 @@ namespace GL
 		m_PlatformInst->TimeData().Update = m_PlatformInst->TimeData().Current - m_PlatformInst->TimeData().Previous;
 		m_PlatformInst->TimeData().Previous = m_PlatformInst->TimeData().Current;
 
-
+		//TODO: 是否需要做一些矩阵变换呢？
 	}
 
 	void GLRenderer::EndDrawing()
 	{
+
 	}
 
 	GLRenderer::GLRenderer()

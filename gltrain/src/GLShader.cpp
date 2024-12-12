@@ -10,7 +10,8 @@ namespace Casic
 {
 namespace GL
 {
-	GLShader::GLShader()
+	GLShader::GLShader(const std::string& name)
+		: m_Name(name)
 	{
 
 	}
@@ -22,10 +23,55 @@ namespace GL
 
 	bool GLShader::LoadShader(const std::string& vertexShaderFile, const std::string& fragmentShaderFile)
 	{
+		SimpleLogger::GetInstance().Info("Load shader: {}", m_Name);
 		if (!ShaderSrc(vertexShaderFile, fragmentShaderFile)) return false;
 		if (!CompileShader(m_VertexShaderSrc, m_FragmentShaderSrc)) return false;
+		if (!LinkShader(m_VertexShaderID, m_FragmentShaderID))
+		{
+			glDeleteShader(m_VertexShaderID);
+			glDeleteShader(m_FragmentShaderID);
+			return false;
+		}
 
 		return true;
+	}
+
+	int GLShader::GetAttribLocation(const std::string& name)
+	{
+		if (m_Locations.find(name) != m_Locations.end())
+		{
+#ifdef USE_CPP20
+			[[likely]]
+#else
+
+#endif
+			return m_Locations[name];
+		}
+		int location = glGetAttribLocation(m_ProgramID, name.data());
+		if (location != -1)
+		{
+			m_Locations[name] = location;
+		}
+		return location;
+	}
+
+	int GLShader::GetUniformLocation(const std::string& name)
+	{
+		if (m_Locations.find(name) != m_Locations.end())
+		{
+#ifdef USE_CPP20
+			[[likely]]
+#else
+
+#endif
+			return m_Locations[name];
+		}
+		int location = glGetUniformLocation(m_ProgramID, name.data());
+		if (location != -1)
+		{
+			m_Locations[name] = location;
+		}
+		return location;
 	}
 
 	bool GLShader::ShaderSrc(const std::string& vertexShaderFile, const std::string& fragmentShaderFile)
@@ -99,7 +145,39 @@ namespace GL
 			return false;
 		}
 
-		SimpleLogger::GetInstance().Info("Compile shader successfully.");
+		SimpleLogger::GetInstance().Info("Compile shader successfully.vertex shader ID: {}, fragment shader ID: {}", m_VertexShaderID, m_FragmentShaderID);
+		return true;
+	}
+
+	bool GLShader::LinkShader(int vertexShaderID, int fragmentShaderID)
+	{
+		m_ProgramID = glCreateProgram();
+
+		glUseProgram(m_ProgramID);
+
+		glAttachShader(m_ProgramID, vertexShaderID);
+		glAttachShader(m_ProgramID, fragmentShaderID);
+
+		// Must bind these locations before glLinkProgram()
+		glBindAttribLocation(m_ProgramID, ATTRIB_VERTEX_POSITION_DEFAULT_LOC, ATTRIB_VERTEX_POSITION_NAME);
+		glBindAttribLocation(m_ProgramID, ATTRIB_VERTEX_TEXCOORD_DEFAULT_LOC, ATTRIB_VERTEX_TEXCOORD_NAME);
+		glBindAttribLocation(m_ProgramID, ATTRIB_VERTEX_NORMAL_DEFAULT_LOC, ATTRIB_VERTEX_NORMAL_NAME);
+		glBindAttribLocation(m_ProgramID, ATTRIB_VERTEX_COLOR_DEFAULT_LOC, ATTRIB_VERTEX_COLOR_NAME);
+
+		glLinkProgram(m_ProgramID);
+		int status;
+		glGetProgramiv(m_ProgramID, GL_LINK_STATUS, &status);
+		if (status == GL_FALSE)
+		{
+			int length;
+			glGetProgramiv(m_ProgramID, GL_INFO_LOG_LENGTH, &length);
+			char* log = new char[length + 1];
+			glGetProgramInfoLog(m_ProgramID, length + 1, NULL, log);
+			SimpleLogger::GetInstance().Error("Link program error. ID: {}, msg: {}", m_ProgramID, log);
+			return false;
+		}
+
+		SimpleLogger::GetInstance().Info("Link program successfully. ID:{}", m_ProgramID);
 		return true;
 	}
 }

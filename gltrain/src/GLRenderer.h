@@ -42,7 +42,8 @@ namespace GL
 		GLRenderer();
 
 	private:
-		// TODO: 任何使用m_PlatformInst必须检查是否合法并提示编译错误或抛出异常
+		// TODO: 这种设计能否改进呢？
+		// NOTE: 任何使用m_PlatformInst必须检查是否合法并提示编译错误或抛出异常
 		GLPlatform* m_PlatformInst;
 		RenderData m_RenderData;
 		//-------------------------
@@ -60,6 +61,9 @@ namespace GL
 		Math::Matrix4 m_Transform;
 		bool m_TransformRequired;
 		std::stack<Math::Matrix4> m_MatStack;
+		//-------------------------
+		// Render Batch相关成员
+		//-------------------------
 
 	private:
 		static std::once_flag m_InitFlag;
