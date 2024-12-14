@@ -43,6 +43,7 @@ namespace GL
 		GLRenderer();
 
 		void LoadRenderBatch();
+		void DrawRenderBatch();
 		bool CheckRenderBatchLimit(int vCount);
 
 	private:

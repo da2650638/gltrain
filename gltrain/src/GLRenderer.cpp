@@ -3,6 +3,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <algorithm>
+
 #include "Casic/CasicMatrixTransform.h"
 
 namespace Casic
@@ -160,6 +162,7 @@ namespace GL
 
 			glCreateBuffers(1, &buffer.PositionBuffer);
 			buffer.PositionData.resize(buffer.BufferElements * buffer.ElementVertice * 3);
+			std::fill(buffer.PositionData.begin(), buffer.PositionData.end(), 0.0f);
 			glBindBuffer(GL_ARRAY_BUFFER, buffer.PositionBuffer);
 			glBufferData(GL_ARRAY_BUFFER, buffer.PositionData.size() * sizeof(float), reinterpret_cast<const void*>(buffer.PositionData.data()), GL_DYNAMIC_DRAW);
 			glEnableVertexAttribArray(ATTRIB_VERTEX_POSITION_DEFAULT_LOC);
@@ -168,6 +171,7 @@ namespace GL
 
 			glCreateBuffers(1, &buffer.TexCoordBuffer);
 			buffer.TexCoordData.resize(buffer.BufferElements * buffer.ElementVertice * 2);
+			std::fill(buffer.TexCoordData.begin(), buffer.TexCoordData.end(), 0.0f);
 			glBindBuffer(GL_ARRAY_BUFFER, buffer.TexCoordBuffer);
 			glBufferData(GL_ARRAY_BUFFER, buffer.TexCoordData.size() * sizeof(float), reinterpret_cast<const void*>(buffer.TexCoordData.data()), GL_DYNAMIC_DRAW);
 			glEnableVertexAttribArray(ATTRIB_VERTEX_TEXCOORD_DEFAULT_LOC);
@@ -176,6 +180,7 @@ namespace GL
 
 			glCreateBuffers(1, &buffer.NormalBuffer);
 			buffer.NormalData.resize(buffer.BufferElements * buffer.ElementVertice * 3);
+			std::fill(buffer.NormalData.begin(), buffer.NormalData.end(), 0.0f);
 			glBindBuffer(GL_ARRAY_BUFFER, buffer.NormalBuffer);
 			glBufferData(GL_ARRAY_BUFFER, buffer.NormalData.size() * sizeof(float), reinterpret_cast<const void*>(buffer.NormalData.data()), GL_DYNAMIC_DRAW);
 			glEnableVertexAttribArray(ATTRIB_VERTEX_NORMAL_DEFAULT_LOC);
@@ -184,6 +189,7 @@ namespace GL
 
 			glCreateBuffers(1, &buffer.ColorBuffer);
 			buffer.ColorData.resize(buffer.BufferElements * buffer.ElementVertice);
+			std::fill(buffer.ColorData.begin(), buffer.ColorData.end(), 0.0f);
 			glBindBuffer(GL_ARRAY_BUFFER, buffer.ColorBuffer);
 			glBufferData(GL_ARRAY_BUFFER, buffer.ColorData.size() * sizeof(Graphics::Color), reinterpret_cast<const void*>(buffer.ColorData.data()), GL_DYNAMIC_DRAW);
 			glEnableVertexAttribArray(ATTRIB_VERTEX_COLOR_DEFAULT_LOC);
@@ -192,6 +198,15 @@ namespace GL
 
 			glCreateBuffers(1, &buffer.IndexBuffer);
 			buffer.IndexData.resize(buffer.BufferElements * 6);
+			for (int i = 0; i < buffer.BufferElements; i)
+			{
+				buffer.IndexData[i * 6 + 0] = i * 4 + 0;
+				buffer.IndexData[i * 6 + 1] = i * 4 + 1;
+				buffer.IndexData[i * 6 + 2] = i * 4 + 2;
+				buffer.IndexData[i * 6 + 3] = i * 4 + 0;
+				buffer.IndexData[i * 6 + 4] = i * 4 + 2;
+				buffer.IndexData[i * 6 + 5] = i * 4 + 3;
+			}
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer.IndexBuffer);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer.BufferElements * 6 * sizeof(unsigned int), reinterpret_cast<const void*>(buffer.IndexData.data()), GL_STATIC_DRAW);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -212,9 +227,48 @@ namespace GL
 			draw.VertexCounter = 0;
 		}
 	}
+	void GLRenderer::DrawRenderBatch()
+	{
+		if (m_Batch.VertexCounter > 0)
+		{
+			auto& currentBuffer = m_Batch.Buffers[m_Batch.CurrentBuffer];
+
+			glBindVertexArray(currentBuffer.VertexArray);
+
+			glBindBuffer(GL_ARRAY_BUFFER, currentBuffer.PositionBuffer);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, m_Batch.VertexCounter * 3 * sizeof(float), currentBuffer.PositionData.data());
+
+			glBindBuffer(GL_ARRAY_BUFFER, currentBuffer.TexCoordBuffer);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, m_Batch.VertexCounter * 2 * sizeof(float), currentBuffer.TexCoordData.data());
+
+			glBindBuffer(GL_ARRAY_BUFFER, currentBuffer.NormalBuffer);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, m_Batch.VertexCounter * 3 * sizeof(float), currentBuffer.NormalData.data());
+
+			glBindBuffer(GL_ARRAY_BUFFER, currentBuffer.ColorBuffer);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, m_Batch.VertexCounter * 4 * sizeof(unsigned char), currentBuffer.ColorData.data());
+
+			glBindVertexArray(0);
+		}
+	}
+
 	bool GLRenderer::CheckRenderBatchLimit(int vCount)
 	{
-		return false;
+		bool overflow = false;
+
+		if ((vCount + m_Batch.VertexCounter) >= m_Batch.Buffers[m_Batch.CurrentBuffer].BufferElements * 4)
+		{
+			overflow = true;
+
+
+			DrawCall curDraw = m_Batch.Draws[m_Batch.DrawCounter - 1];
+
+			DrawRenderBatch();
+
+			m_Batch.Draws[m_Batch.DrawCounter] = curDraw;
+			m_Batch.DrawCounter++;
+		}
+
+		return true;
 	}
 }
 }
