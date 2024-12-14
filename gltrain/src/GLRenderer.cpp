@@ -189,7 +189,7 @@ namespace GL
 
 			glCreateBuffers(1, &buffer.ColorBuffer);
 			buffer.ColorData.resize(buffer.BufferElements * buffer.ElementVertice);
-			std::fill(buffer.ColorData.begin(), buffer.ColorData.end(), 0.0f);
+			std::fill(buffer.ColorData.begin(), buffer.ColorData.end(), Graphics::Color());
 			glBindBuffer(GL_ARRAY_BUFFER, buffer.ColorBuffer);
 			glBufferData(GL_ARRAY_BUFFER, buffer.ColorData.size() * sizeof(Graphics::Color), reinterpret_cast<const void*>(buffer.ColorData.data()), GL_DYNAMIC_DRAW);
 			glEnableVertexAttribArray(ATTRIB_VERTEX_COLOR_DEFAULT_LOC);
