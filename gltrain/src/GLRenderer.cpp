@@ -194,6 +194,48 @@ namespace GL
 		EndVertexInput();
 	}
 
+	void GLRenderer::DrawTriangleLines(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color)
+	{
+		BeginVertexInput(LINES);
+		{
+			ColorV(color);
+
+			// Line1
+			Vertex3f(v1.x, v1.y, v1.z);
+			Vertex3f(v2.x, v2.y, v2.z);
+
+			// Line2
+			Vertex3f(v2.x, v2.y, v2.z);
+			Vertex3f(v3.x, v3.y, v3.z);
+
+			// Line3
+			Vertex3f(v3.x, v3.y, v3.z);
+			Vertex3f(v1.x, v1.y, v1.z);
+		}
+		EndVertexInput();
+	}
+
+	void GLRenderer::DrawTriangleLines(Math::Vector2 v1, Math::Vector2 v2, Math::Vector2 v3, Graphics::Color color)
+	{
+		BeginVertexInput(LINES);
+		{
+			ColorV(color);
+
+			// Line1
+			Vertex3f(v1.x, v1.y, m_Batch.CurrentDepth);
+			Vertex3f(v2.x, v2.y, m_Batch.CurrentDepth);
+
+			// Line2
+			Vertex3f(v2.x, v2.y, m_Batch.CurrentDepth);
+			Vertex3f(v3.x, v3.y, m_Batch.CurrentDepth);
+
+			// Line3
+			Vertex3f(v3.x, v3.y, m_Batch.CurrentDepth);
+			Vertex3f(v1.x, v1.y, m_Batch.CurrentDepth);
+		}
+		EndVertexInput();
+	}
+
 	void GLRenderer::DrawTriangleGradients(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color1, Graphics::Color color2, Graphics::Color color3)
 	{
 		//BeginVertexInput(TRIANGLES);
@@ -244,6 +286,185 @@ namespace GL
 			Vertex3f(v1.x, v1.y, m_Batch.CurrentDepth);
 		}
 		EndVertexInput();
+	}
+
+	void GLRenderer::DrawRectanglePro(int x, int y, int width, int height, float rotation, Graphics::Color color, Math::Vector2 pivot)
+	{
+		// NOTE: pivot是矩形内部的相对坐标，例如pivot为(0,0)则，相当于矩形的左上角
+		Math::Vector2 topLeft, topRight, bottomRight, bottomLeft;
+		topLeft = { (float)x - pivot.x, (float)y - pivot.y};
+		topRight = { topLeft.x + width, topLeft.y };
+		bottomRight = { topLeft.x + width, topLeft.y + height };
+		bottomLeft = { topLeft.x, topLeft.y + height };
+		if (!Math::Equals(rotation, 0.0f))
+		{
+			float sinTheta = std::sinf(Math::degreesToRadians(rotation));
+			float cosTheta = std::cosf(Math::degreesToRadians(rotation));
+			// NOTE: 记录下以pivot为原点的坐标系中的矩形四个点的向量，先旋转，再平移。
+			Math::Vector2 vTopLeft{ -pivot.x, -pivot.y }, vTopRight{ vTopLeft.x + width, vTopLeft.y }, vBottomRight{ vTopLeft.x + width, vTopLeft.y + height }, vBottomLeft{vTopLeft.x, vTopLeft.y + height};
+			topLeft.x = x + vTopLeft.x * cosTheta - vTopLeft.y * sinTheta;
+			topLeft.y = y + vTopLeft.x * sinTheta + vTopLeft.y * cosTheta;
+			topRight.x = x + vTopRight.x * cosTheta - vTopRight.y * sinTheta;
+			topRight.y = y + vTopRight.x * sinTheta + vTopRight.y * cosTheta;
+			bottomRight.x = x + vBottomRight.x * cosTheta - vBottomRight.y * sinTheta;
+			bottomRight.y = y + vBottomRight.x * sinTheta + vBottomRight.y * cosTheta;
+			bottomLeft.x = x + vBottomLeft.x * cosTheta - vBottomLeft.y * sinTheta;
+			bottomLeft.y = y + vBottomLeft.x * sinTheta + vBottomLeft.y * cosTheta;
+		}
+		BeginVertexInput(QUADS);
+		{
+			ColorV(color);
+			Vertex2f(topLeft);
+			Vertex2f(topRight);
+			Vertex2f(bottomRight);
+			Vertex2f(bottomLeft);
+		}
+		EndVertexInput();
+	}
+
+	void GLRenderer::DrawRectangleLinesPro(int x, int y, int width, int height, float rotation, Graphics::Color color, Math::Vector2 pivot)
+	{
+		// NOTE: pivot是矩形内部的相对坐标，例如pivot为(0,0)则，相当于矩形的左上角
+		Math::Vector2 topLeft, topRight, bottomRight, bottomLeft;
+		topLeft = { (float)x - pivot.x, (float)y - pivot.y };
+		topRight = { topLeft.x + width, topLeft.y };
+		bottomRight = { topLeft.x + width, topLeft.y + height };
+		bottomLeft = { topLeft.x, topLeft.y + height };
+		if (!Math::Equals(rotation, 0.0f))
+		{
+			float sinTheta = std::sinf(Math::degreesToRadians(rotation));
+			float cosTheta = std::cosf(Math::degreesToRadians(rotation));
+			// NOTE: 记录下以pivot为原点的坐标系中的矩形四个点的向量，先旋转，再平移。
+			Math::Vector2 vTopLeft{ -pivot.x, -pivot.y }, vTopRight{ vTopLeft.x + width, vTopLeft.y }, vBottomRight{ vTopLeft.x + width, vTopLeft.y + height }, vBottomLeft{ vTopLeft.x, vTopLeft.y + height };
+			topLeft.x = x + vTopLeft.x * cosTheta - vTopLeft.y * sinTheta;
+			topLeft.y = y + vTopLeft.x * sinTheta + vTopLeft.y * cosTheta;
+			topRight.x = x + vTopRight.x * cosTheta - vTopRight.y * sinTheta;
+			topRight.y = y + vTopRight.x * sinTheta + vTopRight.y * cosTheta;
+			bottomRight.x = x + vBottomRight.x * cosTheta - vBottomRight.y * sinTheta;
+			bottomRight.y = y + vBottomRight.x * sinTheta + vBottomRight.y * cosTheta;
+			bottomLeft.x = x + vBottomLeft.x * cosTheta - vBottomLeft.y * sinTheta;
+			bottomLeft.y = y + vBottomLeft.x * sinTheta + vBottomLeft.y * cosTheta;
+		}
+		BeginVertexInput(LINES);
+		{
+			ColorV(color);
+			// Line1
+			Vertex2f(topLeft);
+			Vertex2f(topRight);
+
+			// Line2
+			Vertex2f(topRight);
+			Vertex2f(bottomRight);
+
+			// Line3
+			Vertex2f(bottomRight);
+			Vertex2f(bottomLeft);
+
+			// Line4
+			Vertex2f(bottomLeft);
+			Vertex2f(topLeft);
+		}
+		EndVertexInput();
+	}
+
+	void GLRenderer::DrawRectangleProV(Math::Vector2 pos, Math::Vector2 size, float rotation, Graphics::Color color, Math::Vector2 pivot)
+	{
+		Math::Vector2 topLeft, topRight, bottomRight, bottomLeft;
+		topLeft = pos - pivot;
+		topRight = { topLeft.x + size.x, topLeft.y };
+		bottomRight = { topLeft.x + size.x, topLeft.y + size.y };
+		bottomLeft = { topLeft.x, topLeft.y + size.y };
+		if (!Math::Equals(rotation, 0.0f))
+		{
+			float sinTheta = std::sinf(Math::degreesToRadians(rotation));
+			float cosTheta = std::cosf(Math::degreesToRadians(rotation));
+			// NOTE: 记录下以pivot为原点的坐标系中的矩形四个点的向量，先旋转，再平移。
+			Math::Vector2 vTopLeft{ -pivot.x, -pivot.y }, vTopRight{ vTopLeft.x + size.x, vTopLeft.y }, vBottomRight{ vTopLeft.x + size.x, vTopLeft.y + size.y }, vBottomLeft{ vTopLeft.x, vTopLeft.y + size.y };
+			topLeft = pos + Math::Vector2{ vTopLeft.x * cosTheta - vTopLeft.y * sinTheta, vTopLeft.x * sinTheta + vTopLeft.y * cosTheta };
+			topRight = pos + Math::Vector2{ vTopRight.x * cosTheta - vTopRight.y * sinTheta , vTopRight.x * sinTheta + vTopRight.y * cosTheta };
+			bottomRight = pos + Math::Vector2{ vBottomRight.x * cosTheta - vBottomRight.y * sinTheta , vBottomRight.x * sinTheta + vBottomRight.y * cosTheta };
+			bottomLeft = pos + Math::Vector2{ vBottomLeft.x * cosTheta - vBottomLeft.y * sinTheta , vBottomLeft.x * sinTheta + vBottomLeft.y * cosTheta };
+		}
+		BeginVertexInput(LINES);
+		{
+			ColorV(color);
+			// Line1
+			Vertex2f(topLeft);
+			Vertex2f(topRight);
+
+			// Line2
+			Vertex2f(topRight);
+			Vertex2f(bottomRight);
+
+			// Line3
+			Vertex2f(bottomRight);
+			Vertex2f(bottomLeft);
+
+			// Line4
+			Vertex2f(bottomLeft);
+			Vertex2f(topLeft);
+		}
+		EndVertexInput();
+	}
+
+	void GLRenderer::DrawRectangleLinesProV(Math::Vector2 pos, Math::Vector2 size, float rotation, Graphics::Color color, Math::Vector2 pivot)
+	{
+		Math::Vector2 topLeft, topRight, bottomRight, bottomLeft;
+		topLeft = pos - pivot;
+		topRight = { topLeft.x + size.x, topLeft.y };
+		bottomRight = { topLeft.x + size.x, topLeft.y + size.y };
+		bottomLeft = { topLeft.x, topLeft.y + size.y };
+		if (!Math::Equals(rotation, 0.0f))
+		{
+			float sinTheta = std::sinf(Math::degreesToRadians(rotation));
+			float cosTheta = std::cosf(Math::degreesToRadians(rotation));
+			// NOTE: 记录下以pivot为原点的坐标系中的矩形四个点的向量，先旋转，再平移。
+			Math::Vector2 vTopLeft{ -pivot.x, -pivot.y }, vTopRight{ vTopLeft.x + size.x, vTopLeft.y }, vBottomRight{ vTopLeft.x + size.x, vTopLeft.y + size.y }, vBottomLeft{ vTopLeft.x, vTopLeft.y + size.y };
+			topLeft = pos + Math::Vector2{ vTopLeft.x * cosTheta - vTopLeft.y * sinTheta, vTopLeft.x * sinTheta + vTopLeft.y * cosTheta };
+			topRight = pos + Math::Vector2{ vTopRight.x * cosTheta - vTopRight.y * sinTheta , vTopRight.x * sinTheta + vTopRight.y * cosTheta };
+			bottomRight = pos + Math::Vector2{ vBottomRight.x * cosTheta - vBottomRight.y * sinTheta , vBottomRight.x * sinTheta + vBottomRight.y * cosTheta };
+			bottomLeft = pos + Math::Vector2{ vBottomLeft.x * cosTheta - vBottomLeft.y * sinTheta , vBottomLeft.x * sinTheta + vBottomLeft.y * cosTheta };
+		}
+		BeginVertexInput(LINES);
+		{
+			ColorV(color);
+			// Line1
+			Vertex2f(topLeft);
+			Vertex2f(topRight);
+
+			// Line2
+			Vertex2f(topRight);
+			Vertex2f(bottomRight);
+
+			// Line3
+			Vertex2f(bottomRight);
+			Vertex2f(bottomLeft);
+
+			// Line4
+			Vertex2f(bottomLeft);
+			Vertex2f(topLeft);
+		}
+		EndVertexInput();
+	}
+
+	void GLRenderer::DrawRectangle(int x, int y, int width, int height, Graphics::Color color)
+	{
+		DrawRectanglePro(x, y, width, height, 0.0f, color);
+	}
+
+	void GLRenderer::DrawRectangleV(Math::Vector2 pos, Math::Vector2 size, Graphics::Color color)
+	{
+		DrawRectangleProV(pos, size, 0.0f, color);
+	}
+
+	void GLRenderer::DrawRectangleLines(int x, int y, int width, int height, Graphics::Color color)
+	{
+		DrawRectangleLinesPro(x, y, width, height, 0.0f, color);
+	}
+
+	void GLRenderer::DrawRectangleLinesV(Math::Vector2 pos, Math::Vector2 size, Graphics::Color color)
+	{
+		DrawRectangleLinesProV(pos, size, 0.0f, color);
 	}
 
 	GLRenderer::GLRenderer()
@@ -526,6 +747,16 @@ namespace GL
 	void GLRenderer::Vertex2f(float x, float y)
 	{
 		Vertex3f(x, y, m_Batch.CurrentDepth);
+	}
+
+	void GLRenderer::Vertex3f(Math::Vector3 vec)
+	{
+		Vertex3f(vec.x, vec.y, vec.z);
+	}
+
+	void GLRenderer::Vertex2f(Math::Vector2 vec)
+	{
+		Vertex2f(vec.x, vec.y);
 	}
 }
 }

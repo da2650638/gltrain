@@ -15,8 +15,8 @@ namespace Casic
 {
 namespace Math 
 {
-	bool Equals(float f1, float f2, float epsilon = 1e-6f);
-	float degreesToRadians(float degree);
+	CASICLIB_API bool Equals(float f1, float f2, float epsilon = 1e-6f);
+	CASICLIB_API float degreesToRadians(float degree);
 
 	class Vector2;
 	class Vector3;
