@@ -62,10 +62,12 @@ namespace GL
 		SimpleLogger::GetInstance().Info("Get vertex normal loc:{}", m_DefaultShader.GetAttribLocation("vertexNormal"));
 		SimpleLogger::GetInstance().Info("Get vertex color loc:{}", m_DefaultShader.GetAttribLocation("vertexColor"));
 		SimpleLogger::GetInstance().Info("Get mvp location: {}", m_DefaultShader.GetUniformLocation("mvp"));
+		m_CurrentShader = &m_DefaultShader;
 
 		//---------------------------------------------------------------
 		// TODO: 初始化RenderBatch
 		//---------------------------------------------------------------
+		LoadRenderBatch();
 
 		//----------------------------------------------------------------
 		// 初始化内部矩阵
@@ -97,7 +99,7 @@ namespace GL
 		MatrixMode(PROJECTION_MODE);
 		LoadIdentity();
 
-		Math::Matrix4 orthoMat = Math::Ortho(0.0f, m_RenderData.Width, m_RenderData.Height, 0.0f, 0.0f, 1.0f);
+		Math::Matrix4 orthoMat = Math::Ortho(0.0f, m_RenderData.Width, m_RenderData.Height, 0.0f, -1.0f, 1.0f);
 		*m_CurrentMatrix = orthoMat * (*m_CurrentMatrix);
 
 		MatrixMode(MODELVIEW_MODE);
@@ -137,7 +139,111 @@ namespace GL
 
 	void GLRenderer::EndDrawing()
 	{
+		DrawRenderBatch();
+		BASIC_RUNTIME_CHECK(m_PlatformInst != nullptr, "GLRenderer instance need a platform instance");
+		m_PlatformInst->SwapBuffers();
 
+		m_PlatformInst->TimeData().Current = m_PlatformInst->GetTime();
+		m_PlatformInst->TimeData().Draw = m_PlatformInst->TimeData().Current - m_PlatformInst->TimeData().Previous;
+		m_PlatformInst->TimeData().Previous = m_PlatformInst->TimeData().Current;
+		
+		// TODO: 检查是否需要延长帧时间
+		m_PlatformInst->PollInputEvents();
+		m_PlatformInst->TimeData().FrameCounter++;
+	}
+
+	void GLRenderer::DrawTriangle(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color)
+	{
+		//BeginVertexInput(TRIANGLES);
+		//{
+		//	ColorV(color);
+		//	Vertex3f(v1.x, v1.y, v1.z);
+		//	Vertex3f(v2.x, v2.y, v2.z);
+		//	Vertex3f(v3.x, v3.y, v3.z);
+		//}
+		//EndVertexInput();
+		BeginVertexInput(QUADS);
+		{
+			ColorV(color);
+			Vertex3f(v1.x, v1.y, v1.z);
+			Vertex3f(v2.x, v2.y, v2.z);
+			Vertex3f(v3.x, v3.y, v3.z);
+			Vertex3f(v1.x, v1.y, v1.z);
+		}
+		EndVertexInput();
+	}
+
+	void GLRenderer::DrawTriangle(Math::Vector2 v1, Math::Vector2 v2, Math::Vector2 v3, Graphics::Color color)
+	{
+		//BeginVertexInput(TRIANGLES);
+		//{
+		//	ColorV(color);
+		//	Vertex3f(v1.x, v1.y, m_Batch.CurrentDepth);
+		//	Vertex3f(v2.x, v2.y, m_Batch.CurrentDepth);
+		//	Vertex3f(v3.x, v3.y, m_Batch.CurrentDepth);
+		//}
+		//EndVertexInput();
+		BeginVertexInput(QUADS);
+		{
+			ColorV(color);
+			Vertex3f(v1.x, v1.y, m_Batch.CurrentDepth);
+			Vertex3f(v2.x, v2.y, m_Batch.CurrentDepth);
+			Vertex3f(v3.x, v3.y, m_Batch.CurrentDepth);
+			Vertex3f(v1.x, v1.y, m_Batch.CurrentDepth);
+		}
+		EndVertexInput();
+	}
+
+	void GLRenderer::DrawTriangleGradients(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color1, Graphics::Color color2, Graphics::Color color3)
+	{
+		//BeginVertexInput(TRIANGLES);
+		//{
+		//	ColorV(color1);
+		//	Vertex3f(v1.x, v1.y, v1.z);
+		//	ColorV(color2);
+		//	Vertex3f(v2.x, v2.y, v2.z);
+		//	ColorV(color3);
+		//	Vertex3f(v3.x, v3.y, v3.z);
+		//}
+		//EndVertexInput();
+		BeginVertexInput(QUADS);
+		{
+			ColorV(color1);
+			Vertex3f(v1.x, v1.y, v1.z);
+			ColorV(color2);
+			Vertex3f(v2.x, v2.y, v2.z);
+			ColorV(color3);
+			Vertex3f(v3.x, v3.y, v3.z);
+			ColorV(color1);
+			Vertex3f(v1.x, v1.y, v1.z);
+		}
+		EndVertexInput();
+	}
+
+	void GLRenderer::DrawTriangleGradients(Math::Vector2 v1, Math::Vector2 v2, Math::Vector2 v3, Graphics::Color color1, Graphics::Color color2, Graphics::Color color3)
+	{
+		//BeginVertexInput(TRIANGLES);
+		//{
+		//	ColorV(color1);
+		//	Vertex3f(v1.x, v1.y, m_Batch.CurrentDepth);
+		//	ColorV(color2);
+		//	Vertex3f(v2.x, v2.y, m_Batch.CurrentDepth);
+		//	ColorV(color3);
+		//	Vertex3f(v3.x, v3.y, m_Batch.CurrentDepth);
+		//}
+		//EndVertexInput();
+		BeginVertexInput(QUADS);
+		{
+			ColorV(color1);
+			Vertex3f(v1.x, v1.y, m_Batch.CurrentDepth);
+			ColorV(color2);
+			Vertex3f(v2.x, v2.y, m_Batch.CurrentDepth);
+			ColorV(color3);
+			Vertex3f(v3.x, v3.y, m_Batch.CurrentDepth);
+			ColorV(color1);
+			Vertex3f(v1.x, v1.y, m_Batch.CurrentDepth);
+		}
+		EndVertexInput();
 	}
 
 	GLRenderer::GLRenderer()
@@ -188,17 +294,18 @@ namespace GL
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 			glCreateBuffers(1, &buffer.ColorBuffer);
-			buffer.ColorData.resize(buffer.BufferElements * buffer.ElementVertice);
-			std::fill(buffer.ColorData.begin(), buffer.ColorData.end(), Graphics::Color());
+			buffer.ColorData.resize(buffer.BufferElements * buffer.ElementVertice * 4);
+			std::fill(buffer.ColorData.begin(), buffer.ColorData.end(), 0);
 			glBindBuffer(GL_ARRAY_BUFFER, buffer.ColorBuffer);
-			glBufferData(GL_ARRAY_BUFFER, buffer.ColorData.size() * sizeof(Graphics::Color), reinterpret_cast<const void*>(buffer.ColorData.data()), GL_DYNAMIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, buffer.ColorData.size() * sizeof(unsigned char), reinterpret_cast<const void*>(buffer.ColorData.data()), GL_DYNAMIC_DRAW);
 			glEnableVertexAttribArray(ATTRIB_VERTEX_COLOR_DEFAULT_LOC);
-			glVertexAttribPointer(ATTRIB_VERTEX_COLOR_DEFAULT_LOC, 4, GL_UNSIGNED_BYTE, 0, 0, 0);
+			// NOTE: 这里归一化需要设置为GL_TRUE
+			glVertexAttribPointer(ATTRIB_VERTEX_COLOR_DEFAULT_LOC, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 			glCreateBuffers(1, &buffer.IndexBuffer);
 			buffer.IndexData.resize(buffer.BufferElements * 6);
-			for (int i = 0; i < buffer.BufferElements; i)
+			for (int i = 0; i < buffer.BufferElements; i++)
 			{
 				buffer.IndexData[i * 6 + 0] = i * 4 + 0;
 				buffer.IndexData[i * 6 + 1] = i * 4 + 1;
@@ -209,7 +316,6 @@ namespace GL
 			}
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer.IndexBuffer);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer.BufferElements * 6 * sizeof(unsigned int), reinterpret_cast<const void*>(buffer.IndexData.data()), GL_STATIC_DRAW);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 			glBindVertexArray(0);
 		}
@@ -229,6 +335,7 @@ namespace GL
 	}
 	void GLRenderer::DrawRenderBatch()
 	{
+		// NOTE：准备绘制的数据
 		if (m_Batch.VertexCounter > 0)
 		{
 			auto& currentBuffer = m_Batch.Buffers[m_Batch.CurrentBuffer];
@@ -247,7 +354,49 @@ namespace GL
 			glBindBuffer(GL_ARRAY_BUFFER, currentBuffer.ColorBuffer);
 			glBufferSubData(GL_ARRAY_BUFFER, 0, m_Batch.VertexCounter * 4 * sizeof(unsigned char), currentBuffer.ColorData.data());
 
+			// NOTE: 如果初始化处调用glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)函数了，则这里一定要将glBindBuffer函数绑定好，推荐在初始化处直接就绑定好
+
 			glBindVertexArray(0);
+		}
+
+		Math::Matrix4 mvp = m_Projection * m_ModelView;
+
+		if (m_Batch.VertexCounter > 0)
+		{
+			// NOTE: 开始绘制
+			glBindVertexArray(m_Batch.Buffers[m_Batch.CurrentBuffer].VertexArray);
+			m_CurrentShader->Bind();
+
+			m_CurrentShader->SetUniformMat4("mvp", mvp);
+			
+			for (int i = 0, vertexOffset = 0; i < m_Batch.DrawCounter; i++)
+			{
+				if (m_Batch.Draws[i].Mode == TRIANGLES || m_Batch.Draws[i].Mode == LINES)
+				{
+					glDrawArrays(m_Batch.Draws[i].Mode, vertexOffset, m_Batch.Draws[i].VertexCounter);
+				}
+				else if (m_Batch.Draws[i].Mode == QUADS)
+				{
+					int indices = m_Batch.Draws[i].VertexCounter / 4 * 6;
+					int offset = vertexOffset / 4 * 6 * sizeof(GLuint);
+					glDrawElements(GL_TRIANGLES, indices, GL_UNSIGNED_INT, (GLvoid*)(offset));
+				}
+				vertexOffset += (m_Batch.Draws[i].VertexCounter + m_Batch.Draws[i].VertexAlignment);
+			}
+
+			m_CurrentShader->UnBind();
+			glBindVertexArray(0);
+
+			m_Batch.VertexCounter = 0;
+			m_Batch.DrawCounter = 1;
+			m_Batch.CurrentDepth = -1.0f;
+			for (int i = 0; i < m_Batch.Draws.size(); i++)
+			{
+				m_Batch.Draws[i].Mode = QUADS;
+				m_Batch.Draws[i].Texture = 0;
+				m_Batch.Draws[i].VertexCounter = 0;
+				m_Batch.Draws[i].VertexAlignment = 0;
+			}
 		}
 	}
 
@@ -259,16 +408,124 @@ namespace GL
 		{
 			overflow = true;
 
-
 			DrawCall curDraw = m_Batch.Draws[m_Batch.DrawCounter - 1];
+			curDraw.VertexAlignment = 0;
+			curDraw.VertexCounter = 0;
 
 			DrawRenderBatch();
 
-			m_Batch.Draws[m_Batch.DrawCounter] = curDraw;
-			m_Batch.DrawCounter++;
+			m_Batch.Draws[m_Batch.DrawCounter - 1] = curDraw;
 		}
 
-		return true;
+		return overflow;
+	}
+
+	void GLRenderer::BeginVertexInput(int mode)
+	{
+		DrawCall* curDraw = &m_Batch.Draws[m_Batch.DrawCounter - 1];
+		DrawCall* nextDraw = nullptr;
+		if (mode != curDraw->Mode)
+		{
+			if (curDraw->VertexCounter > 0)
+			{
+				if (curDraw->Mode == LINES || curDraw->Mode == TRIANGLES)
+				{
+					int remainder = curDraw->VertexCounter % 4;
+					if (remainder > 0)
+					{
+						curDraw->VertexAlignment = 4 - remainder;
+					}
+					else if(remainder == 0)
+					{
+						curDraw->VertexAlignment = 0;
+					}
+				}
+				else if (curDraw->Mode == QUADS)
+				{
+					curDraw->VertexAlignment = 0;
+				}
+
+				if (!CheckRenderBatchLimit(curDraw->VertexAlignment))
+				{
+					m_Batch.VertexCounter += curDraw->VertexAlignment;
+					m_Batch.DrawCounter++;
+				}
+			}
+
+			nextDraw = &m_Batch.Draws[m_Batch.DrawCounter - 1];
+			nextDraw->Mode = mode;
+			nextDraw->Texture = 0;
+			nextDraw->VertexAlignment = 0;
+			nextDraw->VertexCounter = 0;
+		}
+	}
+
+	void GLRenderer::EndVertexInput()
+	{
+		m_Batch.CurrentDepth += 0.00001;
+	}
+
+	void GLRenderer::ColorV(Graphics::Color color)
+	{
+		m_CurrentColor = color;
+	}
+
+	void GLRenderer::Vertex3f(float x, float y, float z)
+	{
+		float tx = x;
+		float ty = y;
+		float tz = z;
+		Math::Vector4 coord(tx, ty, tz, 1.0f);
+
+		if (m_TransformRequired)
+		{
+			coord = m_Transform * coord;
+		}
+
+		
+		if (m_Batch.VertexCounter > (m_Batch.Buffers[m_Batch.CurrentBuffer].BufferElements * 4 - 4))
+		{
+			if (m_Batch.Draws[m_Batch.DrawCounter - 1].VertexCounter % 2 == 0 && m_Batch.Draws[m_Batch.DrawCounter - 1].Mode == LINES)
+			{
+				CheckRenderBatchLimit(2 + 1);
+			}
+			if (m_Batch.Draws[m_Batch.DrawCounter - 1].VertexCounter % 3 == 0 && m_Batch.Draws[m_Batch.DrawCounter - 1].Mode == TRIANGLES)
+			{
+				CheckRenderBatchLimit(3 + 1);
+			}
+			if (m_Batch.Draws[m_Batch.DrawCounter - 1].VertexCounter % 4 == 0 && m_Batch.Draws[m_Batch.DrawCounter - 1].Mode == QUADS)
+			{
+				CheckRenderBatchLimit(4 + 1);
+			}
+		}
+
+		// Position Data
+		m_Batch.Buffers[m_Batch.CurrentBuffer].PositionData[m_Batch.VertexCounter * 3] = tx;
+		m_Batch.Buffers[m_Batch.CurrentBuffer].PositionData[m_Batch.VertexCounter * 3 + 1] = ty;
+		m_Batch.Buffers[m_Batch.CurrentBuffer].PositionData[m_Batch.VertexCounter * 3 + 2] = tz;
+
+		// Tex Coord Data
+		m_Batch.Buffers[m_Batch.CurrentBuffer].TexCoordData[m_Batch.VertexCounter * 2] = m_TexCoord.x;
+		m_Batch.Buffers[m_Batch.CurrentBuffer].TexCoordData[m_Batch.VertexCounter * 2 + 1] = m_TexCoord.y;
+
+		// Normal Data
+		m_Batch.Buffers[m_Batch.CurrentBuffer].NormalData[m_Batch.VertexCounter * 3] = m_Normal.x;
+		m_Batch.Buffers[m_Batch.CurrentBuffer].NormalData[m_Batch.VertexCounter * 3 + 1] = m_Normal.y;
+		m_Batch.Buffers[m_Batch.CurrentBuffer].NormalData[m_Batch.VertexCounter * 3 + 2] = m_Normal.z;
+
+		// Color Data
+		m_Batch.Buffers[m_Batch.CurrentBuffer].ColorData[m_Batch.VertexCounter * 4] = m_CurrentColor.r;
+		m_Batch.Buffers[m_Batch.CurrentBuffer].ColorData[m_Batch.VertexCounter * 4 + 1] = m_CurrentColor.g;
+		m_Batch.Buffers[m_Batch.CurrentBuffer].ColorData[m_Batch.VertexCounter * 4 + 2] = m_CurrentColor.b;
+		m_Batch.Buffers[m_Batch.CurrentBuffer].ColorData[m_Batch.VertexCounter * 4 + 3] = m_CurrentColor.a;
+
+		m_Batch.Draws[m_Batch.DrawCounter - 1].VertexCounter++;
+		m_Batch.VertexCounter++;
+	}
+
+	void GLRenderer::Vertex2f(float x, float y)
+	{
+		Vertex3f(x, y, m_Batch.CurrentDepth);
 	}
 }
 }

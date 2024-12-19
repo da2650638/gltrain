@@ -63,5 +63,13 @@ namespace Graphics
 	static inline Math::Vector4 ColorToVec4(Color color) {
 		return Math::Vector4(color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f);
 	}
+
+	// Rectangle, 4 components
+	struct Rectangle {
+		float x;
+		float y;
+		float width;
+		float height;
+	};
 }
 }

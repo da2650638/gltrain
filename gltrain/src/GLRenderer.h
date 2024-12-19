@@ -39,6 +39,11 @@ namespace GL
 
 		void BeginDrawing();
 		void EndDrawing();
+
+		void DrawTriangle(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color);
+		void DrawTriangle(Math::Vector2 v1, Math::Vector2 v2, Math::Vector2 v3, Graphics::Color color);
+		void DrawTriangleGradients(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color1, Graphics::Color color2, Graphics::Color color3);
+		void DrawTriangleGradients(Math::Vector2 v1, Math::Vector2 v2, Math::Vector2 v3, Graphics::Color color1, Graphics::Color color2, Graphics::Color color3);
 	private:
 		GLRenderer();
 
@@ -46,16 +51,29 @@ namespace GL
 		void DrawRenderBatch();
 		bool CheckRenderBatchLimit(int vCount);
 
+		void BeginVertexInput(int mode);
+		void EndVertexInput();
+		void ColorV(Graphics::Color color);
+		void Vertex3f(float x, float y, float z);
+		void Vertex2f(float x, float y);
+
 	private:
 		// TODO: 这种设计能否改进呢？
 		// NOTE: 任何使用m_PlatformInst必须检查是否合法并提示编译错误或抛出异常
 		GLPlatform* m_PlatformInst;
 		RenderData m_RenderData;
 		//-------------------------
+		// 全局状态
+		//-------------------------
+		Graphics::Color m_CurrentColor{ 255, 255, 255, 255 };
+		Math::Vector2 m_TexCoord = { 0.0f, 0.0f };
+		Math::Vector3 m_Normal = {0.0f, 0.0f, 0.0f};
+
+		//-------------------------
 		// Shader相关成员
 		//-------------------------
 		GLShader m_DefaultShader;
-		GLShader* m_CurrentShader;
+		GLShader* m_CurrentShader = nullptr;
 		//-------------------------
 		// Matrix 成员
 		//-------------------------

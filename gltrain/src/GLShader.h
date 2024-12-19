@@ -44,6 +44,9 @@ namespace GL
 		int Attribute(const std::string& name) { return GetAttribLocation(name); }
 		int Uniform(const std::string& name) { return GetUniformLocation(name); }
 
+		// NOTE: Set Uniform Functions
+		// TODO: 后续考虑使用模板元编程优化一下
+		void SetUniformMat4(const std::string& name, const Math::Matrix4& value);
 	private:
 		bool ShaderSrc(const std::string& vertexShaderFile, const std::string& fragmentShaderFile);
 		bool CompileShader(const std::string& vertexShaderCode, const std::string& fragmentShaderCode);

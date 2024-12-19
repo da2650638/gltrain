@@ -24,7 +24,7 @@ namespace GL
 		std::vector<float> NormalData;
 
 		unsigned int ColorBuffer;
-		std::vector<Graphics::Color> ColorData;
+		std::vector<unsigned char> ColorData;
 
 		unsigned int IndexBuffer;
 		std::vector<unsigned int> IndexData;
@@ -43,8 +43,8 @@ namespace GL
 		int CurrentBuffer = 0;
 		int BufferCount = 5;
 		int DrawCount = 256;
-		int VertexCounter = 0;
-		int DrawCounter = 0;
+		int VertexCounter = 0;	// 当前调用周期已经绘制了多少个Vertex
+		int DrawCounter = 1;
 
 		float CurrentDepth = -1.0f;
 		float DeptlDelta = 1.0f / 20000.0f;
