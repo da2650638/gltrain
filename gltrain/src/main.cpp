@@ -8,6 +8,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include "GLPlatform.h"
 #include "GLInput.h"
@@ -74,9 +75,12 @@ int main()
 			renderer.DrawRectangleLinesV({ 640, 360 }, { 100, 100 }, { 255, 0, 0, 255 });
 			renderer.DrawRectangleLines(640 - 100, 360 - 100, 100, 100, { 255, 0, 0, 255 });
 		}
-
 		renderer.EndDrawing();
 	}
+
+	glm::quat rotateQuat = glm::angleAxis(glm::radians(45.0f), glm::vec3{ 1.0f, 0.0f, 0.0f });
+	glm::vec3 p(1.0f, 1.0f, 1.0f);
+	glm::vec3 p_p = glm::rotate(rotateQuat, p);
 
 	platform.ShutdownPlatform();
 }

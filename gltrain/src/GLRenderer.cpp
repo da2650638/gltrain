@@ -80,7 +80,7 @@ namespace GL
 		//---------------------------------------------------------------
 	}
 
-	// NOTE: 这个功能实在Platform模块还是Renderer模块呢？我也不太清楚
+	// NOTE: 这个功能应该在Platform模块还是Renderer模块呢？我也不太清楚
 	void GLRenderer::SetTargetFps(unsigned int fps)
 	{
 		if (fps == 0) return;
