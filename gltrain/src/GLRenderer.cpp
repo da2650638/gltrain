@@ -385,24 +385,13 @@ namespace GL
 			bottomRight = pos + Math::Vector2{ vBottomRight.x * cosTheta - vBottomRight.y * sinTheta , vBottomRight.x * sinTheta + vBottomRight.y * cosTheta };
 			bottomLeft = pos + Math::Vector2{ vBottomLeft.x * cosTheta - vBottomLeft.y * sinTheta , vBottomLeft.x * sinTheta + vBottomLeft.y * cosTheta };
 		}
-		BeginVertexInput(LINES);
+		BeginVertexInput(QUADS);
 		{
 			ColorV(color);
-			// Line1
 			Vertex2f(topLeft);
 			Vertex2f(topRight);
-
-			// Line2
-			Vertex2f(topRight);
-			Vertex2f(bottomRight);
-
-			// Line3
 			Vertex2f(bottomRight);
 			Vertex2f(bottomLeft);
-
-			// Line4
-			Vertex2f(bottomLeft);
-			Vertex2f(topLeft);
 		}
 		EndVertexInput();
 	}

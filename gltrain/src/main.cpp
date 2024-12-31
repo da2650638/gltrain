@@ -71,7 +71,7 @@ int main()
 			//renderer.DrawTriangleLines({ 320.0f, 540.0f, 0.5f}, { 960.0f, 540.0f, 0.5f }, { 960.0f, 180.0f, 0.5f }, { 0, 255, 0, 255 });
 			//renderer.DrawTriangle({ 320.0f, 540.0f}, { 960.0f, 180.0f }, { 320.0f, 180.0f }, { 255, 0, 255, 255 });
 			//renderer.DrawRectangle(640, 360, 100, 100, { 255, 0, 0, 255 });
-			//renderer.DrawRectangleV({ 0.0f, 0.0f }, {100.0f, 100.0f}, { 255, 255, 0, 255 });
+			renderer.DrawRectangleV({ 0.0f, 0.0f }, {100.0f, 100.0f}, { 255, 255, 0, 255 });
 			renderer.DrawRectangleLinesV({ 640, 360 }, { 100, 100 }, { 255, 0, 0, 255 });
 			renderer.DrawRectangleLines(640 - 100, 360 - 100, 100, 100, { 255, 0, 0, 255 });
 		}
