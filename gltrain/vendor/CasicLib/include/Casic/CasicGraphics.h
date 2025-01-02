@@ -65,11 +65,19 @@ namespace Graphics
 	}
 
 	// Rectangle, 4 components
-	struct Rectangle {
+	typedef struct Rectangle {
 		float x;
 		float y;
 		float width;
 		float height;
+	}Rectangle;
+
+	typedef struct Image {
+		void* data;
+		int width;
+		int height;
+		int mipmaps;
+		int format;
 	};
 }
 }
