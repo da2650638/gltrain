@@ -14,6 +14,7 @@
 #include "GLInput.h"
 #include "SimpleLogger.h"
 #include "GLRenderer.h"
+#include "GLTexture.h"
 
 #include "Casic/CasicMatrixTransform.h"
 #include "Casic/CasicGraphics.h"
@@ -57,6 +58,8 @@ int main()
 	renderer.SetupViewport(platform.GetWindowData().Width, platform.GetWindowData().Height);
 	renderer.SetTargetFps(60);
 
+	Texture2D texture = LoadTexture("res/file/cyberpunk_street_background.png");
+
 	auto& input = GLInput::GetInstance();
 
 	float rotation = 0.0;
@@ -77,10 +80,6 @@ int main()
 		}
 		renderer.EndDrawing();
 	}
-
-	glm::quat rotateQuat = glm::angleAxis(glm::radians(45.0f), glm::vec3{ 1.0f, 0.0f, 0.0f });
-	glm::vec3 p(1.0f, 1.0f, 1.0f);
-	glm::vec3 p_p = glm::rotate(rotateQuat, p);
 
 	platform.ShutdownPlatform();
 }

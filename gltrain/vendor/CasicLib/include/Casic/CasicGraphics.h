@@ -78,6 +78,16 @@ namespace Graphics
 		int height;
 		int mipmaps;
 		int format;
-	};
+	}Image;
+
+	/*
+	typedef struct SmartImage {
+		std::unique_ptr<void> data;
+		int width;
+		int height;
+		int mipmaps;
+		int format;
+	};*/
+
 }
 }

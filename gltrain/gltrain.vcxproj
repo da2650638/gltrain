@@ -59,7 +59,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName)\vendor\CasicLib\include;$(SolutionDir)$(ProjectName)\vendor\CasicLib\src;$(SolutionDir)$(ProjectName)\vendor\glfw\include;$(SolutionDir)$(ProjectName)\vendor\glad\include;$(SolutionDir)$(ProjectName)\vendor\glm;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName)\vendor\stb\include;$(SolutionDir)$(ProjectName)\vendor\CasicLib\include;$(SolutionDir)$(ProjectName)\vendor\CasicLib\src;$(SolutionDir)$(ProjectName)\vendor\glfw\include;$(SolutionDir)$(ProjectName)\vendor\glad\include;$(SolutionDir)$(ProjectName)\vendor\glm;</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -82,7 +82,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName)\vendor\CasicLib\include;$(SolutionDir)$(ProjectName)\vendor\CasicLib\src;$(SolutionDir)$(ProjectName)\vendor\glfw\include;$(SolutionDir)$(ProjectName)\vendor\glad\include;$(SolutionDir)$(ProjectName)\vendor\glm;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName)\vendor\stb\include;$(SolutionDir)$(ProjectName)\vendor\CasicLib\include;$(SolutionDir)$(ProjectName)\vendor\CasicLib\src;$(SolutionDir)$(ProjectName)\vendor\glfw\include;$(SolutionDir)$(ProjectName)\vendor\glad\include;$(SolutionDir)$(ProjectName)\vendor\glm;</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -115,6 +115,7 @@
     <ClInclude Include="src\GLRenderer.h" />
     <ClInclude Include="src\GLShader.h" />
     <ClInclude Include="src\GLTexture.h" />
+    <ClInclude Include="src\GLUtils.h" />
     <ClInclude Include="src\SimpleLogger.h" />
     <ClInclude Include="vendor\glad\include\glad\glad.h" />
     <ClInclude Include="vendor\glad\include\KHR\khrplatform.h" />

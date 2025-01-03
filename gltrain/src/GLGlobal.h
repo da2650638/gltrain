@@ -176,3 +176,30 @@
 #define QUADS GL_QUADS
 #define TRIANGLES GL_TRIANGLES
 #define LINES GL_LINES
+
+//------------------------------------------------------------------------------------
+// Module: rtextures - Configuration Flags
+//------------------------------------------------------------------------------------
+// Selecte desired fileformats to be supported for image data loading
+#define SUPPORT_FILEFORMAT_PNG      1
+//#define SUPPORT_FILEFORMAT_BMP      1
+//#define SUPPORT_FILEFORMAT_TGA      1
+#define SUPPORT_FILEFORMAT_JPG      1
+#define SUPPORT_FILEFORMAT_GIF      1
+#define SUPPORT_FILEFORMAT_QOI      1
+//#define SUPPORT_FILEFORMAT_PSD      1
+#define SUPPORT_FILEFORMAT_DDS      1
+//#define SUPPORT_FILEFORMAT_HDR      1
+//#define SUPPORT_FILEFORMAT_PIC          1
+//#define SUPPORT_FILEFORMAT_KTX      1
+//#define SUPPORT_FILEFORMAT_ASTC     1
+//#define SUPPORT_FILEFORMAT_PKM      1
+//#define SUPPORT_FILEFORMAT_PVR      1
+//#define SUPPORT_FILEFORMAT_SVG      1
+
+// TODO: 后续需要了解一些其他的图形格式，并选择是否使用stb_image
+#if defined(SUPPORT_FILEFORMAT_PNG) ||\
+	defined(SUPPORT_FILEFORMAT_JPG) ||\
+	defined(SUPPORT_FILEFORMAT_GIF) 
+#define STBI_REQUIRED
+#endif

@@ -7,7 +7,7 @@ namespace Casic
 {
 namespace Math
 {
-	struct Quaternion
+	struct CASICLIB_API Quaternion
 	{
 		float w;	// NOTE: 实数部分
 		float x;	
