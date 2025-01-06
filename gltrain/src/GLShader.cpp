@@ -2,8 +2,6 @@
 
 #include "SimpleLogger.h"
 
-#include "Casic/CasicGraphics.h"
-
 #include <sstream>
 #include <fstream>
 #include <string>
@@ -85,6 +83,17 @@ namespace GL
 			return;
 		}
 		glUniformMatrix4fv(location, 1, GL_FALSE, Graphics::ToOpenGLMatrix4(value).v);
+	}
+
+	void GLShader::SetUniformInt(const std::string& name, int value)
+	{
+		int location = GetUniformLocation(name);
+		if (location == -1)
+		{
+			SimpleLogger::GetInstance().Error("Shader:[ID {}] Get Uniform [Name: {}, Type: Int] error.", m_ProgramID, name);
+			return;
+		}
+		glUniform1i(location, value);
 	}
 
 	bool GLShader::ShaderSrc(const std::string& vertexShaderFile, const std::string& fragmentShaderFile)

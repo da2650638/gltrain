@@ -7,6 +7,7 @@
 #include "GLPlatform.h"
 #include "GLGlobal.h"
 #include "GLShader.h"
+#include "GLTexture.h"
 #include "GLRenderData.h"
 
 namespace Casic
@@ -104,6 +105,8 @@ namespace GL
 		void DrawRectangleV(Math::Vector2 pos, Math::Vector2 size, Graphics::Color color);
 		void DrawRectangleLines(int x, int y, int width, int height, Graphics::Color color);
 		void DrawRectangleLinesV(Math::Vector2 pos, Math::Vector2 size, Graphics::Color color);
+
+		void DrawTexturePro(Texture2D texture, Graphics::Rectangle source, Graphics::Rectangle dest, Math::Vector2 pivot, float rotation, Graphics::Color tint);
 	private:
 		GLRenderer();
 
@@ -114,11 +117,14 @@ namespace GL
 		void BeginVertexInput(int mode);
 		void EndVertexInput();
 		void ColorV(Graphics::Color color);
+		void Normal3f(float x, float y, float z);
+		void TextureCoord2f(float x, float y);
 		void Vertex3f(float x, float y, float z);
 		void Vertex2f(float x, float y);
 		void Vertex3f(Math::Vector3 vec);
 		void Vertex2f(Math::Vector2 vec);
 
+		void SetTextureId(unsigned int id);
 	private:
 		// TODO: 这种设计能否改进呢？
 		// NOTE: 任何使用m_PlatformInst必须检查是否合法并提示编译错误或抛出异常
@@ -132,8 +138,9 @@ namespace GL
 		Math::Vector3 m_Normal = {0.0f, 0.0f, 0.0f};
 
 		//-------------------------
-		// Shader相关成员
+		// Shader和Texture相关成员
 		//-------------------------
+		GLTexture m_DefaultTexture;
 		GLShader m_DefaultShader;
 		GLShader* m_CurrentShader = nullptr;
 		//-------------------------

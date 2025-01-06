@@ -134,10 +134,103 @@ namespace GL {
 
 		if (image.data)
 		{
+			texture = LoadTextureFromImage(image);
 			UnloadImageStruct(image);
 		}
 		
 		return texture;
+	}
+
+	void UnloadTexture(Texture2D texture)
+	{
+		if (texture.id > 0)
+		{
+			GLUnloadTexture(texture.id); 
+
+			SimpleLogger::GetInstance().Info("TEXTURE: [ID {}] Unloaded texture data from VRAM (GPU)", texture.id);
+		}
+
+	}
+
+	Texture2D LoadTextureFromImage(Graphics::Image image)
+	{
+		Texture2D texture{ 0 };
+		if (image.width != 0 && image.height != 0)
+		{
+			texture.id = GLLoadTexture(image.data, image.width, image.height, image.format, image.mipmaps);
+		}
+		else
+		{
+			SimpleLogger::GetInstance().Error("IMAGE: Data is not valid to load texture");
+		}
+		if (texture.id > 0)
+		{
+			SimpleLogger::GetInstance().Info("TEXTURE: Load texture [{}] successfully.", texture.id);
+			texture.width = image.width;
+			texture.height = image.height;
+			texture.format = image.format;
+			texture.mipmaps = image.mipmaps;
+		}
+		else
+		{
+			SimpleLogger::GetInstance().Error("TEXTURE: Load from image failed.");
+		}
+		return texture;
+	}
+
+	unsigned int GLLoadTexture(const void* data, int width, int height, int format, int mipmapCount)
+	{
+		unsigned int id = 0;
+		// TODO: 对当前OpenGL的能力进行判断，如果是某些特殊格式的图片则无法支持，直接返回id为0的情况。;
+		auto [glInternalFormat, glFormat, glType] = GetGLTextureFormat(static_cast<PixelFormat>(format));
+		if (glInternalFormat == 0)
+		{
+			SimpleLogger::GetInstance().Error("TEXTURE: Unsupported texture pixel format: [{}]", format);
+			return id;
+		}
+		glCreateTextures(GL_TEXTURE_2D, 1, &id);
+		glTextureStorage2D(id, mipmapCount, glInternalFormat, width, height);
+		int mipmapOffset = 0, mipmapWidth = width, mipmapHeight = height;
+		unsigned char* dataPtr = nullptr;
+		if (data) dataPtr = (unsigned char*)data;
+		for (int i = 0; i < mipmapCount; i++)
+		{
+			int dataSize = GetPixelDataSize(mipmapWidth, mipmapHeight, static_cast<PixelFormat>(format));
+			SimpleLogger::GetInstance().Info("TEXTURE: Load mipmap level {} ({} x {}), size: {}, offset: {}", i, mipmapWidth, mipmapHeight, dataSize, mipmapOffset);
+
+			// TODO: 某些特殊的压缩的图像格式需要添加代码做特别处理
+
+			glTextureSubImage2D(id, i, 0, 0, mipmapWidth, mipmapHeight, glFormat, glType, dataPtr);
+
+			mipmapWidth /= 2;
+			mipmapHeight /= 2;
+			if(data) dataPtr += dataSize;
+			mipmapOffset += dataSize;
+			if (mipmapWidth < 1) mipmapWidth = 1;
+			if (mipmapHeight < 1) mipmapHeight = 1;
+		}
+		glTexParameteri(id, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(id, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		if (mipmapCount > 1)
+		{
+			glTexParameteri(id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameteri(id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		}
+		else
+		{
+			glTexParameteri(id, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		}
+
+		if (id > 0) SimpleLogger::GetInstance().Info("TEXTURE: id: [{}] load successfully, mipmaps: {}, size: {}x{}, format:{}", id, mipmapCount, width, height, GetPixelFormatName(format));
+		else SimpleLogger::GetInstance().Info("TEXTURE: Failed to load texture.");
+
+		return id;
+	}
+
+	void GLUnloadTexture(unsigned int id)
+	{
+		glDeleteTextures(1, &id);
 	}
 
 }

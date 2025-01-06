@@ -25,7 +25,7 @@ using namespace Casic::GL;
 const char* vertexShaderSrc =
 "#version 460 core\n"
 "layout(location = 0) in vec3 vertexPosition;\n"
-"layout(location = 1) in vec2 vertexTexcoord;\n"
+"layout(location = 1) in vec2 vertexTexCoord;\n"
 "layout(location = 2) in vec3 vertexNormal;\n"
 "layout(location = 3) in vec4 vertexColor;\n"
 "out vec4 fragColor;\n"

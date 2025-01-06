@@ -52,18 +52,24 @@ namespace GL
 		//---------------------------------------------------------------
 		// TODO: 初始化Texture
 		//---------------------------------------------------------------
-
+		unsigned char oneWhitePixel[4] = { 255, 255, 255, 255 };
+		unsigned int id = GLLoadTexture(oneWhitePixel, 1, 1, static_cast<int>(PixelFormat::GL_PIXELFORMAT_UNCOMPRESSED_R8G8B8A8), 1);
+		m_DefaultTexture.id = id;
+		m_DefaultTexture.width = m_DefaultTexture.height = 1;
+		m_DefaultTexture.mipmaps = 1;
+		m_DefaultTexture.format = static_cast<int>(PixelFormat::GL_PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
 		//---------------------------------------------------------------
 		// TODO: 初始化shader
 		//---------------------------------------------------------------
 		m_DefaultShader.LoadShader("res/shader/defaultVS.glsl", "res/shader/defaultFS.glsl");
 		SimpleLogger::GetInstance().Info("Get vertex position loc:{}", m_DefaultShader.GetAttribLocation("vertexPosition"));
-		SimpleLogger::GetInstance().Info("Get vertex tex coord loc:{}", m_DefaultShader.GetAttribLocation("vertexTexcoord"));
+		SimpleLogger::GetInstance().Info("Get vertex tex coord loc:{}", m_DefaultShader.GetAttribLocation("vertexTexCoord"));
 		SimpleLogger::GetInstance().Info("Get vertex normal loc:{}", m_DefaultShader.GetAttribLocation("vertexNormal"));
 		SimpleLogger::GetInstance().Info("Get vertex color loc:{}", m_DefaultShader.GetAttribLocation("vertexColor"));
 		SimpleLogger::GetInstance().Info("Get mvp location: {}", m_DefaultShader.GetUniformLocation("mvp"));
+		SimpleLogger::GetInstance().Info("Get texture0 location: {}", m_DefaultShader.GetUniformLocation("texture0"));
+		m_DefaultShader.SetUniform<int>("texture0", 0);
 		m_CurrentShader = &m_DefaultShader;
-
 		//---------------------------------------------------------------
 		// TODO: 初始化RenderBatch
 		//---------------------------------------------------------------
@@ -456,6 +462,54 @@ namespace GL
 		DrawRectangleLinesProV(pos, size, 0.0f, color);
 	}
 
+	void GLRenderer::DrawTexturePro(Texture2D texture, Graphics::Rectangle source, Graphics::Rectangle dest, Math::Vector2 pivot, float rotation, Graphics::Color tint)
+	{
+		if (texture.id > 0)
+		{
+			Math::Vector2 topLeft, topRight, bottomRight, bottomLeft;
+			Math::Vector2 size{ (float)texture.width, (float)texture.height };
+			Math::Vector2 pos{ dest.x, dest.y };
+			topLeft = pos - pivot;
+			topRight = { topLeft.x + size.x, topLeft.y };
+			bottomRight = { topLeft.x + size.x, topLeft.y + size.y };
+			bottomLeft = { topLeft.x, topLeft.y + size.y };
+			if (!Math::Equals(rotation, 0.0f))
+			{
+				float sinTheta = std::sinf(Math::degreesToRadians(rotation));
+				float cosTheta = std::cosf(Math::degreesToRadians(rotation));
+				// NOTE: 记录下以pivot为原点的坐标系中的矩形四个点的向量，先旋转，再平移。
+				Math::Vector2 vTopLeft{ -pivot.x, -pivot.y }, vTopRight{ vTopLeft.x + size.x, vTopLeft.y }, vBottomRight{ vTopLeft.x + size.x, vTopLeft.y + size.y }, vBottomLeft{ vTopLeft.x, vTopLeft.y + size.y };
+				topLeft = pos + Math::Vector2{ vTopLeft.x * cosTheta - vTopLeft.y * sinTheta, vTopLeft.x * sinTheta + vTopLeft.y * cosTheta };
+				topRight = pos + Math::Vector2{ vTopRight.x * cosTheta - vTopRight.y * sinTheta , vTopRight.x * sinTheta + vTopRight.y * cosTheta };
+				bottomRight = pos + Math::Vector2{ vBottomRight.x * cosTheta - vBottomRight.y * sinTheta , vBottomRight.x * sinTheta + vBottomRight.y * cosTheta };
+				bottomLeft = pos + Math::Vector2{ vBottomLeft.x * cosTheta - vBottomLeft.y * sinTheta , vBottomLeft.x * sinTheta + vBottomLeft.y * cosTheta };
+			}
+			SetTextureId(texture.id);
+			BeginVertexInput(QUADS);
+			{
+				ColorV(tint);
+				Normal3f(0.0f, 0.0f, 1.0f);
+
+				// TODO: 考虑flipX
+				
+				TextureCoord2f(source.x / texture.width, source.y / texture.height);
+				Vertex2f(topLeft);
+
+				TextureCoord2f( (source.x + source.width) / texture.width, source.y / texture.height);
+				Vertex2f(topRight);
+
+				TextureCoord2f((source.x + source.width) / texture.width, (source.y + source.height) / texture.height);
+				Vertex2f(bottomRight);
+
+				TextureCoord2f(source.x / texture.width, (source.y + source.height) / texture.height);
+				Vertex2f(bottomLeft);
+			}
+			EndVertexInput();
+			SetTextureId(0);
+		}
+
+	}
+
 	GLRenderer::GLRenderer()
 	{
 
@@ -538,7 +592,7 @@ namespace GL
 		{
 			auto& draw = m_Batch.Draws[i];
 			draw.Mode = QUADS;
-			draw.Texture = 0;
+			draw.Texture = m_DefaultTexture.id;
 			draw.VertexAlignment = 0;
 			draw.VertexCounter = 0;
 		}
@@ -577,10 +631,13 @@ namespace GL
 			glBindVertexArray(m_Batch.Buffers[m_Batch.CurrentBuffer].VertexArray);
 			m_CurrentShader->Bind();
 
-			m_CurrentShader->SetUniformMat4("mvp", mvp);
+			//m_CurrentShader->SetUniformMat4("mvp", mvp);
+			m_CurrentShader->SetUniform<Math::Matrix4>("mvp", mvp);
 			
+			glActiveTexture(GL_TEXTURE0);
 			for (int i = 0, vertexOffset = 0; i < m_Batch.DrawCounter; i++)
 			{
+				glBindTexture(GL_TEXTURE_2D, m_Batch.Draws[i].Texture);
 				if (m_Batch.Draws[i].Mode == TRIANGLES || m_Batch.Draws[i].Mode == LINES)
 				{
 					glDrawArrays(m_Batch.Draws[i].Mode, vertexOffset, m_Batch.Draws[i].VertexCounter);
@@ -603,7 +660,7 @@ namespace GL
 			for (int i = 0; i < m_Batch.Draws.size(); i++)
 			{
 				m_Batch.Draws[i].Mode = QUADS;
-				m_Batch.Draws[i].Texture = 0;
+				m_Batch.Draws[i].Texture = m_DefaultTexture.id;
 				m_Batch.Draws[i].VertexCounter = 0;
 				m_Batch.Draws[i].VertexAlignment = 0;
 			}
@@ -664,7 +721,7 @@ namespace GL
 
 			nextDraw = &m_Batch.Draws[m_Batch.DrawCounter - 1];
 			nextDraw->Mode = mode;
-			nextDraw->Texture = 0;
+			nextDraw->Texture = m_DefaultTexture.id;
 			nextDraw->VertexAlignment = 0;
 			nextDraw->VertexCounter = 0;
 		}
@@ -678,6 +735,37 @@ namespace GL
 	void GLRenderer::ColorV(Graphics::Color color)
 	{
 		m_CurrentColor = color;
+	}
+
+	void GLRenderer::Normal3f(float x, float y, float z)
+	{
+		float normalx = x;
+		float normaly = y;
+		float normalz = z;
+		// TODO:
+		//if (m_TransformRequired)
+		//{
+		//	normalx = m_Transform.Data.m0 * x + m_Transform.Data.m4 * y + m_Transform.Data.m8 * z;
+		//	normaly = m_Transform.Data.m1 * x + m_Transform.Data.m5 * y + m_Transform.Data.m9 * z;
+		//	normalz = m_Transform.Data.m2 * x + m_Transform.Data.m6 * y + m_Transform.Data.m10 * z;
+		//}
+		//float length = std::sqrt(normalx * normalx + normaly * normaly + normalz * normalz);
+		//if (length != 0.0f)
+		//{
+		//	float ilength = 1.0f / length;
+		//	normalx *= ilength;
+		//	normaly *= ilength;
+		//	normalz *= ilength;
+		//}
+		m_Normal.x = normalx;
+		m_Normal.y = normaly;
+		m_Normal.z = normalz;
+	}
+
+	void GLRenderer::TextureCoord2f(float x, float y)
+	{
+		m_TexCoord.x = x;
+		m_TexCoord.y = y;
 	}
 
 	void GLRenderer::Vertex3f(float x, float y, float z)
@@ -746,6 +834,61 @@ namespace GL
 	void GLRenderer::Vertex2f(Math::Vector2 vec)
 	{
 		Vertex2f(vec.x, vec.y);
+	}
+
+	void GLRenderer::SetTextureId(unsigned int id)
+	{
+		if (id > 0)
+		{
+			DrawCall* curDraw = &m_Batch.Draws[m_Batch.DrawCounter - 1];
+			DrawCall* nextDraw = nullptr;
+			if (id != curDraw->Texture)
+			{
+				if (curDraw->VertexCounter > 0)
+				{
+					if (curDraw->Mode == LINES || curDraw->Mode == TRIANGLES)
+					{
+						int remainder = curDraw->VertexCounter % 4;
+						if (remainder > 0)
+						{
+							curDraw->VertexAlignment = 4 - remainder;
+						}
+						else if (remainder == 0)
+						{
+							curDraw->VertexAlignment = 0;
+						}
+					}
+					else if (curDraw->Mode == QUADS)
+					{
+						curDraw->VertexAlignment = 0;
+					}
+
+					if (!CheckRenderBatchLimit(curDraw->VertexAlignment))
+					{
+						m_Batch.VertexCounter += curDraw->VertexAlignment;
+						m_Batch.DrawCounter++;
+					}
+				}
+
+				nextDraw = &m_Batch.Draws[m_Batch.DrawCounter - 1];
+				// NOTE: 这里可以不用设置nextDraw->Mode
+				nextDraw->Mode = QUADS;
+				nextDraw->Texture = id;
+				nextDraw->VertexAlignment = 0;
+				nextDraw->VertexCounter = 0;
+			}
+		}
+		else if (id == 0)
+		{
+			if (m_Batch.VertexCounter >= m_Batch.Buffers[m_Batch.CurrentBuffer].BufferElements * 4)
+			{
+				DrawRenderBatch();
+			}
+		}
+		else
+		{
+			SimpleLogger::GetInstance().Error("RENDER: Invalid texture id[{}]", id);
+		}
 	}
 }
 }

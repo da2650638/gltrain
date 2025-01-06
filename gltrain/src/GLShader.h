@@ -2,17 +2,23 @@
 
 #include "GLGlobal.h"
 
+#include "Casic/CasicUtils.h"
+#include "Casic/CasicGraphics.h"
+
 #include <unordered_map>
+#include <type_traits>
+#include <typeinfo>
 
 //----------------------------------------------------------------------------
 // Location names
 //----------------------------------------------------------------------------
 #define ATTRIB_VERTEX_POSITION_NAME					"vertexPosition"
-#define ATTRIB_VERTEX_TEXCOORD_NAME					"vertexTexcoord"
+#define ATTRIB_VERTEX_TEXCOORD_NAME					"vertexTexCoord"
 #define ATTRIB_VERTEX_NORMAL_NAME					"vertexNormal"
 #define ATTRIB_VERTEX_COLOR_NAME					"vertexColor"
 
 #define UNIFORM_MVP_NAME							"mvp"
+#define UNIFORM_TEXTURE0_NAME						"texture0"
 
 //----------------------------------------------------------------------------
 // Location default values
@@ -47,6 +53,47 @@ namespace GL
 		// NOTE: Set Uniform Functions
 		// TODO: 后续考虑使用模板元编程优化一下
 		void SetUniformMat4(const std::string& name, const Math::Matrix4& value);
+		void SetUniformInt(const std::string& name, int value);
+		template <typename _Ty>
+		void SetUniform(const std::string& name, const _Ty& value)
+		{
+			using LocType = typename std::remove_cv_t<_Ty>;
+			int location = GetUniformLocation(name);
+			if (location == -1)
+			{
+				SimpleLogger::GetInstance().Error("Shader:[ID {}] Get Uniform [Name: {}, Type: {}] error.", m_ProgramID, name, typeid(LocType).name());
+				return;
+			}
+			// TODO: 根据LocType执行不同的glUniform**(例如glUniform1i, glUniformMat4fv等等等等，要包罗万象
+			if constexpr (std::is_same_v<LocType, int>) 
+			{
+				glUniform1i(location, value);
+			}
+			else if constexpr (std::is_same_v<LocType, float>)
+			{
+				glUniform1f(location, value);
+			}
+			else if constexpr (std::is_same_v<LocType, Math::Vector2>)
+			{
+				glUniform2f(location, value.x, value.y);
+			}
+			else if constexpr (std::is_same_v<LocType, Math::Vector3>)
+			{
+				glUniform3f(location, value.x, value.y, value.z);
+			}
+			else if constexpr (std::is_same_v<LocType, Math::Vector4>)
+			{
+				glUniform4f(location, value.x, value.y, value.z, value.w);
+			}
+			else if constexpr (std::is_same_v<LocType, Math::Matrix4>)
+			{
+				glUniformMatrix4fv(location, 1, GL_FALSE, Graphics::ToOpenGLMatrix4(value).v);
+			}
+			else
+			{
+				static_assert(Util::always_false<LocType>, "Unsupported uniform type.");
+			}
+		}
 	private:
 		bool ShaderSrc(const std::string& vertexShaderFile, const std::string& fragmentShaderFile);
 		bool CompileShader(const std::string& vertexShaderCode, const std::string& fragmentShaderCode);

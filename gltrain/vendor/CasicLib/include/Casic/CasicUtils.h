@@ -31,5 +31,8 @@ namespace Util
 
 	CASICLIB_API std::tuple<unsigned char*, int> LoadFileData(const char* filename);
 	CASICLIB_API void UnloadFileData(unsigned char* filedata); 
+
+	template <typename _Ty>
+	struct always_false : std::false_type {};
 }
 }

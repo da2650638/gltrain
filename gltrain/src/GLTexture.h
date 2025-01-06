@@ -44,9 +44,10 @@ namespace GL
         int format;
     }Texture;
 
-    using Texture2D = Texture;
+    using Texture2D = typename Texture;
+    using GLTexture = typename Texture2D;
 
-    static inline std::tuple<unsigned int, unsigned int, unsigned int> GetGLTextureFormat(PixelFormat format, unsigned int* glInternalFormat, unsigned int* glFormat, unsigned int* glType)
+    static inline std::tuple<unsigned int, unsigned int, unsigned int> GetGLTextureFormat(PixelFormat format)
     {
         switch (format)
         {
@@ -167,5 +168,11 @@ namespace GL
     void UnloadImageStruct(Graphics::Image image);
     
     Texture2D LoadTexture(const char* fileName);
+    void UnloadTexture(Texture2D texture);
+
+    Texture2D LoadTextureFromImage(Graphics::Image image);
+    
+    unsigned int GLLoadTexture(const void* data, int width, int height, int format, int mipmapCount);
+    void GLUnloadTexture(unsigned int id);
 }
 }
