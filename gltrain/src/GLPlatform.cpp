@@ -16,6 +16,11 @@ namespace GL
 		m_WindowData.Height = height;
 	}
 
+	void GLPlatform::SetWindowSizeCallback(GLFWwindowsizefun callback)
+	{
+		glfwSetWindowSizeCallback(m_Window, callback);
+	}
+
 	GLPlatform::Time& GLPlatform::TimeData()
 	{
 		return m_TimeData;

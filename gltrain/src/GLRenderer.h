@@ -14,6 +14,18 @@ namespace Casic
 {
 namespace GL
 {
+	enum class BlendMode {
+		GL_BLEND_ALPHA = 0,                 // Blend textures considering alpha (default)
+		GL_BLEND_ADDITIVE,                  // Blend textures adding colors
+		GL_BLEND_MULTIPLIED,                // Blend textures multiplying colors
+		GL_BLEND_ADD_COLORS,                // Blend textures adding colors (alternative)
+		GL_BLEND_SUBTRACT_COLORS,           // Blend textures subtracting colors (alternative)
+		GL_BLEND_ALPHA_PREMULTIPLY,         // Blend premultiplied textures considering alpha
+		GL_BLEND_CUSTOM,                    // Blend textures using custom src/dst factors (use rlSetBlendFactors())
+		GL_BLEND_CUSTOM_SEPARATE,           // Blend textures using custom src/dst factors (use rlSetBlendFactorsSeparate())
+
+		GL_BLEND_COUNT
+	};
 
 	class GLRenderer {
 	public:
@@ -26,6 +38,8 @@ namespace GL
 		static GLRenderer& GetInstance();
 
 		~GLRenderer();
+
+		static void WindowSizeCallback(GLFWwindow* window, int width, int height);
 
 		void SetPlatform(GLPlatform* platform);
 		void SetRenderData(RenderData rd);
@@ -40,6 +54,9 @@ namespace GL
 
 		void BeginDrawing();
 		void EndDrawing();
+
+		void BeginBlendMode(int mode);
+		void EndBlendMode();
 
 		void DrawTriangle(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color);
 		void DrawTriangle(Math::Vector2 v1, Math::Vector2 v2, Math::Vector2 v3, Graphics::Color color);
@@ -106,7 +123,11 @@ namespace GL
 		void DrawRectangleLines(int x, int y, int width, int height, Graphics::Color color);
 		void DrawRectangleLinesV(Math::Vector2 pos, Math::Vector2 size, Graphics::Color color);
 
-		void DrawTexturePro(Texture2D texture, Graphics::Rectangle source, Graphics::Rectangle dest, Math::Vector2 pivot, float rotation, Graphics::Color tint);
+		void DrawTexturePro(Texture2D texture, Graphics::Rectangle region, Math::Vector2 pos, Math::Vector2 size, Math::Vector2 pivot, float rotation, Graphics::Color tint);
+		void DrawTextureEx(Texture2D texture, Math::Vector2 pos, float rotation, float scale, Graphics::Color tint);
+		void DrawTexture(Texture2D texture, int posX, int posY, Graphics::Color tint);
+		void DrawTextureV(Texture2D texture, Math::Vector2 pos, Graphics::Color tint);
+
 	private:
 		GLRenderer();
 
@@ -125,6 +146,7 @@ namespace GL
 		void Vertex2f(Math::Vector2 vec);
 
 		void SetTextureId(unsigned int id);
+		void SetBlendMode(int mode);
 	private:
 		// TODO: 这种设计能否改进呢？
 		// NOTE: 任何使用m_PlatformInst必须检查是否合法并提示编译错误或抛出异常
@@ -143,6 +165,7 @@ namespace GL
 		GLTexture m_DefaultTexture;
 		GLShader m_DefaultShader;
 		GLShader* m_CurrentShader = nullptr;
+		int m_CurrentBlendMode = 0;
 		//-------------------------
 		// Matrix 成员
 		//-------------------------

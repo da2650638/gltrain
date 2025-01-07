@@ -26,9 +26,16 @@ namespace GL
 	{
 	}
 
+	void GLRenderer::WindowSizeCallback(GLFWwindow* window, int width, int height)
+	{
+		GLRenderer::GetInstance().SetRenderSize(width, height);
+	}
+
 	void GLRenderer::SetPlatform(GLPlatform* platform)
 	{
 		m_PlatformInst = platform;
+
+		m_PlatformInst->SetWindowSizeCallback(WindowSizeCallback);
 	}
 
 	void GLRenderer::SetRenderData(RenderData rd)
@@ -84,6 +91,8 @@ namespace GL
 		//---------------------------------------------------------------
 		// TODO: 初始化OpenGL某些选项
 		//---------------------------------------------------------------
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
 	}
 
 	// NOTE: 这个功能应该在Platform模块还是Renderer模块呢？我也不太清楚
@@ -156,6 +165,17 @@ namespace GL
 		// TODO: 检查是否需要延长帧时间
 		m_PlatformInst->PollInputEvents();
 		m_PlatformInst->TimeData().FrameCounter++;
+	}
+
+	void GLRenderer::BeginBlendMode(int mode)
+	{
+		SetBlendMode(mode);
+	}
+
+	void GLRenderer::EndBlendMode()
+	{
+		// Note: default blend mode: GL_BLEND_ALPHA
+		SetBlendMode(0);
 	}
 
 	void GLRenderer::DrawTriangle(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color)
@@ -462,52 +482,61 @@ namespace GL
 		DrawRectangleLinesProV(pos, size, 0.0f, color);
 	}
 
-	void GLRenderer::DrawTexturePro(Texture2D texture, Graphics::Rectangle source, Graphics::Rectangle dest, Math::Vector2 pivot, float rotation, Graphics::Color tint)
+	void GLRenderer::DrawTexturePro(Texture2D texture, Graphics::Rectangle region, Math::Vector2 pos, Math::Vector2 size, Math::Vector2 pivot, float rotation, Graphics::Color tint)
 	{
-		if (texture.id > 0)
+		Math::Vector2 topLeft, topRight, bottomRight, bottomLeft;
+		topLeft = pos - pivot;
+		topRight = { topLeft.x + size.x, topLeft.y };
+		bottomRight = { topLeft.x + size.x, topLeft.y + size.y };
+		bottomLeft = { topLeft.x, topLeft.y + size.y };
+		if (!Math::Equals(rotation, 0.0f))
 		{
-			Math::Vector2 topLeft, topRight, bottomRight, bottomLeft;
-			Math::Vector2 size{ (float)texture.width, (float)texture.height };
-			Math::Vector2 pos{ dest.x, dest.y };
-			topLeft = pos - pivot;
-			topRight = { topLeft.x + size.x, topLeft.y };
-			bottomRight = { topLeft.x + size.x, topLeft.y + size.y };
-			bottomLeft = { topLeft.x, topLeft.y + size.y };
-			if (!Math::Equals(rotation, 0.0f))
-			{
-				float sinTheta = std::sinf(Math::degreesToRadians(rotation));
-				float cosTheta = std::cosf(Math::degreesToRadians(rotation));
-				// NOTE: 记录下以pivot为原点的坐标系中的矩形四个点的向量，先旋转，再平移。
-				Math::Vector2 vTopLeft{ -pivot.x, -pivot.y }, vTopRight{ vTopLeft.x + size.x, vTopLeft.y }, vBottomRight{ vTopLeft.x + size.x, vTopLeft.y + size.y }, vBottomLeft{ vTopLeft.x, vTopLeft.y + size.y };
-				topLeft = pos + Math::Vector2{ vTopLeft.x * cosTheta - vTopLeft.y * sinTheta, vTopLeft.x * sinTheta + vTopLeft.y * cosTheta };
-				topRight = pos + Math::Vector2{ vTopRight.x * cosTheta - vTopRight.y * sinTheta , vTopRight.x * sinTheta + vTopRight.y * cosTheta };
-				bottomRight = pos + Math::Vector2{ vBottomRight.x * cosTheta - vBottomRight.y * sinTheta , vBottomRight.x * sinTheta + vBottomRight.y * cosTheta };
-				bottomLeft = pos + Math::Vector2{ vBottomLeft.x * cosTheta - vBottomLeft.y * sinTheta , vBottomLeft.x * sinTheta + vBottomLeft.y * cosTheta };
-			}
-			SetTextureId(texture.id);
-			BeginVertexInput(QUADS);
-			{
-				ColorV(tint);
-				Normal3f(0.0f, 0.0f, 1.0f);
-
-				// TODO: 考虑flipX
-				
-				TextureCoord2f(source.x / texture.width, source.y / texture.height);
-				Vertex2f(topLeft);
-
-				TextureCoord2f( (source.x + source.width) / texture.width, source.y / texture.height);
-				Vertex2f(topRight);
-
-				TextureCoord2f((source.x + source.width) / texture.width, (source.y + source.height) / texture.height);
-				Vertex2f(bottomRight);
-
-				TextureCoord2f(source.x / texture.width, (source.y + source.height) / texture.height);
-				Vertex2f(bottomLeft);
-			}
-			EndVertexInput();
-			SetTextureId(0);
+			float sinTheta = std::sinf(Math::degreesToRadians(rotation));
+			float cosTheta = std::cosf(Math::degreesToRadians(rotation));
+			// NOTE: 记录下以pivot为原点的坐标系中的矩形四个点的向量，先旋转，再平移。
+			Math::Vector2 vTopLeft{ -pivot.x, -pivot.y }, vTopRight{ vTopLeft.x + size.x, vTopLeft.y }, vBottomRight{ vTopLeft.x + size.x, vTopLeft.y + size.y }, vBottomLeft{ vTopLeft.x, vTopLeft.y + size.y };
+			topLeft = pos + Math::Vector2{ vTopLeft.x * cosTheta - vTopLeft.y * sinTheta, vTopLeft.x * sinTheta + vTopLeft.y * cosTheta };
+			topRight = pos + Math::Vector2{ vTopRight.x * cosTheta - vTopRight.y * sinTheta , vTopRight.x * sinTheta + vTopRight.y * cosTheta };
+			bottomRight = pos + Math::Vector2{ vBottomRight.x * cosTheta - vBottomRight.y * sinTheta , vBottomRight.x * sinTheta + vBottomRight.y * cosTheta };
+			bottomLeft = pos + Math::Vector2{ vBottomLeft.x * cosTheta - vBottomLeft.y * sinTheta , vBottomLeft.x * sinTheta + vBottomLeft.y * cosTheta };
 		}
+		SetTextureId(texture.id);
+		BeginVertexInput(QUADS);
+		{
+			ColorV(tint);
+			Normal3f(0.0f, 0.0f, 1.0f);
 
+			TextureCoord2f(region.x / texture.width, region.y / texture.height);
+			Vertex2f(topLeft);
+
+			TextureCoord2f( (region.x + region.width) / texture.width, region.y / texture.height);
+			Vertex2f(topRight);
+
+			TextureCoord2f((region.x + region.width) / texture.width, (region.y + region.height) / texture.height);
+			Vertex2f(bottomRight);
+
+			TextureCoord2f(region.x / texture.width, (region.y + region.height) / texture.height);
+			Vertex2f(bottomLeft);
+		}
+		EndVertexInput();
+		SetTextureId(0);
+	}
+
+	void GLRenderer::DrawTextureEx(Texture2D texture, Math::Vector2 pos, float rotation, float scale, Graphics::Color tint)
+	{
+		Graphics::Rectangle region{ 0.f ,0.f, texture.width, texture.height };
+		Math::Vector2 size{ (float)texture.width * scale, (float)texture.height * scale }, pivot{ 0.0f, 0.0f };
+		DrawTexturePro(texture, region, pos, size, pivot, rotation, tint);
+	}
+
+	void GLRenderer::DrawTexture(Texture2D texture, int posX, int posY, Graphics::Color tint)
+	{
+		DrawTextureEx(texture, { (float)posX, (float)posY }, 0.0f/* rotation = 0.0f */, 1.0f/* scale = 1.0f */, tint);
+	}
+
+	void GLRenderer::DrawTextureV(Texture2D texture, Math::Vector2 pos, Graphics::Color tint)
+	{
+		DrawTextureEx(texture, pos, 0.0f/* rotation = 0.0f */, 1.0f/* scale = 1.0f */, tint);
 	}
 
 	GLRenderer::GLRenderer()
@@ -888,6 +917,28 @@ namespace GL
 		else
 		{
 			SimpleLogger::GetInstance().Error("RENDER: Invalid texture id[{}]", id);
+		}
+	}
+
+	void GLRenderer::SetBlendMode(int mode)
+	{
+		if (m_CurrentBlendMode != mode)
+		{
+			DrawRenderBatch();
+			//TODO: custom blend mode后续再考虑
+			switch (static_cast<BlendMode>(mode))
+			{
+			case BlendMode::GL_BLEND_ALPHA: glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); glBlendEquation(GL_FUNC_ADD); break;
+			case BlendMode::GL_BLEND_ADDITIVE: glBlendFunc(GL_SRC_ALPHA, GL_ONE); glBlendEquation(GL_FUNC_ADD); break;
+			case BlendMode::GL_BLEND_MULTIPLIED: glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA); glBlendEquation(GL_FUNC_ADD); break;
+			case BlendMode::GL_BLEND_ADD_COLORS: glBlendFunc(GL_ONE, GL_ONE); glBlendEquation(GL_FUNC_ADD); break;
+			case BlendMode::GL_BLEND_SUBTRACT_COLORS: glBlendFunc(GL_ONE, GL_ONE); glBlendEquation(GL_FUNC_SUBTRACT); break;
+			case BlendMode::GL_BLEND_ALPHA_PREMULTIPLY:
+			case BlendMode::GL_BLEND_CUSTOM:
+			case BlendMode::GL_BLEND_CUSTOM_SEPARATE:
+			default: glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); glBlendEquation(GL_FUNC_ADD); break;
+			}
+			m_CurrentBlendMode = mode;
 		}
 	}
 }

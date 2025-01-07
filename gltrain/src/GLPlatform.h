@@ -43,6 +43,7 @@ namespace GL
 		void SwapBuffers();
 		void PollInputEvents();
 		void SetWindowData(std::string title, int width, int height);
+		void SetWindowSizeCallback(GLFWwindowsizefun callback);
 
 		static float GetTime();
 		static void ErrorCallback(int error_code, const char* description);

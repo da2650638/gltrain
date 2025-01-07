@@ -5,6 +5,6 @@ out vec4 outColor;
 uniform sampler2D texture0;
 void main()
 {
-	vec4 texelColor = texture(texture0, fragTexCoord);
-	outColor = texelColor * fragColor;
+	vec4 texColor = texture(texture0, fragTexCoord);
+	outColor = texColor * fragColor;
 }
