@@ -178,6 +178,49 @@ namespace GL
 		SetBlendMode(0);
 	}
 
+	void GLRenderer::BeginMode3D(Camera camera)
+	{
+		DrawRenderBatch();
+
+		MatrixMode(GL_PROJECTION);
+		m_MatStack.push(*m_CurrentMatrix);
+		LoadIdentity();
+
+		float aspect = (float)m_RenderData.Width / (float)m_RenderData.Height;
+		if (camera.projection == static_cast<int>(CameraProjection::CAMERA_PERSPECTIVE))
+		{
+			*m_CurrentMatrix = Math::Perspective(camera.fovy, aspect, GetCullDistanceNear(), GetCullDistanceFar());
+		}
+		else if (camera.projection == static_cast<int>(CameraProjection::CAMERA_ORTHOGRAPHIC))
+		{
+			float top = camera.fovy * 0.5f;
+			float right = top * aspect;
+			*m_CurrentMatrix = Math::Ortho(-right, right, -top, top, GetCullDistanceNear(), GetCullDistanceFar());
+		}
+
+		MatrixMode(GL_MODELVIEW);
+		LoadIdentity();
+
+		Math::Matrix4 lookAt = Math::LookAt(camera.position, camera.target, camera.up);
+		*m_CurrentMatrix = lookAt * (*m_CurrentMatrix);
+
+		EnableDepthTest();
+	}
+
+	void GLRenderer::EndMode3D(Camera camera)
+	{
+		DrawRenderBatch();
+
+		MatrixMode(GL_PROJECTION);
+		*m_CurrentMatrix = m_MatStack.top();
+		m_MatStack.pop();
+
+		MatrixMode(GL_MODELVIEW);
+		LoadIdentity();
+
+		DisableDepthTest();
+	}
+
 	void GLRenderer::DrawTriangle(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color)
 	{
 		//BeginVertexInput(TRIANGLES);
@@ -940,6 +983,16 @@ namespace GL
 			}
 			m_CurrentBlendMode = mode;
 		}
+	}
+
+	void GLRenderer::EnableDepthTest()
+	{
+		glEnable(GL_DEPTH_TEST);
+	}
+
+	void GLRenderer::DisableDepthTest()
+	{
+		glDisable(GL_DEPTH_TEST);
 	}
 }
 }

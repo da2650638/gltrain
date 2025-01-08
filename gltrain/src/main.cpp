@@ -15,6 +15,7 @@
 #include "SimpleLogger.h"
 #include "GLRenderer.h"
 #include "GLTexture.h"
+#include "GLCamera.h"
 
 #include "Casic/CasicMatrixTransform.h"
 #include "Casic/CasicGraphics.h"
@@ -63,6 +64,12 @@ int main()
 
 	auto& input = GLInput::GetInstance();
 
+	Camera3D camera;
+	camera.position = { 10.0f, 10.0f, 10.0f };												// Camera position
+	camera.target = { 0.0f, 0.0f, 0.0f };													// Camera looking at point
+	camera.up = { 0.0f, 1.0f, 0.0f };														// Camera up vector (rotation towards target)
+	camera.fovy = 45.0f;																	// Camera field-of-view Y
+	camera.projection = static_cast<int>(CameraProjection::CAMERA_PERSPECTIVE);             // Camera projection type
 	// NOTE: Be careful, background width must be equal or bigger than screen width
 	// if not, texture should be draw more than two times for scrolling effect
 	Texture2D background = LoadTexture("res/file/cyberpunk_street_background.png");

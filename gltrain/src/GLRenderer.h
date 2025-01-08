@@ -9,6 +9,7 @@
 #include "GLShader.h"
 #include "GLTexture.h"
 #include "GLRenderData.h"
+#include "GLCamera.h"
 
 namespace Casic
 {
@@ -57,6 +58,10 @@ namespace GL
 
 		void BeginBlendMode(int mode);
 		void EndBlendMode();
+
+		void BeginMode3D(Camera camera);
+		void EndMode3D(Camera camera);
+		void UpdateCamera(Camera camera);
 
 		void DrawTriangle(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color);
 		void DrawTriangle(Math::Vector2 v1, Math::Vector2 v2, Math::Vector2 v3, Graphics::Color color);
@@ -147,6 +152,12 @@ namespace GL
 
 		void SetTextureId(unsigned int id);
 		void SetBlendMode(int mode);
+
+		float GetCullDistanceFar() const { return 1000.0f; }
+		float GetCullDistanceNear() const { return 0.01f; }
+
+		void EnableDepthTest();
+		void DisableDepthTest();
 	private:
 		// TODO: 这种设计能否改进呢？
 		// NOTE: 任何使用m_PlatformInst必须检查是否合法并提示编译错误或抛出异常
@@ -166,6 +177,7 @@ namespace GL
 		GLShader m_DefaultShader;
 		GLShader* m_CurrentShader = nullptr;
 		int m_CurrentBlendMode = 0;
+
 		//-------------------------
 		// Matrix 成员
 		//-------------------------
@@ -176,6 +188,7 @@ namespace GL
 		Math::Matrix4 m_Transform;
 		bool m_TransformRequired;
 		std::stack<Math::Matrix4> m_MatStack;
+
 		//-------------------------
 		// Render Batch相关成员
 		//-------------------------
