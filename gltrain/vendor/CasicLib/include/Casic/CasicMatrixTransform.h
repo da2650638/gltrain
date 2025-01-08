@@ -176,5 +176,7 @@ namespace Math
 	 *   - The resulting matrix applies only a rotation transformation and leaves other transformations as identity.
 	 */
 	CASICLIB_API Matrix4 Rotate(float angle, Vector3 axis);
+
+	CASICLIB_API Matrix4 Translate(float x, float y, float z);
 }
 }

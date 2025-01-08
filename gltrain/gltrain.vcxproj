@@ -98,6 +98,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\GLCamera.cpp" />
     <ClCompile Include="src\GLInput.cpp" />
     <ClCompile Include="src\GLPlatform.cpp" />
     <ClCompile Include="src\GLRenderer.cpp" />
@@ -108,6 +109,7 @@
     <ClCompile Include="vendor\glad\src\glad.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\GLCamera.h" />
     <ClInclude Include="src\GLGlobal.h" />
     <ClInclude Include="src\GLInput.h" />
     <ClInclude Include="src\GLPlatform.h" />

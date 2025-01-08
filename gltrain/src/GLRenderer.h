@@ -60,7 +60,7 @@ namespace GL
 		void EndBlendMode();
 
 		void BeginMode3D(Camera camera);
-		void EndMode3D(Camera camera);
+		void EndMode3D();
 		void UpdateCamera(Camera camera);
 
 		void DrawTriangle(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color);
@@ -133,6 +133,9 @@ namespace GL
 		void DrawTexture(Texture2D texture, int posX, int posY, Graphics::Color tint);
 		void DrawTextureV(Texture2D texture, Math::Vector2 pos, Graphics::Color tint);
 
+		void DrawCube(Math::Vector3 position, float width, float height, float length, Graphics::Color color);
+		void DrawCubeWires(Math::Vector3 position, float width, float height, float length, Graphics::Color color);
+		void DrawGrid(int slices, float spacing);
 	private:
 		GLRenderer();
 
@@ -149,6 +152,9 @@ namespace GL
 		void Vertex2f(float x, float y);
 		void Vertex3f(Math::Vector3 vec);
 		void Vertex2f(Math::Vector2 vec);
+
+		void PushMatrix();
+		void PopMatrix();
 
 		void SetTextureId(unsigned int id);
 		void SetBlendMode(int mode);
@@ -168,7 +174,7 @@ namespace GL
 		//-------------------------
 		Graphics::Color m_CurrentColor{ 255, 255, 255, 255 };
 		Math::Vector2 m_TexCoord = { 0.0f, 0.0f };
-		Math::Vector3 m_Normal = {0.0f, 0.0f, 0.0f};
+		Math::Vector3 m_Normal = { 0.0f, 0.0f, 0.0f };
 
 		//-------------------------
 		// Shader和Texture相关成员

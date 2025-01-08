@@ -82,6 +82,7 @@ int main()
 	float rotation = 0.0;
 
 	int blendMode = 0;
+	Math::Vector3 cubePosition = { 0.0f, 0.0f, 0.0f };
 	while (!platform.WindowShouldClose())
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -111,13 +112,23 @@ int main()
 			//renderer.DrawRectangleV({ 0.0f, 0.0f }, {100.0f, 100.0f}, { 255, 255, 0, 255 });
 			//renderer.DrawRectangleLinesV({ 640, 360 }, { 100, 100 }, { 255, 0, 0, 255 });
 			//renderer.DrawRectangleLines(640 - 100, 360 - 100, 100, 100, { 255, 0, 0, 255 });
-			renderer.DrawTexture(background, screenWidth / 2 - background.width / 2, screenHeight / 2 - background.height / 2, WHITE);
-			//renderer.DrawTexture(midground, screenWidth / 2 - midground.width / 2, screenHeight / 2 - midground.height / 2, WHITE);
-			renderer.BeginBlendMode(blendMode);
+			
+			//renderer.DrawTexture(background, screenWidth / 2 - background.width / 2, screenHeight / 2 - background.height / 2, WHITE);
+			////renderer.DrawTexture(midground, screenWidth / 2 - midground.width / 2, screenHeight / 2 - midground.height / 2, WHITE);
+			//renderer.BeginBlendMode(blendMode);
+			//{
+			//	renderer.DrawTexture(foreground, screenWidth / 2 - foreground.width / 2, screenHeight / 2 - foreground.height / 2, WHITE);
+			//}
+			//renderer.EndBlendMode();
+
+			renderer.BeginMode3D(camera);
 			{
-				renderer.DrawTexture(foreground, screenWidth / 2 - foreground.width / 2, screenHeight / 2 - foreground.height / 2, WHITE);
+				renderer.DrawCube(cubePosition, 2.0f, 2.0f, 2.0f, RED);
+				renderer.DrawCubeWires(cubePosition, 2.0f, 2.0f, 2.0f, MAROON);
+
+				renderer.DrawGrid(10, 1.0f);
 			}
-			renderer.EndBlendMode();
+			renderer.EndMode3D();
 		}
 		renderer.EndDrawing();
 	}

@@ -182,9 +182,8 @@ namespace GL
 	{
 		DrawRenderBatch();
 
-		MatrixMode(GL_PROJECTION);
-		m_MatStack.push(*m_CurrentMatrix);
-		LoadIdentity();
+		MatrixMode(PROJECTION_MODE);
+		PushMatrix();
 
 		float aspect = (float)m_RenderData.Width / (float)m_RenderData.Height;
 		if (camera.projection == static_cast<int>(CameraProjection::CAMERA_PERSPECTIVE))
@@ -198,7 +197,7 @@ namespace GL
 			*m_CurrentMatrix = Math::Ortho(-right, right, -top, top, GetCullDistanceNear(), GetCullDistanceFar());
 		}
 
-		MatrixMode(GL_MODELVIEW);
+		MatrixMode(MODELVIEW_MODE);
 		LoadIdentity();
 
 		Math::Matrix4 lookAt = Math::LookAt(camera.position, camera.target, camera.up);
@@ -207,15 +206,14 @@ namespace GL
 		EnableDepthTest();
 	}
 
-	void GLRenderer::EndMode3D(Camera camera)
+	void GLRenderer::EndMode3D()
 	{
 		DrawRenderBatch();
 
-		MatrixMode(GL_PROJECTION);
-		*m_CurrentMatrix = m_MatStack.top();
-		m_MatStack.pop();
+		MatrixMode(PROJECTION_MODE);
+		PopMatrix();
 
-		MatrixMode(GL_MODELVIEW);
+		MatrixMode(MODELVIEW_MODE);
 		LoadIdentity();
 
 		DisableDepthTest();
@@ -582,6 +580,179 @@ namespace GL
 		DrawTextureEx(texture, pos, 0.0f/* rotation = 0.0f */, 1.0f/* scale = 1.0f */, tint);
 	}
 
+	void GLRenderer::DrawCube(Math::Vector3 position, float width, float height, float length, Graphics::Color color)
+	{
+		float x = 0.0f;
+		float y = 0.0f;
+		float z = 0.0f;
+
+		MatrixMode(MODELVIEW_MODE);
+		PushMatrix();
+		{
+			Math::Matrix4 translate = Math::Translate(position);
+			*m_CurrentMatrix = translate * (*m_CurrentMatrix);
+
+			BeginVertexInput(TRIANGLES);
+			{
+				ColorV(color);
+
+				// Front Face -----------------------------------------------------
+				Vertex3f(x - width / 2, y - height / 2, z + length / 2);  // Bottom Left
+				Vertex3f(x + width / 2, y - height / 2, z + length / 2);  // Bottom Right
+				Vertex3f(x - width / 2, y + height / 2, z + length / 2);  // Top Left
+
+				Vertex3f(x + width / 2, y + height / 2, z + length / 2);  // Top Right
+				Vertex3f(x - width / 2, y + height / 2, z + length / 2);  // Top Left
+				Vertex3f(x + width / 2, y - height / 2, z + length / 2);  // Bottom Right
+
+				// Back Face ------------------------------------------------------
+				Vertex3f(x - width / 2, y - height / 2, z - length / 2);  // Bottom Left
+				Vertex3f(x - width / 2, y + height / 2, z - length / 2);  // Top Left
+				Vertex3f(x + width / 2, y - height / 2, z - length / 2);  // Bottom Right
+
+				Vertex3f(x + width / 2, y + height / 2, z - length / 2);  // Top Right
+				Vertex3f(x + width / 2, y - height / 2, z - length / 2);  // Bottom Right
+				Vertex3f(x - width / 2, y + height / 2, z - length / 2);  // Top Left
+
+				// Top Face -------------------------------------------------------
+				Vertex3f(x - width / 2, y + height / 2, z - length / 2);  // Top Left
+				Vertex3f(x - width / 2, y + height / 2, z + length / 2);  // Bottom Left
+				Vertex3f(x + width / 2, y + height / 2, z + length / 2);  // Bottom Right
+
+				Vertex3f(x + width / 2, y + height / 2, z - length / 2);  // Top Right
+				Vertex3f(x - width / 2, y + height / 2, z - length / 2);  // Top Left
+				Vertex3f(x + width / 2, y + height / 2, z + length / 2);  // Bottom Right
+
+				// Bottom Face ----------------------------------------------------
+				Vertex3f(x - width / 2, y - height / 2, z - length / 2);  // Top Left
+				Vertex3f(x + width / 2, y - height / 2, z + length / 2);  // Bottom Right
+				Vertex3f(x - width / 2, y - height / 2, z + length / 2);  // Bottom Left
+
+				Vertex3f(x + width / 2, y - height / 2, z - length / 2);  // Top Right
+				Vertex3f(x + width / 2, y - height / 2, z + length / 2);  // Bottom Right
+				Vertex3f(x - width / 2, y - height / 2, z - length / 2);  // Top Left
+
+				// Right face -----------------------------------------------------
+				Vertex3f(x + width / 2, y - height / 2, z - length / 2);  // Bottom Right
+				Vertex3f(x + width / 2, y + height / 2, z - length / 2);  // Top Right
+				Vertex3f(x + width / 2, y + height / 2, z + length / 2);  // Top Left
+
+				Vertex3f(x + width / 2, y - height / 2, z + length / 2);  // Bottom Left
+				Vertex3f(x + width / 2, y - height / 2, z - length / 2);  // Bottom Right
+				Vertex3f(x + width / 2, y + height / 2, z + length / 2);  // Top Left
+
+				// Left Face ------------------------------------------------------
+				Vertex3f(x - width / 2, y - height / 2, z - length / 2);  // Bottom Right
+				Vertex3f(x - width / 2, y + height / 2, z + length / 2);  // Top Left
+				Vertex3f(x - width / 2, y + height / 2, z - length / 2);  // Top Right
+
+				Vertex3f(x - width / 2, y - height / 2, z + length / 2);  // Bottom Left
+				Vertex3f(x - width / 2, y + height / 2, z + length / 2);  // Top Left
+				Vertex3f(x - width / 2, y - height / 2, z - length / 2);  // Bottom Right
+			}
+			EndVertexInput();
+		}
+		PopMatrix();
+	}
+
+	void GLRenderer::DrawCubeWires(Math::Vector3 position, float width, float height, float length, Graphics::Color color)
+	{
+		float x = 0.0f;
+		float y = 0.0f;
+		float z = 0.0f;
+
+		MatrixMode(MODELVIEW_MODE);
+		PushMatrix();
+		{
+			Math::Matrix4 translate = Math::Translate(position);
+			*m_CurrentMatrix = translate * (*m_CurrentMatrix);
+
+			BeginVertexInput(LINES);
+			{
+				ColorV(color);
+
+				// Front Face -----------------------------------------------------
+				// Bottom Line
+				Vertex3f(x - width / 2, y - height / 2, z + length / 2);  // Bottom Left
+				Vertex3f(x + width / 2, y - height / 2, z + length / 2);  // Bottom Right
+
+				// Left Line
+				Vertex3f(x + width / 2, y - height / 2, z + length / 2);  // Bottom Right
+				Vertex3f(x + width / 2, y + height / 2, z + length / 2);  // Top Right
+
+				// Top Line
+				Vertex3f(x + width / 2, y + height / 2, z + length / 2);  // Top Right
+				Vertex3f(x - width / 2, y + height / 2, z + length / 2);  // Top Left
+
+				// Right Line
+				Vertex3f(x - width / 2, y + height / 2, z + length / 2);  // Top Left
+				Vertex3f(x - width / 2, y - height / 2, z + length / 2);  // Bottom Left
+
+				// Back Face ------------------------------------------------------
+				// Bottom Line
+				Vertex3f(x - width / 2, y - height / 2, z - length / 2);  // Bottom Left
+				Vertex3f(x + width / 2, y - height / 2, z - length / 2);  // Bottom Right
+
+				// Left Line
+				Vertex3f(x + width / 2, y - height / 2, z - length / 2);  // Bottom Right
+				Vertex3f(x + width / 2, y + height / 2, z - length / 2);  // Top Right
+
+				// Top Line
+				Vertex3f(x + width / 2, y + height / 2, z - length / 2);  // Top Right
+				Vertex3f(x - width / 2, y + height / 2, z - length / 2);  // Top Left
+
+				// Right Line
+				Vertex3f(x - width / 2, y + height / 2, z - length / 2);  // Top Left
+				Vertex3f(x - width / 2, y - height / 2, z - length / 2);  // Bottom Left
+
+				// Top Face -------------------------------------------------------
+				// Left Line
+				Vertex3f(x - width / 2, y + height / 2, z + length / 2);  // Top Left Front
+				Vertex3f(x - width / 2, y + height / 2, z - length / 2);  // Top Left Back
+
+				// Right Line
+				Vertex3f(x + width / 2, y + height / 2, z + length / 2);  // Top Right Front
+				Vertex3f(x + width / 2, y + height / 2, z - length / 2);  // Top Right Back
+
+				// Bottom Face  ---------------------------------------------------
+				// Left Line
+				Vertex3f(x - width / 2, y - height / 2, z + length / 2);  // Top Left Front
+				Vertex3f(x - width / 2, y - height / 2, z - length / 2);  // Top Left Back
+
+				// Right Line
+				Vertex3f(x + width / 2, y - height / 2, z + length / 2);  // Top Right Front
+				Vertex3f(x + width / 2, y - height / 2, z - length / 2);  // Top Right Back
+			}
+			EndVertexInput();
+		}
+		PopMatrix();
+	}
+
+	void GLRenderer::DrawGrid(int slices, float spacing)
+	{
+		int halfSlices = slices / 2;
+
+		BeginVertexInput(LINES);
+		for (int i = -halfSlices; i <= halfSlices; i++)
+		{
+			if (i == 0)
+			{
+				ColorV({ 125, 125, 125, 255 });
+			}
+			else
+			{
+				ColorV({ 191, 191, 191, 255 });
+			}
+
+			Vertex3f((float)i * spacing, 0.0f, (float)-halfSlices * spacing);
+			Vertex3f((float)i * spacing, 0.0f, (float)halfSlices * spacing);
+
+			Vertex3f((float)-halfSlices * spacing, 0.0f, (float)i * spacing);
+			Vertex3f((float)halfSlices * spacing, 0.0f, (float)i * spacing);
+		}
+		EndVertexInput();
+	}
+
 	GLRenderer::GLRenderer()
 	{
 
@@ -906,6 +1077,31 @@ namespace GL
 	void GLRenderer::Vertex2f(Math::Vector2 vec)
 	{
 		Vertex2f(vec.x, vec.y);
+	}
+
+	void GLRenderer::PushMatrix()
+	{
+		if (m_MatrixMode == MODELVIEW_MODE)
+		{
+			m_TransformRequired = true;
+			m_CurrentMatrix = &m_Transform;
+		}
+
+		m_MatStack.push(*m_CurrentMatrix);
+	}
+
+	void GLRenderer::PopMatrix()
+	{
+		Math::Matrix4 mat = m_MatStack.top();
+		m_MatStack.pop();
+
+		*m_CurrentMatrix = mat;
+
+		if (m_MatStack.size() == 0 && m_MatrixMode == MODELVIEW_MODE)
+		{
+			m_CurrentMatrix = &m_ModelView;
+			m_TransformRequired = false;
+		}
 	}
 
 	void GLRenderer::SetTextureId(unsigned int id)
