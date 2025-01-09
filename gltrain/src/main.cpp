@@ -51,7 +51,7 @@ const char* fragmentShaderSrc =
 int main()
 {
 	auto& platform = GLPlatform::GetInstance();
-	platform.SetWindowData("My Refractor1 Window", 1280, 720);
+	platform.SetWindowData("My Refractor1 Window", 800, 450);
 	platform.InitPlatform();
 	int screenWidth = platform.GetWindowData().Width;
 	int screenHeight = platform.GetWindowData().Height;

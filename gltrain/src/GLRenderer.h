@@ -61,7 +61,7 @@ namespace GL
 
 		void BeginMode3D(Camera camera);
 		void EndMode3D();
-		void UpdateCamera(Camera camera);
+		void UpdateCamera(Camera camera, int mode/* see enum class CameraMode */);
 
 		void DrawTriangle(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color);
 		void DrawTriangle(Math::Vector2 v1, Math::Vector2 v2, Math::Vector2 v3, Graphics::Color color);

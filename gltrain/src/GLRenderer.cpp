@@ -201,7 +201,7 @@ namespace GL
 		LoadIdentity();
 
 		Math::Matrix4 lookAt = Math::LookAt(camera.position, camera.target, camera.up);
-		*m_CurrentMatrix = lookAt * (*m_CurrentMatrix);
+		*m_CurrentMatrix = lookAt * (*m_CurrentMatrix);	// TODO: 这里有必要相乘吗？
 
 		EnableDepthTest();
 	}
@@ -217,6 +217,11 @@ namespace GL
 		LoadIdentity();
 
 		DisableDepthTest();
+	}
+
+	void GLRenderer::UpdateCamera(Camera camera, int mode)
+	{
+
 	}
 
 	void GLRenderer::DrawTriangle(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color)
@@ -589,7 +594,7 @@ namespace GL
 		MatrixMode(MODELVIEW_MODE);
 		PushMatrix();
 		{
-			Math::Matrix4 translate = Math::Translate(position);
+			Math::Matrix4 translate = Math::Translate(position.x, position.y, position.z);
 			*m_CurrentMatrix = translate * (*m_CurrentMatrix);
 
 			BeginVertexInput(TRIANGLES);
@@ -1021,6 +1026,9 @@ namespace GL
 		if (m_TransformRequired)
 		{
 			coord = m_Transform * coord;
+			tx = coord.x;
+			ty = coord.y;
+			tz = coord.z;
 		}
 
 		
