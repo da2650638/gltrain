@@ -12,6 +12,7 @@ namespace Math
 {
 	CASICLIB_API bool Equals(float f1, float f2, float epsilon = 1e-6f);
 	CASICLIB_API float degreesToRadians(float degree);
+	CASICLIB_API float radiansToDegrees(float radians);
 
 	class Vector2;
 	class Vector3;
@@ -111,6 +112,26 @@ namespace Math
 
 	inline CASICLIB_API Vector2 Lerp(const Vector2& v1, const Vector2& v2, float t) {
 		return v1 + (v2 - v1) * std::clamp(t, 0.0f, 1.0f);
+	}
+
+	/**
+	 * @brief Computes the angle (in radians) between two 2D vectors.
+	 *
+	 * This function calculates the angle between two vectors using the dot product formula:
+	 * angle = acos((v1 ¡¤ v2) / (|v1| * |v2|)).
+	 *
+	 * @param v1 The first vector.
+	 * @param v2 The second vector.
+	 * @return The angle between the two vectors, in radians.
+	 *
+	 * @note The returned value is in the range [0, ¦Ð]. If either vector has zero length,
+	 *       the function will return 0.0f as the angle cannot be defined.
+	 */
+	inline CASICLIB_API float AngleBetweenVectors(const Vector2& v1, const Vector2& v2){
+		float dot = Dot(v1, v2);
+		float product = v1.Length() * v2.Length();
+		float radian = std::acos(dot / product);
+		return radian;
 	}
 
 	typedef struct CASICLIB_API Vector3 {
@@ -231,6 +252,26 @@ namespace Math
 		result.y = v1.z * v2.x - v1.x * v2.z;
 		result.z = v1.x * v2.y - v1.y * v2.x;
 		return result;
+	}
+
+	/**
+	 * @brief Computes the angle (in radians) between two 2D vectors.
+	 *
+	 * This function calculates the angle between two vectors using the dot product formula:
+	 * angle = acos((v1 ¡¤ v2) / (|v1| * |v2|)).
+	 *
+	 * @param v1 The first vector.
+	 * @param v2 The second vector.
+	 * @return The angle between the two vectors, in radians.
+	 *
+	 * @note The returned value is in the range [0, ¦Ð]. If either vector has zero length,
+	 *       the function will return 0.0f as the angle cannot be defined.
+	 */
+	inline CASICLIB_API float AngleBetweenVectors(const Vector3& v1, const Vector3& v2) {
+		float dot = Dot(v1, v2);
+		float product = v1.Length() * v2.Length();
+		float radian = std::acos(dot / product);
+		return radian;
 	}
 
 	inline CASICLIB_API Vector3 Normalize(const Vector3& v) {

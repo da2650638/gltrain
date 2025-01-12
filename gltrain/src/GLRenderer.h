@@ -61,7 +61,13 @@ namespace GL
 
 		void BeginMode3D(Camera camera);
 		void EndMode3D();
-		void UpdateCamera(Camera camera, int mode/* see enum class CameraMode */);
+		void UpdateCamera(Camera* camera, int mode/* see enum class CameraMode */);
+		Math::Vector3 GetCameraUp(Camera* camera) const;
+		Math::Vector3 GetCameraForward(Camera* camera) const;
+		Math::Vector3 GetCameraRight(Camera* camera) const;
+		void CameraYaw(Camera* camera, float angle, bool rotateAroundTarget);
+		void CameraPitch(Camera* camera, float degree, bool lockView, bool rotateAroundTarget, bool rotateUp);
+		void CameraRoll(Camera* camera, float degree);
 
 		void DrawTriangle(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color);
 		void DrawTriangle(Math::Vector2 v1, Math::Vector2 v2, Math::Vector2 v3, Graphics::Color color);

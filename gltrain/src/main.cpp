@@ -51,7 +51,7 @@ const char* fragmentShaderSrc =
 int main()
 {
 	auto& platform = GLPlatform::GetInstance();
-	platform.SetWindowData("My Refractor1 Window", 800, 450);
+	platform.SetWindowData("My Refractor1 Window", 1280, 720);
 	platform.InitPlatform();
 	int screenWidth = platform.GetWindowData().Width;
 	int screenHeight = platform.GetWindowData().Height;
@@ -82,7 +82,10 @@ int main()
 	float rotation = 0.0;
 
 	int blendMode = 0;
+
+	platform.DisableCursor();
 	Math::Vector3 cubePosition = { 0.0f, 0.0f, 0.0f };
+
 	while (!platform.WindowShouldClose())
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -91,6 +94,7 @@ int main()
 		//--------------------------------------------------------------------------------------------------------------------------
 		// update 
 		//--------------------------------------------------------------------------------------------------------------------------
+		renderer.UpdateCamera(&camera, static_cast<int>(CameraMode::CAMERA_FREE));
 		rotation += 0.1f;
 		if (input.IsKeyPressed(KEY_SPACE))
 		{

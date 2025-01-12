@@ -44,6 +44,8 @@ namespace GL
 		void PollInputEvents();
 		void SetWindowData(std::string title, int width, int height);
 		void SetWindowSizeCallback(GLFWwindowsizefun callback);
+		void SetMousePosition(int x, int y);
+		void DisableCursor();
 
 		static float GetTime();
 		static void ErrorCallback(int error_code, const char* description);

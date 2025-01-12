@@ -6,6 +6,9 @@
 #include <algorithm>
 
 #include "Casic/CasicMatrixTransform.h"
+#include "Casic/CasicQuaternion.h"
+
+#include "GLInput.h"
 
 namespace Casic
 {
@@ -219,9 +222,128 @@ namespace GL
 		DisableDepthTest();
 	}
 
-	void GLRenderer::UpdateCamera(Camera camera, int mode)
+	void GLRenderer::UpdateCamera(Camera* camera, int mode)
 	{
+		// TODO: 这个函数还没完成，只是完成了部分内容。
+		// TODO: 各种东西的速度必须自己来计算或者预估出来。
+		auto& input = GLInput::GetInstance();
+		auto& platform = GLPlatform::GetInstance();
 
+		Math::Vector2 mousePositionDelta = input.GetMouseDelta();
+		bool moveInWorldPlane = (mode == static_cast<int>(CameraMode::CAMERA_FIRST_PERSON)) || (mode == static_cast<int>(CameraMode::CAMERA_THIRD_PERSON));
+		bool lockView = (mode == static_cast<int>(CameraMode::CAMERA_FREE)) || (mode == static_cast<int>(CameraMode::CAMERA_ORBITAL)) || (mode == static_cast<int>(CameraMode::CAMERA_FIRST_PERSON)) || (mode == static_cast<int>(CameraMode::CAMERA_THIRD_PERSON));
+		bool rotateAroundTarget = (mode == static_cast<int>(CameraMode::CAMERA_ORBITAL)) || (mode == static_cast<int>(CameraMode::CAMERA_THIRD_PERSON));;
+		bool rotateUp = false;
+
+		if (mode == static_cast<int>(CameraMode::CAMERA_CUSTOM)) {}
+		else if (mode == static_cast<int>(CameraMode::CAMERA_ORBITAL))
+		{
+			CameraYaw(camera, rotateAroundTarget, CAMERA_ORBITAL_SPEED * platform.TimeData().Frame);
+		}
+		else
+		{
+			// Camera rotation
+			if (input.IsKeyDown(KEY_DOWN)) CameraPitch(camera, -CAMERA_ROTATION_SPEED, lockView, rotateAroundTarget, rotateUp);
+			if (input.IsKeyDown(KEY_UP)) CameraPitch(camera, CAMERA_ROTATION_SPEED, lockView, rotateAroundTarget, rotateUp);
+			if (input.IsKeyDown(KEY_RIGHT)) CameraYaw(camera, -CAMERA_ROTATION_SPEED, rotateAroundTarget);
+			if (input.IsKeyDown(KEY_LEFT)) CameraYaw(camera, CAMERA_ROTATION_SPEED, rotateAroundTarget);
+			if (input.IsKeyDown(KEY_Q)) CameraRoll(camera, -CAMERA_ROTATION_SPEED);
+			if (input.IsKeyDown(KEY_E)) CameraRoll(camera, CAMERA_ROTATION_SPEED);
+
+			if (mode == static_cast<int>(CameraMode::CAMERA_FREE) && (input.IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)))
+			{
+				const Math::Vector2 mouseDelta = input.GetMouseDelta();
+
+			}
+			else
+			{
+				CameraYaw(camera, Math::radiansToDegrees( - mousePositionDelta.x * CAMERA_MOUSE_MOVE_SENSITIVITY ), rotateAroundTarget);
+				CameraPitch(camera, Math::radiansToDegrees( -mousePositionDelta.y * CAMERA_MOUSE_MOVE_SENSITIVITY ), lockView, rotateAroundTarget, rotateUp);
+			}
+
+
+		}
+	}
+
+	Math::Vector3 GLRenderer::GetCameraUp(Camera* camera) const
+	{
+		return camera->up.Normalize();
+	}
+
+	Math::Vector3 GLRenderer::GetCameraForward(Camera* camera) const
+	{
+		Math::Vector3 forward = (camera->target - camera->position).Normalize();
+		return forward;
+	}
+
+	Math::Vector3 GLRenderer::GetCameraRight(Camera* camera) const
+	{
+		Math::Vector3 up = GetCameraUp(camera);
+		Math::Vector3 forward = GetCameraForward(camera);
+		return Math::Cross(forward, up).Normalize();
+	}
+
+	void GLRenderer::CameraYaw(Camera* camera, float degree, bool rotateAroundTarget)
+	{
+		auto positionToTarget = camera->target - camera->position;
+		auto up = GetCameraUp(camera);
+
+		auto quat = Math::RotationQuat(degree, up);
+		positionToTarget = quat * positionToTarget;
+
+		if (rotateAroundTarget)
+		{
+			camera->position = camera->target - positionToTarget;
+		}
+		else
+		{
+			camera->target = camera->position + positionToTarget;
+		}
+	}
+
+	void GLRenderer::CameraPitch(Camera* camera, float degree, bool lockView, bool rotateAroundTarget, bool rotateUp)
+	{
+		auto positionToTarget = camera->target - camera->position;
+		auto up = GetCameraUp(camera);
+		
+		float radian = Math::degreesToRadians(degree);
+		if (lockView)
+		{
+			float maxAngleUp = Math::AngleBetweenVectors(positionToTarget, up);
+			maxAngleUp -= 0.001f;
+			if (radian > maxAngleUp) radian = maxAngleUp;
+
+			float maxAngleDown = Math::AngleBetweenVectors(positionToTarget, {-up.x, -up.y, -up.z});
+			maxAngleDown = -maxAngleDown;
+			maxAngleDown += 0.001f;
+			if (radian < maxAngleDown) radian = maxAngleDown;
+		}
+
+		auto right = GetCameraRight(camera);
+		auto quat = Math::RotationQuat(Math::radiansToDegrees(radian), right);
+		positionToTarget = quat * positionToTarget;
+		if (rotateAroundTarget)
+		{
+			camera->position = camera->target - positionToTarget;
+		}
+		else
+		{
+			camera->target = camera->position + positionToTarget;
+		}
+
+		if (rotateUp)
+		{
+			camera->up = quat * camera->up;
+		}
+	}
+
+	void GLRenderer::CameraRoll(Camera* camera, float degree)
+	{
+		auto forward = GetCameraForward(camera);
+		auto up = camera->up;
+		
+		auto quat = Math::RotationQuat(degree, forward);
+		camera->up = quat * up;
 	}
 
 	void GLRenderer::DrawTriangle(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color)

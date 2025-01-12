@@ -21,6 +21,28 @@ namespace GL
 		glfwSetWindowSizeCallback(m_Window, callback);
 	}
 
+	void GLPlatform::SetMousePosition(int x, int y)
+	{
+		auto& input = GLInput::GetInstance();
+		input.m_Mouse.CurrentPosition = { (float)x, (float)y };
+		input.m_Mouse.PreviousPosition = { (float)x, (float)y };
+
+		glfwSetCursorPos(m_Window, (double)input.m_Mouse.CurrentPosition.x, (double)input.m_Mouse.CurrentPosition.y);
+	}
+
+	void GLPlatform::DisableCursor()
+	{
+		auto& input = GLInput::GetInstance();
+
+		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+		SetMousePosition(m_WindowData.Width / 2, m_WindowData.Height / 2);
+
+		if (glfwRawMouseMotionSupported()) glfwSetInputMode(m_Window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+
+		input.m_Mouse.CursorHidden = true;
+	}
+
 	GLPlatform::Time& GLPlatform::TimeData()
 	{
 		return m_TimeData;
