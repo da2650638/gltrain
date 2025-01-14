@@ -53,6 +53,15 @@ namespace GL
 		return glfwGetTime();
 	}
 
+	void GLPlatform::WaitTime(float seconds)
+	{
+		float destinationTime = GetTime() + seconds;
+		while (GetTime() < destinationTime)
+		{
+			// TODO: 现在是使用忙等待，后期考虑将CPU时间片让给操作系统提高性能。
+		}
+	}
+
 	void GLPlatform::ErrorCallback(int error_code, const char* description)
 	{
 		SimpleLogger::GetInstance().Error("glfw error occured. code: {}, desc: {}", error_code, description);

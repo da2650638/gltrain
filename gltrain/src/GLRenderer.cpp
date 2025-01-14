@@ -164,6 +164,15 @@ namespace GL
 		m_PlatformInst->TimeData().Current = m_PlatformInst->GetTime();
 		m_PlatformInst->TimeData().Draw = m_PlatformInst->TimeData().Current - m_PlatformInst->TimeData().Previous;
 		m_PlatformInst->TimeData().Previous = m_PlatformInst->TimeData().Current;
+		m_PlatformInst->TimeData().Frame = m_PlatformInst->TimeData().Update + m_PlatformInst->TimeData().Draw;
+		if (m_PlatformInst->TimeData().Frame < m_PlatformInst->TimeData().Target)
+		{
+			m_PlatformInst->WaitTime(m_PlatformInst->TimeData().Target - m_PlatformInst->TimeData().Frame);
+			m_PlatformInst->TimeData().Current = m_PlatformInst->GetTime();
+			float waitTime = m_PlatformInst->TimeData().Target - m_PlatformInst->TimeData().Frame;
+			m_PlatformInst->TimeData().Previous = m_PlatformInst->TimeData().Current;
+			m_PlatformInst->TimeData().Frame += waitTime;
+		}
 		
 		// TODO: 检查是否需要延长帧时间
 		m_PlatformInst->PollInputEvents();
@@ -243,12 +252,13 @@ namespace GL
 		else
 		{
 			// Camera rotation
-			if (input.IsKeyDown(KEY_DOWN)) CameraPitch(camera, -CAMERA_ROTATION_SPEED, lockView, rotateAroundTarget, rotateUp);
-			if (input.IsKeyDown(KEY_UP)) CameraPitch(camera, CAMERA_ROTATION_SPEED, lockView, rotateAroundTarget, rotateUp);
-			if (input.IsKeyDown(KEY_RIGHT)) CameraYaw(camera, -CAMERA_ROTATION_SPEED, rotateAroundTarget);
-			if (input.IsKeyDown(KEY_LEFT)) CameraYaw(camera, CAMERA_ROTATION_SPEED, rotateAroundTarget);
-			if (input.IsKeyDown(KEY_Q)) CameraRoll(camera, -CAMERA_ROTATION_SPEED);
-			if (input.IsKeyDown(KEY_E)) CameraRoll(camera, CAMERA_ROTATION_SPEED);
+			float degree = Math::radiansToDegrees(CAMERA_ROTATION_SPEED);
+			if (input.IsKeyDown(KEY_DOWN)) CameraPitch(camera, -degree, lockView, rotateAroundTarget, rotateUp);
+			if (input.IsKeyDown(KEY_UP)) CameraPitch(camera, degree, lockView, rotateAroundTarget, rotateUp);
+			if (input.IsKeyDown(KEY_RIGHT)) CameraYaw(camera, -degree, rotateAroundTarget);
+			if (input.IsKeyDown(KEY_LEFT)) CameraYaw(camera, degree, rotateAroundTarget);
+			if (input.IsKeyDown(KEY_Q)) CameraRoll(camera, -degree);
+			if (input.IsKeyDown(KEY_E)) CameraRoll(camera, degree);
 
 			if (mode == static_cast<int>(CameraMode::CAMERA_FREE) && (input.IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)))
 			{
@@ -261,7 +271,23 @@ namespace GL
 				CameraPitch(camera, Math::radiansToDegrees( -mousePositionDelta.y * CAMERA_MOUSE_MOVE_SENSITIVITY ), lockView, rotateAroundTarget, rotateUp);
 			}
 
-
+			float cameraMoveSpeed = CAMERA_MOVE_SPEED * m_PlatformInst->TimeData().Frame;
+			if (input.IsKeyDown(KEY_W)) 
+			{ 
+				CameraMoveForward(camera, cameraMoveSpeed, moveInWorldPlane); 
+			}
+			if (input.IsKeyDown(KEY_S)) 
+			{ 
+				CameraMoveForward(camera, -cameraMoveSpeed, moveInWorldPlane); 
+			}
+			if (input.IsKeyDown(KEY_A)) 
+			{ 
+				CameraMoveRight(camera, -cameraMoveSpeed, moveInWorldPlane); 
+			}
+			if (input.IsKeyDown(KEY_D)) 
+			{
+				CameraMoveRight(camera, cameraMoveSpeed, moveInWorldPlane); 
+			}
 		}
 	}
 
@@ -344,6 +370,34 @@ namespace GL
 		
 		auto quat = Math::RotationQuat(degree, forward);
 		camera->up = quat * up;
+	}
+
+	void GLRenderer::CameraMoveForward(Camera* camera, float distance, bool moveInWorldPlane)
+	{
+		auto forward = GetCameraForward(camera);
+
+		if (moveInWorldPlane)
+		{
+			forward.y = 0;
+			forward = forward.Normalize();
+		}
+
+		camera->position = camera->position + forward * distance;
+		camera->target = camera->target + forward * distance;
+	}
+
+	void GLRenderer::CameraMoveRight(Camera* camera, float distance, bool moveInWorldPlane)
+	{
+		auto right = GetCameraRight(camera);
+
+		if (moveInWorldPlane)
+		{
+			right.y = 0;
+			right = right.Normalize();
+		}
+
+		camera->position = camera->position + right * distance;
+		camera->target = camera->target + right * distance;
 	}
 
 	void GLRenderer::DrawTriangle(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color)
@@ -876,6 +930,135 @@ namespace GL
 
 			Vertex3f((float)-halfSlices * spacing, 0.0f, (float)i * spacing);
 			Vertex3f((float)halfSlices * spacing, 0.0f, (float)i * spacing);
+		}
+		EndVertexInput();
+	}
+
+	void GLRenderer::DrawGridAroundX(int slices, float spacing)
+	{
+		int halfSlices = slices / 2;
+
+		BeginVertexInput(LINES);
+		for (int i = -halfSlices; i <= halfSlices; i++)
+		{
+			if (i == 0)
+			{
+				ColorV({ 125, 125, 125, 255 });
+			}
+			else
+			{
+				ColorV({ 191, 191, 191, 255 });
+			}
+
+			Vertex3f(0.0f, (float)-halfSlices * spacing, (float)i * spacing);
+			Vertex3f(0.0f, (float)halfSlices * spacing, (float)i * spacing);
+
+			Vertex3f(0.0f, (float)i * spacing, (float)-halfSlices * spacing);
+			Vertex3f(0.0f, (float)i * spacing, (float)halfSlices * spacing);
+		}
+		EndVertexInput();
+	}
+
+	void GLRenderer::DrawGridAroundY(int slices, float spacing)
+	{
+		int halfSlices = slices / 2;
+
+		BeginVertexInput(LINES);
+		for (int i = -halfSlices; i <= halfSlices; i++)
+		{
+			if (i == 0)
+			{
+				ColorV({ 125, 125, 125, 255 });
+			}
+			else
+			{
+				ColorV({ 191, 191, 191, 255 });
+			}
+
+			Vertex3f((float)-halfSlices * spacing, 0.0f, (float)i * spacing);
+			Vertex3f((float)halfSlices * spacing, 0.0f, (float)i * spacing);
+
+			Vertex3f((float)i * spacing, 0.0f, (float)-halfSlices * spacing);
+			Vertex3f((float)i * spacing, 0.0f, (float)halfSlices * spacing);
+		}
+		EndVertexInput();
+	}
+
+	void GLRenderer::DrawGridAroundZ(int slices, float spacing)
+	{
+		int halfSlices = slices / 2;
+
+		BeginVertexInput(LINES);
+		for (int i = -halfSlices; i <= halfSlices; i++)
+		{
+			if (i == 0)
+			{
+				ColorV({ 125, 125, 125, 255 });
+			}
+			else
+			{
+				ColorV({ 191, 191, 191, 255 });
+			}
+
+			Vertex3f((float)-halfSlices * spacing, (float)i * spacing, 0.0f);
+			Vertex3f((float)halfSlices * spacing, (float)i * spacing, 0.0f);
+
+			Vertex3f((float)i * spacing, (float)-halfSlices * spacing, 0.0f);
+			Vertex3f((float)i * spacing, (float)halfSlices * spacing, 0.0f);
+		}
+		EndVertexInput();
+	}
+
+	void GLRenderer::DrawGridAroundXEx(int slices, float spacing, Graphics::Color color)
+	{
+		int halfSlices = slices / 2;
+
+		BeginVertexInput(LINES);
+		for (int i = -halfSlices; i <= halfSlices; i++)
+		{
+			ColorV(color);
+
+			Vertex3f(0.0f, (float)-halfSlices * spacing, (float)i * spacing);
+			Vertex3f(0.0f, (float)halfSlices * spacing, (float)i * spacing);
+
+			Vertex3f(0.0f, (float)i * spacing, (float)-halfSlices * spacing);
+			Vertex3f(0.0f, (float)i * spacing, (float)halfSlices * spacing);
+		}
+		EndVertexInput();
+	}
+
+	void GLRenderer::DrawGridAroundYEx(int slices, float spacing, Graphics::Color color)
+	{
+		int halfSlices = slices / 2;
+
+		BeginVertexInput(LINES);
+		for (int i = -halfSlices; i <= halfSlices; i++)
+		{
+			ColorV(color);
+
+			Vertex3f((float)-halfSlices * spacing, 0.0f, (float)i * spacing);
+			Vertex3f((float)halfSlices * spacing, 0.0f, (float)i * spacing);
+
+			Vertex3f((float)i * spacing, 0.0f, (float)-halfSlices * spacing);
+			Vertex3f((float)i * spacing, 0.0f, (float)halfSlices * spacing);
+		}
+		EndVertexInput();
+	}
+
+	void GLRenderer::DrawGridAroundZEx(int slices, float spacing, Graphics::Color color)
+	{
+		int halfSlices = slices / 2;
+
+		BeginVertexInput(LINES);
+		for (int i = -halfSlices; i <= halfSlices; i++)
+		{
+			ColorV(color);
+
+			Vertex3f((float)-halfSlices * spacing, (float)i * spacing, 0.0f);
+			Vertex3f((float)halfSlices * spacing, (float)i * spacing, 0.0f);
+
+			Vertex3f((float)i * spacing, (float)-halfSlices * spacing, 0.0f);
+			Vertex3f((float)i * spacing, (float)halfSlices * spacing, 0.0f);
 		}
 		EndVertexInput();
 	}

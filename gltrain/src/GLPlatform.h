@@ -48,6 +48,7 @@ namespace GL
 		void DisableCursor();
 
 		static float GetTime();
+		static void WaitTime(float seconds);
 		static void ErrorCallback(int error_code, const char* description);
 		static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 		static void CharCallback(GLFWwindow* window, unsigned int codepoint);

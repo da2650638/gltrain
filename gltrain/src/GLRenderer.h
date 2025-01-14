@@ -68,6 +68,8 @@ namespace GL
 		void CameraYaw(Camera* camera, float angle, bool rotateAroundTarget);
 		void CameraPitch(Camera* camera, float degree, bool lockView, bool rotateAroundTarget, bool rotateUp);
 		void CameraRoll(Camera* camera, float degree);
+		void CameraMoveForward(Camera* camera, float distance, bool moveInWorldPlane);
+		void CameraMoveRight(Camera* camera, float distance, bool moveInWorldPlane);
 
 		void DrawTriangle(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color);
 		void DrawTriangle(Math::Vector2 v1, Math::Vector2 v2, Math::Vector2 v3, Graphics::Color color);
@@ -142,6 +144,12 @@ namespace GL
 		void DrawCube(Math::Vector3 position, float width, float height, float length, Graphics::Color color);
 		void DrawCubeWires(Math::Vector3 position, float width, float height, float length, Graphics::Color color);
 		void DrawGrid(int slices, float spacing);
+		void DrawGridAroundX(int slices, float spacing);
+		void DrawGridAroundY(int slices, float spacing);
+		void DrawGridAroundZ(int slices, float spacing);
+		void DrawGridAroundXEx(int slices, float spacing, Graphics::Color color);
+		void DrawGridAroundYEx(int slices, float spacing, Graphics::Color color);
+		void DrawGridAroundZEx(int slices, float spacing, Graphics::Color color);
 	private:
 		GLRenderer();
 
