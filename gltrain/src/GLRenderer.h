@@ -71,6 +71,10 @@ namespace GL
 		void CameraMoveForward(Camera* camera, float distance, bool moveInWorldPlane);
 		void CameraMoveRight(Camera* camera, float distance, bool moveInWorldPlane);
 
+		void BeginMode2D(Camera2D camera);
+		void EndMode2D();
+		Math::Matrix4 GetCamera2DMatrix(Camera2D camera);
+
 		void DrawTriangle(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color);
 		void DrawTriangle(Math::Vector2 v1, Math::Vector2 v2, Math::Vector2 v3, Graphics::Color color);
 		void DrawTriangleLines(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color);

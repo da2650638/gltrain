@@ -72,12 +72,12 @@ namespace GL
 		// TODO: 初始化shader
 		//---------------------------------------------------------------
 		m_DefaultShader.LoadShader("res/shader/defaultVS.glsl", "res/shader/defaultFS.glsl");
-		SimpleLogger::GetInstance().Info("Get vertex position loc:{}", m_DefaultShader.GetAttribLocation("vertexPosition"));
-		SimpleLogger::GetInstance().Info("Get vertex tex coord loc:{}", m_DefaultShader.GetAttribLocation("vertexTexCoord"));
-		SimpleLogger::GetInstance().Info("Get vertex normal loc:{}", m_DefaultShader.GetAttribLocation("vertexNormal"));
-		SimpleLogger::GetInstance().Info("Get vertex color loc:{}", m_DefaultShader.GetAttribLocation("vertexColor"));
-		SimpleLogger::GetInstance().Info("Get mvp location: {}", m_DefaultShader.GetUniformLocation("mvp"));
-		SimpleLogger::GetInstance().Info("Get texture0 location: {}", m_DefaultShader.GetUniformLocation("texture0"));
+		SimpleLogger::GetInstance().Info("SHADER: Get vertex position loc:{}", m_DefaultShader.GetAttribLocation("vertexPosition"));
+		SimpleLogger::GetInstance().Info("SHADER: Get vertex tex coord loc:{}", m_DefaultShader.GetAttribLocation("vertexTexCoord"));
+		SimpleLogger::GetInstance().Info("SHADER: Get vertex normal loc:{}", m_DefaultShader.GetAttribLocation("vertexNormal"));
+		SimpleLogger::GetInstance().Info("SHADER: Get vertex color loc:{}", m_DefaultShader.GetAttribLocation("vertexColor"));
+		SimpleLogger::GetInstance().Info("SHADER: Get mvp location: {}", m_DefaultShader.GetUniformLocation("mvp"));
+		SimpleLogger::GetInstance().Info("SHADER: Get texture0 location: {}", m_DefaultShader.GetUniformLocation("texture0"));
 		m_DefaultShader.SetUniform<int>("texture0", 0);
 		m_CurrentShader = &m_DefaultShader;
 		//---------------------------------------------------------------
@@ -398,6 +398,44 @@ namespace GL
 
 		camera->position = camera->position + right * distance;
 		camera->target = camera->target + right * distance;
+	}
+
+	void GLRenderer::BeginMode2D(Camera2D camera)
+	{
+		// Update and draw internal render batch
+		DrawRenderBatch();
+
+		// Reset current matrix (modelview)
+		LoadIdentity();
+
+		// TODO: 矩阵到底如何管理的总结一下。
+		
+		// Apply 2d camera transformation to modelview
+		*m_CurrentMatrix = GetCamera2DMatrix(camera);
+	}
+
+	void GLRenderer::EndMode2D()
+	{
+		// Update and draw internal render batch
+		DrawRenderBatch();
+
+		// Reset current matrix (modelview)
+		LoadIdentity();
+
+		// NOTE: what?
+		//if (rlGetActiveFramebuffer() == 0) rlMultMatrixf(MatrixToFloat(CORE.Window.screenScale)); // Apply screen scaling if required
+	}
+
+	Math::Matrix4 GLRenderer::GetCamera2DMatrix(Camera2D camera)
+	{
+		auto matTranslation = Math::Translate({ -camera.target.x, -camera.target.y, 0.0f });
+		auto matScale = Math::Scale({ camera.zoom, camera.zoom, 1.0f });
+		auto matRotation = Math::Rotate(camera.rotation, { 0.0f, 0.0f, 1.0f });
+		auto matTranslationScreen = Math::Translate({ camera.offset.x, camera.offset.y, 0.0f });
+
+		// Note: The order of rotation and scale can be interchanged, but the order of other transformations cannot be changed.
+		// TODO: why this order?
+		return matTranslationScreen * ( (matRotation * matScale) * matTranslation);
 	}
 
 	void GLRenderer::DrawTriangle(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color)

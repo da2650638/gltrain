@@ -6,6 +6,7 @@
 #include <type_traits>
 #include <exception>
 #include <tuple>
+#include <random>
 
 namespace Casic
 {
@@ -34,5 +35,9 @@ namespace Util
 
 	template <typename _Ty>
 	struct always_false : std::false_type {};
+
+	CASICLIB_API int RandomInt(int min, int max);
+	CASICLIB_API float RandomFloat(float min, float max);
+	CASICLIB_API double RandomDouble(double min, double max);
 }
 }
