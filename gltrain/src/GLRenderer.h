@@ -173,9 +173,14 @@ namespace GL
 		void Vertex3f(Math::Vector3 vec);
 		void Vertex2f(Math::Vector2 vec);
 
+
+	public:
+		// TODO: 暂时性的，可否有修改的余地呢？
 		void PushMatrix();
 		void PopMatrix();
+		Math::Matrix4* CurrentMatrix() { return m_CurrentMatrix; }
 
+	private:
 		void SetTextureId(unsigned int id);
 		void SetBlendMode(int mode);
 
@@ -184,6 +189,7 @@ namespace GL
 
 		void EnableDepthTest();
 		void DisableDepthTest();
+
 	private:
 		// TODO: 这种设计能否改进呢？
 		// NOTE: 任何使用m_PlatformInst必须检查是否合法并提示编译错误或抛出异常

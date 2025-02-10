@@ -167,6 +167,7 @@ namespace GL
 	{
 		DrawRenderBatch();
 		BASIC_RUNTIME_CHECK(m_PlatformInst != nullptr, "GLRenderer instance need a platform instance");
+		// NOTE: 因为这里才调用SwapBuffers因此如果主循环中没有BeginDrawing/EndDrawing函数对，则会导致窗口无响应。
 		m_PlatformInst->SwapBuffers();
 
 		m_PlatformInst->TimeData().Current = m_PlatformInst->GetTime();
@@ -442,7 +443,7 @@ namespace GL
 		auto matTranslationScreen = Math::Translate({ camera.offset.x, camera.offset.y, 0.0f });
 
 		// Note: The order of rotation and scale can be interchanged, but the order of other transformations cannot be changed.
-		// TODO: why this order?
+		// TODO: why this order? 花点时间弄懂其中的数学原理
 		return matTranslationScreen * ((matRotation * matScale) * matTranslation);
 	}
 

@@ -66,8 +66,8 @@ namespace GL
     typedef struct Camera2D {
         Math::Vector2 offset;     // Camera offset (displacement from target)
         Math::Vector2 target;     // Camera target (rotation and zoom origin)
-        float         rotation;   // Camera rotation in degrees
-        float         zoom;       // Camera zoom (scaling), should be 1.0f by default
+        float         rotation = 0.0f;   // Camera rotation in degrees
+        float         zoom = 1.0f;       // Camera zoom (scaling), should be 1.0f by default
     };
 
     using Camera = typename Camera3D;
