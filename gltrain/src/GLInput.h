@@ -10,7 +10,7 @@ namespace Casic
 {
 namespace GL
 {
-	class GLInput
+	class GLTRAIN_API GLInput
 	{
 	public:
 		~GLInput();

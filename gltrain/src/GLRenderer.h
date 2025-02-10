@@ -28,7 +28,7 @@ namespace GL
 		GL_BLEND_COUNT
 	};
 
-	class GLRenderer {
+	class GLTRAIN_API GLRenderer {
 	public:
 		typedef struct RenderData {
 			int Width;
@@ -50,6 +50,8 @@ namespace GL
 		void SetupViewport(int width, int height);
 		void UpdateViewport();
 
+		void ClearColorBuffer(Graphics::Color color);
+
 		void MatrixMode(int mode);
 		void LoadIdentity();
 
@@ -70,6 +72,10 @@ namespace GL
 		void CameraRoll(Camera* camera, float degree);
 		void CameraMoveForward(Camera* camera, float distance, bool moveInWorldPlane);
 		void CameraMoveRight(Camera* camera, float distance, bool moveInWorldPlane);
+
+		void BeginMode2D(Camera2D camera);
+		void EndMode2D();
+		Math::Matrix4 GetCamera2DMatrix(Camera2D camera);
 
 		void DrawTriangle(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color);
 		void DrawTriangle(Math::Vector2 v1, Math::Vector2 v2, Math::Vector2 v3, Graphics::Color color);

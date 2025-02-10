@@ -3,6 +3,7 @@
 #include <mutex>
 #include <memory>
 
+#include "GLGlobal.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -11,7 +12,7 @@ namespace Casic
 {
 namespace GL
 {
-	class GLPlatform {
+	class GLTRAIN_API GLPlatform {
 	public:
 		typedef struct WindowData{
 			std::string Title;

@@ -32,7 +32,7 @@ namespace Casic
 {
 namespace GL
 {
-	class GLShader
+	class GLTRAIN_API GLShader
 	{
 	public:
 		GLShader(const std::string& name = "Default Shader");

@@ -177,6 +177,21 @@ namespace Math
 	 */
 	CASICLIB_API Matrix4 Rotate(float angle, Vector3 axis);
 
+	/*
+	 * Creates a translation matrix based on the given x, y, and z translation values.
+	 *
+	 * Args:
+	 *   x (float): The translation value along the x-axis.
+	 *   y (float): The translation value along the y-axis.
+	 *   z (float): The translation value along the z-axis.
+	 *
+	 * Returns:
+	 *   Matrix4: The resulting translation matrix.
+	 *
+	 * Note:
+	 *   - The resulting matrix applies only a translation along the specified axes and leaves other transformations as identity.
+	 *   - This function provides a more direct way to specify translation values compared to using a Vector3.
+	 */
 	CASICLIB_API Matrix4 Translate(float x, float y, float z);
 }
 }

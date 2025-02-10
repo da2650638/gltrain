@@ -163,16 +163,16 @@ namespace GL
 
     static inline const char* GetPixelFormatName(int format);
 
-    Graphics::Image LoadImageFromMemory(const char* fileType, const unsigned char* fileData, int dataSize);
-    Graphics::Image LoadImageStruct(const char* fileName);
-    void UnloadImageStruct(Graphics::Image image);
+    GLTRAIN_API Graphics::Image LoadImageFromMemory(const char* fileType, const unsigned char* fileData, int dataSize);
+    GLTRAIN_API Graphics::Image LoadImageStruct(const char* fileName);
+    GLTRAIN_API void UnloadImageStruct(Graphics::Image image);
     
-    Texture2D LoadTexture(const char* fileName);
-    void UnloadTexture(Texture2D texture);
+    GLTRAIN_API Texture2D LoadTexture(const char* fileName);
+    GLTRAIN_API void UnloadTexture(Texture2D texture);
 
-    Texture2D LoadTextureFromImage(Graphics::Image image);
+    GLTRAIN_API Texture2D LoadTextureFromImage(Graphics::Image image);
     
-    unsigned int GLLoadTexture(const void* data, int width, int height, int format, int mipmapCount);
-    void GLUnloadTexture(unsigned int id);
+    GLTRAIN_API unsigned int GLLoadTexture(const void* data, int width, int height, int format, int mipmapCount);
+    GLTRAIN_API void GLUnloadTexture(unsigned int id);
 }
 }

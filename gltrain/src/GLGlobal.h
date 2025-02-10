@@ -7,6 +7,13 @@
 
 #include "SimpleLogger.h"
 
+// 方法导出设置
+#ifdef GL_TRAIN_EXPORT
+#define GLTRAIN_API __declspec(dllexport)  // 导出符号
+#else
+#define GLTRAIN_API __declspec(dllimport)  // 导入符号
+#endif
+
 // 判断编译器版本
 #if __cplusplus >= 202002L
 	#define USE_CPP20
