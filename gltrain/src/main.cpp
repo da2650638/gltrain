@@ -130,9 +130,7 @@ int main()
 				renderer.DrawCube(cubePosition, 2.0f, 2.0f, 2.0f, RED);
 				renderer.DrawCubeWires(cubePosition, 2.0f, 2.0f, 2.0f, MAROON);
 
-				renderer.DrawGridAroundXEx(10, 1.0f, YELLOW);
-				renderer.DrawGridAroundYEx(10, 1.0f, MAROON);
-				renderer.DrawGridAroundZEx(10, 1.0f, DARKGREEN);
+				renderer.DrawGrid(10, 1.0f);
 			}
 			renderer.EndMode3D();
 		}
@@ -141,7 +139,7 @@ int main()
 		//--------------------------------------------------------------------------------------------------------------------------
 		// record
 		//--------------------------------------------------------------------------------------------------------------------------
-		SimpleLogger::GetInstance().Trace("PLATFORM: Frame time: {} s", GLPlatform::GetInstance().TimeData().Frame);
+		//SimpleLogger::GetInstance().Trace("PLATFORM: Frame time: {} s", GLPlatform::GetInstance().TimeData().Frame);
 	}
 
 	platform.ShutdownPlatform();
