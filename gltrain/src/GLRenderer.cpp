@@ -183,7 +183,6 @@ namespace GL
 			m_PlatformInst->TimeData().Frame += waitTime;
 		}
 		
-		// TODO: 检查是否需要延长帧时间
 		m_PlatformInst->PollInputEvents();
 		m_PlatformInst->TimeData().FrameCounter++;
 	}
@@ -433,6 +432,16 @@ namespace GL
 
 		// NOTE: what?
 		//if (rlGetActiveFramebuffer() == 0) rlMultMatrixf(MatrixToFloat(CORE.Window.screenScale)); // Apply screen scaling if required
+	}
+
+	Math::Matrix4 GLRenderer::GetCamera2DInvMatrix(Camera2D camera)
+	{
+		auto matTranslationInv = Math::Translate({ camera.target.x, camera.target.y, 0.0f });
+		auto matScaleInv = Math::Scale({ 1.0f / camera.zoom, 1.0f / camera.zoom, 1.0f });
+		auto matRotationInv = Math::Rotate(-camera.rotation, { 0.0f, 0.0f, 1.0f });
+		auto matTranslationScreenInv = Math::Translate({ -camera.offset.x, -camera.offset.y, 0.0f });
+
+		return matTranslationInv * (matScaleInv * matRotationInv) * matTranslationScreenInv;
 	}
 
 	Math::Matrix4 GLRenderer::GetCamera2DMatrix(Camera2D camera)
@@ -1234,6 +1243,7 @@ namespace GL
 			//m_CurrentShader->SetUniformMat4("mvp", mvp);
 			m_CurrentShader->SetUniform<Math::Matrix4>("mvp", mvp);
 			
+			// TODO: 别的纹理单元在哪里激活的？还是说只要使用一个纹理单元就行
 			glActiveTexture(GL_TEXTURE0);
 			for (int i = 0, vertexOffset = 0; i < m_Batch.DrawCounter; i++)
 			{

@@ -59,7 +59,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)gltrain\src;$(SolutionDir)gltrain\vendor\CasicLib\include;$(SolutionDir)gltrain\vendor\glfw\include;$(SolutionDir)gltrain\vendor\glad\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)gltrain\src;$(SolutionDir)gltrain\vendor\CasicLib\include;$(SolutionDir)gltrain\vendor\glfw\include;$(SolutionDir)gltrain\vendor\glad\include;$(SolutionDir)gltrain\vendor\glm;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
@@ -86,7 +86,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)gltrain\src;$(SolutionDir)gltrain\vendor\CasicLib\include;$(SolutionDir)gltrain\vendor\glfw\include;$(SolutionDir)gltrain\vendor\glad\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)gltrain\src;$(SolutionDir)gltrain\vendor\CasicLib\include;$(SolutionDir)gltrain\vendor\glfw\include;$(SolutionDir)gltrain\vendor\glad\include;$(SolutionDir)gltrain\vendor\glm;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>

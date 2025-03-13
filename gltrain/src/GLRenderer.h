@@ -75,6 +75,8 @@ namespace GL
 
 		void BeginMode2D(Camera2D camera);
 		void EndMode2D();
+		// TODO: 这中矩阵求逆投机取巧的做法，最好还是不要使用这种方法，还是使用比较通用的矩阵求逆算法
+		Math::Matrix4 GetCamera2DInvMatrix(Camera2D camera);
 		Math::Matrix4 GetCamera2DMatrix(Camera2D camera);
 
 		void DrawTriangle(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color);
