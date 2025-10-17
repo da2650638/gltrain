@@ -13,8 +13,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{ce87a6e5-4d50-4689-9ffe-061b188ef0aa}</ProjectGuid>
-    <RootNamespace>Core2DCameraMouseZoom</RootNamespace>
+    <ProjectGuid>{7b05d496-49ca-4d8b-8a34-8587c13c8a33}</ProjectGuid>
+    <RootNamespace>Core2DCamera</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -38,45 +38,24 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="PropertySheet.props" />
+    <Import Project="..\testbed.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="PropertySheet.props" />
+    <Import Project="..\testbed.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)bin\$(ProjectName)\$(Platform)</OutDir>
-    <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)bin\$(ProjectName)\$(Platform)</OutDir>
-    <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)</IntDir>
-  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)gltrain\src;$(SolutionDir)gltrain\vendor\CasicLib\include;$(SolutionDir)gltrain\vendor\glfw\include;$(SolutionDir)gltrain\vendor\glad\include;$(SolutionDir)gltrain\vendor\glm;</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)bin\gltrain\$(Platform);$(SolutionDir)gltrain\vendor\CasicLib\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>CasicLib.lib;gltrain.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PreBuildEvent>
-      <Command>
-      </Command>
-    </PreBuildEvent>
-    <PostBuildEvent>
-      <Command>xcopy /Y "$(SolutionDir)bin\gltrain\$(Platform)\CasicLib.dll" "$(SolutionDir)bin\$(ProjectName)\$(Platform)" &amp;&amp; xcopy /Y "$(SolutionDir)bin\gltrain\$(Platform)\gltrain.dll" "$(SolutionDir)bin\$(ProjectName)\$(Platform)"</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -86,26 +65,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)gltrain\src;$(SolutionDir)gltrain\vendor\CasicLib\include;$(SolutionDir)gltrain\vendor\glfw\include;$(SolutionDir)gltrain\vendor\glad\include;$(SolutionDir)gltrain\vendor\glm;</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)bin\gltrain\$(Platform);$(SolutionDir)gltrain\vendor\CasicLib\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>CasicLib.lib;gltrain.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PreBuildEvent>
-      <Command>
-      </Command>
-    </PreBuildEvent>
-    <PostBuildEvent>
-      <Command>xcopy /Y "$(SolutionDir)bin\gltrain\$(Platform)\CasicLib.dll" "$(SolutionDir)bin\$(ProjectName)\$(Platform)" &amp;&amp; xcopy /Y "$(SolutionDir)bin\gltrain\$(Platform)\gltrain.dll" "$(SolutionDir)bin\$(ProjectName)\$(Platform)"</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />

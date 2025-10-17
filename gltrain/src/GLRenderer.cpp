@@ -167,6 +167,7 @@ namespace GL
 	{
 		DrawRenderBatch();
 		BASIC_RUNTIME_CHECK(m_PlatformInst != nullptr, "GLRenderer instance need a platform instance");
+		// NOTE: 因为这里才调用SwapBuffers因此如果主循环中没有BeginDrawing/EndDrawing函数对，则会导致窗口无响应。
 		m_PlatformInst->SwapBuffers();
 
 		m_PlatformInst->TimeData().Current = m_PlatformInst->GetTime();
@@ -182,7 +183,6 @@ namespace GL
 			m_PlatformInst->TimeData().Frame += waitTime;
 		}
 		
-		// TODO: 检查是否需要延长帧时间
 		m_PlatformInst->PollInputEvents();
 		m_PlatformInst->TimeData().FrameCounter++;
 	}
@@ -434,6 +434,16 @@ namespace GL
 		//if (rlGetActiveFramebuffer() == 0) rlMultMatrixf(MatrixToFloat(CORE.Window.screenScale)); // Apply screen scaling if required
 	}
 
+	Math::Matrix4 GLRenderer::GetCamera2DInvMatrix(Camera2D camera)
+	{
+		auto matTranslationInv = Math::Translate({ camera.target.x, camera.target.y, 0.0f });
+		auto matScaleInv = Math::Scale({ 1.0f / camera.zoom, 1.0f / camera.zoom, 1.0f });
+		auto matRotationInv = Math::Rotate(-camera.rotation, { 0.0f, 0.0f, 1.0f });
+		auto matTranslationScreenInv = Math::Translate({ -camera.offset.x, -camera.offset.y, 0.0f });
+
+		return matTranslationInv * (matScaleInv * matRotationInv) * matTranslationScreenInv;
+	}
+
 	Math::Matrix4 GLRenderer::GetCamera2DMatrix(Camera2D camera)
 	{
 		auto matTranslation = Math::Translate({ -camera.target.x, -camera.target.y, 0.0f });
@@ -442,7 +452,7 @@ namespace GL
 		auto matTranslationScreen = Math::Translate({ camera.offset.x, camera.offset.y, 0.0f });
 
 		// Note: The order of rotation and scale can be interchanged, but the order of other transformations cannot be changed.
-		// TODO: why this order?
+		// TODO: why this order? 花点时间弄懂其中的数学原理
 		return matTranslationScreen * ((matRotation * matScale) * matTranslation);
 	}
 
@@ -1233,6 +1243,7 @@ namespace GL
 			//m_CurrentShader->SetUniformMat4("mvp", mvp);
 			m_CurrentShader->SetUniform<Math::Matrix4>("mvp", mvp);
 			
+			// TODO: 别的纹理单元在哪里激活的？还是说只要使用一个纹理单元就行
 			glActiveTexture(GL_TEXTURE0);
 			for (int i = 0, vertexOffset = 0; i < m_Batch.DrawCounter; i++)
 			{

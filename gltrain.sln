@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gltrain", "gltrain\gltrain.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Core2DCameraMouseZoom", "Core2DCameraMouseZoom\Core2DCameraMouseZoom.vcxproj", "{CE87A6E5-4D50-4689-9FFE-061B188EF0AA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Core2DCamera", "Core2DCamera\Core2DCamera.vcxproj", "{7B05D496-49CA-4D8B-8A34-8587C13C8A33}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -23,12 +25,16 @@ Global
 		{C4E9336B-45D2-44A8-AD0B-6E515243294F}.Release|x86.ActiveCfg = Release|x64
 		{CE87A6E5-4D50-4689-9FFE-061B188EF0AA}.Debug|x64.ActiveCfg = Debug|x64
 		{CE87A6E5-4D50-4689-9FFE-061B188EF0AA}.Debug|x64.Build.0 = Debug|x64
-		{CE87A6E5-4D50-4689-9FFE-061B188EF0AA}.Debug|x86.ActiveCfg = Debug|Win32
-		{CE87A6E5-4D50-4689-9FFE-061B188EF0AA}.Debug|x86.Build.0 = Debug|Win32
+		{CE87A6E5-4D50-4689-9FFE-061B188EF0AA}.Debug|x86.ActiveCfg = Debug|x64
 		{CE87A6E5-4D50-4689-9FFE-061B188EF0AA}.Release|x64.ActiveCfg = Release|x64
 		{CE87A6E5-4D50-4689-9FFE-061B188EF0AA}.Release|x64.Build.0 = Release|x64
-		{CE87A6E5-4D50-4689-9FFE-061B188EF0AA}.Release|x86.ActiveCfg = Release|Win32
-		{CE87A6E5-4D50-4689-9FFE-061B188EF0AA}.Release|x86.Build.0 = Release|Win32
+		{CE87A6E5-4D50-4689-9FFE-061B188EF0AA}.Release|x86.ActiveCfg = Release|x64
+		{7B05D496-49CA-4D8B-8A34-8587C13C8A33}.Debug|x64.ActiveCfg = Debug|x64
+		{7B05D496-49CA-4D8B-8A34-8587C13C8A33}.Debug|x64.Build.0 = Debug|x64
+		{7B05D496-49CA-4D8B-8A34-8587C13C8A33}.Debug|x86.ActiveCfg = Debug|x64
+		{7B05D496-49CA-4D8B-8A34-8587C13C8A33}.Release|x64.ActiveCfg = Release|x64
+		{7B05D496-49CA-4D8B-8A34-8587C13C8A33}.Release|x64.Build.0 = Release|x64
+		{7B05D496-49CA-4D8B-8A34-8587C13C8A33}.Release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

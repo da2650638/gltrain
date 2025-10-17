@@ -69,6 +69,7 @@ namespace GL
 		}Keyboards;
 		typedef struct Mouse {
 			// NOTE: 窗口原点相对于渲染区域左上角（或左下角）的偏移
+			// Note: offset = (0,0) - 渲染区域的(left, top)
 			Math::Vector2 Offset{ 0,0 };
 			Math::Vector2 Scale{ 1.0, 1.0 };
 			Math::Vector2 PreviousPosition;

@@ -57,16 +57,16 @@ namespace Math
 
 		Vector2 operator*(float value) const {
 			Vector2 result;
-			result.x *= value;
-			result.y *= value;
+			result.x = x * value;
+			result.y = y * value;
 			return result;
 		}
 
 		Vector2 operator/(float value) const {
 			Vector2 result;
 			float inv = 1.0f / value;
-			result.x *= inv;
-			result.y *= inv;
+			result.x = x * inv;
+			result.y = y * inv;
 			return result;
 		}
 

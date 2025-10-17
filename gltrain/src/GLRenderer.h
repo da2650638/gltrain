@@ -75,6 +75,8 @@ namespace GL
 
 		void BeginMode2D(Camera2D camera);
 		void EndMode2D();
+		// TODO: 这中矩阵求逆投机取巧的做法，最好还是不要使用这种方法，还是使用比较通用的矩阵求逆算法
+		Math::Matrix4 GetCamera2DInvMatrix(Camera2D camera);
 		Math::Matrix4 GetCamera2DMatrix(Camera2D camera);
 
 		void DrawTriangle(Math::Vector3 v1, Math::Vector3 v2, Math::Vector3 v3, Graphics::Color color);
@@ -173,9 +175,14 @@ namespace GL
 		void Vertex3f(Math::Vector3 vec);
 		void Vertex2f(Math::Vector2 vec);
 
+
+	public:
+		// TODO: 暂时性的，可否有修改的余地呢？
 		void PushMatrix();
 		void PopMatrix();
+		Math::Matrix4* CurrentMatrix() { return m_CurrentMatrix; }
 
+	private:
 		void SetTextureId(unsigned int id);
 		void SetBlendMode(int mode);
 
@@ -184,6 +191,7 @@ namespace GL
 
 		void EnableDepthTest();
 		void DisableDepthTest();
+
 	private:
 		// TODO: 这种设计能否改进呢？
 		// NOTE: 任何使用m_PlatformInst必须检查是否合法并提示编译错误或抛出异常

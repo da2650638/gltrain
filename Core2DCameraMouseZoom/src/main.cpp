@@ -16,6 +16,9 @@
 #include "Casic/CasicGraphics.h"
 #include "Casic/CasicColors.h"
 
+// TODO: 先引入glm头文件，后期使用自己的
+#include <glm/gtc/matrix_inverse.hpp>
+
 using namespace Casic;
 using namespace Casic::GL;
 
@@ -28,80 +31,86 @@ int main()
 	int screenHeight = platform.GetWindowData().Height;
 
 	auto& renderer = GLRenderer::GetInstance();
-	renderer.SetPlatform(&platform);
+	renderer.SetPlatform(&platform);   
 	renderer.RenderInit();
 	renderer.SetupViewport(platform.GetWindowData().Width, platform.GetWindowData().Height);
 	renderer.SetTargetFps(60);
 
 	auto& input = GLInput::GetInstance();
 
-	float rotation = 0.0;
+	Camera2D camera{};
+	camera.zoom = 1.0f;
 
-	platform.DisableCursor();
-	Math::Vector3 cubePosition = { 0.0f, 0.0f, 0.0f };
-
-	Graphics::Rectangle player = { 400, screenHeight / 2 - 40, 40, 40 };
-	Graphics::Rectangle buildings[100] = { 0 };
-	Graphics::Color buildColors[100] = {  };
-
-	int spacing = 0;
-
-	for (int i = 0; i < 100; i++)
-	{
-		buildings[i].width = (float)Util::RandomInt(50, 200);
-		buildings[i].height = (float)Util::RandomInt(100, 800);
-		buildings[i].y = screenHeight / 2 - buildings[i].height;
-		buildings[i].x = -6000.0f + spacing;
-
-		spacing += (int)buildings[i].width;
-
-		buildColors[i] = { static_cast<unsigned char>(Util::RandomInt(200, 240)), static_cast<unsigned char>(Util::RandomInt(200, 240)), static_cast<unsigned char>(Util::RandomInt(200, 250)), 255 };
-	}
-
-	Camera2D camera2d{  };
-	camera2d.target = { player.x + 20.0f, player.y + 20.0f };
-	camera2d.offset = { screenWidth / 2.0f, screenHeight / 2.0f };
-	camera2d.rotation = 0.0f;
-	camera2d.zoom = 1.0f;
+	int zoomMode = 0;	// 0--Mouse Wheel, 1--Mouse Move
 
 	while (!platform.WindowShouldClose())
 	{
-		renderer.ClearColorBuffer({ 255, 255, 255, 255 });
-
 		//--------------------------------------------------------------------------------------------------------------------------
 		// update 
 		//--------------------------------------------------------------------------------------------------------------------------
-		if (input.IsKeyDown(KEY_RIGHT)) player.x += 5.0f;
-		if (input.IsKeyDown(KEY_LEFT)) player.x -= 5.0f;
-		if (input.IsKeyDown(KEY_Q)) camera2d.rotation += 1.0f;
-		if (input.IsKeyDown(KEY_E)) camera2d.rotation -= 1.0f;
-		if (input.IsKeyPressed(KEY_Z))
+		if (input.IsKeyPressed(KEY_0)) zoomMode = 0;
+		if (input.IsKeyPressed(KEY_1)) zoomMode = 1;
+
+		// Translate based on mouse right click
+		if (input.IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
 		{
-			player = { 400, (float)screenHeight / 2 - 40, 40, 40 };
-			camera2d.target = { player.x + 20.0f, player.y + 20.0f };
-			camera2d.rotation = 0.0f;
-			camera2d.zoom = 1.0f;
+			Math::Vector2 delta = input.GetMouseDelta();
+			delta = delta * (-1.0f / camera.zoom);
+			camera.target = camera.target + delta;
 		}
-		camera2d.target = { player.x + 20.0f, player.y + 20.0f };
+
+		// Mouse Wheel处理代码，根据不同的平台可能处理方法不同，这里是Window操作系统下Glfw库的处理方法
+		if (input.GetMouseWheelV() != Math::Vector2{0.0f, 0.0f})
+		{
+			float wheel = input.GetMouseWheelV().y;
+			// Get the world point that is under the mouse
+			Math::Matrix4 mat = renderer.GetCamera2DInvMatrix(camera);
+			std::cout << "GetCamera2DInvMatrix:" << mat;
+			Math::Vector4 mousePosVec4 = Math::Vector4(input.GetMousePosition().x, input.GetMousePosition().y, 0.0f, 1.0f);
+			std::cout << "mousePosVec4:" << mousePosVec4;
+			Math::Vector4 mouseWorldPosVec4 = mat * mousePosVec4;
+			std::cout << "GetCamera2DInvMatrix * mousePosVec4:" << mouseWorldPosVec4;
+			Math::Vector2 mouseWorldPos = Math::Vector2(mouseWorldPosVec4.x, mouseWorldPosVec4.y);
+
+			// Set the offset to where the mouse is
+			camera.offset = input.GetMousePosition();
+
+			// Set the target to match, so that the camera maps the world space point 
+			// under the cursor to the screen space point under the cursor at any zoom
+			camera.target = mouseWorldPos;
+
+			// Zoom increment
+			// TODO: 搞明白这一块是什么意思？
+			float scaleFactor = 1.0f + (0.25f * fabsf(wheel));
+			if (wheel < 0) scaleFactor = 1.0f / scaleFactor;
+			camera.zoom = std::clamp(camera.zoom * scaleFactor, 0.125f, 64.0f);
+		}
 
 		//--------------------------------------------------------------------------------------------------------------------------
 		// draw 
 		//--------------------------------------------------------------------------------------------------------------------------
 		renderer.BeginDrawing();
 		{
-			renderer.BeginMode2D(camera2d);
+			renderer.ClearColorBuffer({ 255, 255, 255, 255 });
+
+			//renderer.DrawGridAroundZ(100, 50.0f);
+
+			renderer.BeginMode2D(camera);
 			{
-				renderer.DrawRectangle(-6000, screenHeight / 2, 13000, 8000, DARKGRAY);
+				//renderer.PushMatrix();
+				//{
+				//	auto currentMatrix = renderer.CurrentMatrix();
+				//	*currentMatrix = Math::Translate({ 0.0f, 25 * 50.0f, 0.0f }) * Math::Rotate(90.0f, { 1.0f, 0.0f, 0.0f }) * (*currentMatrix);
+				//	renderer.DrawGrid(100, 50.0f);
+				//}
+				//renderer.PopMatrix();
+				renderer.DrawGridAroundZ(100, 50.0f);
 
-				for (int i = 0; i < 100; i++) renderer.DrawRectangle(buildings[i].x, buildings[i].y, buildings[i].width, buildings[i].height, buildColors[i]);
-
-				renderer.DrawRectangle(player.x, player.y, player.width, player.height, RED);
+				renderer.DrawRectangle(screenWidth / 4, screenHeight / 4, screenWidth / 2, screenHeight / 2, MAROON);
 			}
 			renderer.EndMode2D();
-
 		}
 		renderer.EndDrawing();
-
 		//--------------------------------------------------------------------------------------------------------------------------
 		// record
 		//--------------------------------------------------------------------------------------------------------------------------

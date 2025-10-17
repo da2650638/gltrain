@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir>$(SolutionDir)bin\$(ProjectName)\$(Platform)</OutDir>
+    <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Platform)</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)gltrain\src;$(SolutionDir)gltrain\vendor\CasicLib\include;$(SolutionDir)gltrain\vendor\glfw\include;$(SolutionDir)gltrain\vendor\glad\include;</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\gltrain\$(Platform);$(SolutionDir)gltrain\vendor\CasicLib\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>CasicLib.lib;gltrain.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy /Y "$(SolutionDir)bin\gltrain\$(Platform)\CasicLib.dll" "$(SolutionDir)bin\$(ProjectName)\$(Platform)" &amp;&amp; xcopy /Y "$(SolutionDir)bin\gltrain\$(Platform)\gltrain.dll" "$(SolutionDir)bin\$(ProjectName)\$(Platform)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>
