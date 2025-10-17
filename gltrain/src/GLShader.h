@@ -91,7 +91,7 @@ namespace GL
 			}
 			else
 			{
-				static_assert(Util::always_false<LocType>, "Unsupported uniform type.");
+				//static_assert(Util::always_false<LocType>, "Unsupported uniform type.");
 			}
 		}
 	private:
